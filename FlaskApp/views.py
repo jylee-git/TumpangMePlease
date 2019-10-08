@@ -59,6 +59,8 @@ def render_login_page():
                 return redirect("/")
             else:
                 form.password.errors.append("Wrong password!")
+        else:
+            form.username.errors.append("No such user! Please login with a valid username or register to continue.")
     return render_template("index.html", form=form)
 
 @view.route("/create", methods=["GET", "POST"])

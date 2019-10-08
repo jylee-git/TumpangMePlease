@@ -17,7 +17,7 @@
         <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
             <li><a href="/create">Share a ride</a></li>
-            <li><a href="/">View Scheduled</a></li>
+            <li><a href="/scheduled">Scheduled rides</a></li>
         </ul>
         <div class="white-font welcome-message">
             Welcome back, {{ current_user.first_name }}!
@@ -25,9 +25,9 @@
     </div>
 </nav>
 
-<div class="container" style="padding-top: 5rem">
+<div class="container" style="padding-top: 10rem">
     <div class="advertisement-title white-font">
-        <h1>Share your ride!</h1>
+        <h3 class="text-align-center">Share your ride!</h3>
     </div>
     <form class="advertisement-form">
         <div class="form-row white-font">
@@ -78,9 +78,9 @@
         </div>
     </form>
 </div>
-<div class="container">
+<div class="container" style="padding-top: 5rem">
     <div class="bid-list white-font">
-        <h3>Advertisements Listed:</h3>
+        <h3 class="text-align-center">Advertisements Listed:</h3>
         <br>
         <table class="table table-sm table-dark">
             <thead>

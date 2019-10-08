@@ -79,22 +79,6 @@ form.loginForm {
     opacity: 50%;
 }
 
-.container {
-    text-align: center;
-}
-
-.search {
-    padding-top: 15rem;
-}
-
-.advertisement-list {
-    padding-top: 5rem;
-}
-
-.bid-list {
-    padding-top: 5rem;
-}
-
 .welcome-message {
     float: right;
     padding-top: 15px;
@@ -115,5 +99,9 @@ form.loginForm {
     margin-top: 5rem;
     padding-bottom: 2rem;
     background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 1rem;
+}
+
+.scheduled-list {
     border-radius: 1rem;
 }

@@ -70,6 +70,13 @@ def render_create_advertisement_page():
     else:
         return redirect("/login")
 
+@view.route("/scheduled", methods=["GET"])
+def render_scheduled_page():
+    if current_user.is_authenticated:
+        return render_template("scheduled.html", current_user=current_user)
+    else:
+        return redirect("/login")
+
 @view.route("/privileged-page", methods=["GET"])
 @login_required
 def render_privileged_page():

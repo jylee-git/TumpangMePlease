@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scheduled Rides</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style-simple.css">
+</head>
+<body class="blue-background">
+
+<nav class="navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">TumpangMePlease</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/create">Share a ride</a></li>
+            <li><a href="/scheduled">Scheduled rides</a></li>
+        </ul>
+        <div class="white-font welcome-message">
+            Welcome back, {{ current_user.first_name }}!
+        </div>
+    </div>
+</nav>
+
+<div class="container" style="padding-top: 10rem">
+    <div class="advertisement-title white-font">
+        <h3 class="text-align-center">Your upcoming rides (if any):</h3>
+    </div>
+    <div class="scheduled-list white-font" style="margin-top: 5rem">
+        <table class="table table-sm table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Pick up</th>
+                <th scope="col">Destination</th>
+                <th scope="col"># Passengers</th>
+                <th scope="col">Driver's Car</th>
+                <th scope="col">Ride Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>13/11/2019</td>
+                <td>13:00:00</td>
+                <td>Kent Ridge</td>
+                <td>Changi Airport Terminal 2</td>
+                <td>4</td>
+                <td>BMW 3 Series (SQK 1234)</td>
+                <td>Pending</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -61,6 +61,12 @@ def render_login_page():
                 form.password.errors.append("Wrong password!")
     return render_template("index.html", form=form)
 
+@view.route("/create", methods=["GET", "POST"])
+def render_create_advertisement_page():
+    if current_user.is_authenticated:
+        return render_template("advertisement.html", current_user=current_user)
+    else:
+        return redirect("/login")
 
 @view.route("/privileged-page", methods=["GET"])
 @login_required

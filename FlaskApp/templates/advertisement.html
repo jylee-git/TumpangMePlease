@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create an advertisement</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style-simple.css">
+    <link rel="stylesheet" href="jquery.datetimepicker.min.css">
+</head>
+<body class="blue-background">
+
+<nav class="navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">TumpangMePlease</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/create">Share a ride</a></li>
+            <li><a href="/">View Scheduled</a></li>
+        </ul>
+        <div class="white-font welcome-message">
+            Welcome back, {{ current_user.first_name }}!
+        </div>
+    </div>
+</nav>
+
+<div class="container" style="padding-top: 5rem">
+    <div class="advertisement-title white-font">
+        <h1>Share your ride!</h1>
+    </div>
+    <form class="advertisement-form">
+        <div class="form-row white-font">
+            <div class="form-group col-md-6">
+                <label for="from">From</label>
+                <input type="text" class="form-control" id="from" placeholder="Pick Up Location">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="to">To</label>
+                <input type="text" class="form-control" id="to" placeholder="Destination">
+            </div>
+        </div>
+        <div class="form-row white-font">
+            <div class="form-group col-md-3">
+                <label for="no_passengers">Max # of Passengers</label>
+                <select class="form-control" id="no_passengers">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="price">Min Price ($S)</label>
+                <input type="text" class="form-control" id="price" placeholder="Minimum Acceptable Price">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="car">Car Using For This Advertisement</label>
+                <select class="form-control" id="no_passengers">
+                    {# need to convert this to the cars inputted by driver #}
+                    <option>Toyota Vios (SJA 3311)</option>
+                    <option>BMW 3 Series (SQK 1234)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row white-font">
+            <div class="form-group col-md-4">
+                <div class='input-group date' id='datetimepicker1'>
+                    <input type='text' class="form-control" placeholder="Date and Time of Departure"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-row white-font">
+            <button type="button" class="btn btn-outline-dark" formmethod="post">Create Advertisement</button>
+        </div>
+    </form>
+</div>
+<div class="container">
+    <div class="bid-list white-font">
+        <h3>Advertisements Listed:</h3>
+        <br>
+        <table class="table table-sm table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Pick up</th>
+                <th scope="col">Destination</th>
+                <th scope="col">Your Bid ($S)</th>
+                <th scope="col">Highest Bid ($S)</th>
+                <th scope="col">Number of Bidders</th>
+                <th scope="col">Time Remaining</th>
+                <th scope="col">Bid Status</th>
+                <th scope="col">Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>13/11/2019</td>
+                <td>13:00:00</td>
+                <td>Kent Ridge</td>
+                <td>Changi Airport Terminal 2</td>
+                <td>23</td>
+                <td>25</td>
+                <td>10</td>
+                <td>00:05:30</td>
+                <td>Pending</td>
+                <td>
+                    <button type="button" class="btn btn-outline-dark">Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

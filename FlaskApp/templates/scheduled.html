@@ -8,21 +8,7 @@
 </head>
 <body class="blue-background">
 
-<nav class="navbar navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/">TumpangMePlease</a>
-        </div>
-        <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/create">Share a ride</a></li>
-            <li><a href="/scheduled">Scheduled rides</a></li>
-        </ul>
-        <div class="white-font welcome-message">
-            Welcome back, {{ current_user.first_name }}!
-        </div>
-    </div>
-</nav>
+{% include 'navbar-header.html' %}
 
 <div class="container" style="padding-top: 10rem">
     <div class="advertisement-title white-font">

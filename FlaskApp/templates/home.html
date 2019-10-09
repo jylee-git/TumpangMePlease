@@ -5,111 +5,98 @@
     <title>Home</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="static/css/style-simple.css">
+
 </head>
 <body class="blue-background">
-    <nav class="navbar navbar-fixed-top">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="/">TumpangMePlease</a>
-            </div>
-            <ul class="nav navbar-nav">
-                <li><a href="/">Home</a></li>
-                <li><a href="/create">Share a ride</a></li>
-                <li><a href="/scheduled">Scheduled rides</a></li>
-            </ul>
-            <div class="white-font welcome-message">
-                Welcome back, {{ current_user.first_name }}!
-            </div>
-        </div>
-    </nav>
-    <div class="main-content" style="padding-top: 10rem">
-        <div class="container">
-            <div class="search white-font text-align-center">
-                <h3>Where to?</h3>
-                <form class="form-inline md-form form-sm">
-                    <input class="form-control form-control-sm mr-3 w-75" type="text" placeholder="Search"
-                           aria-label="Search">
-                    <i class="fas fa-search" aria-hidden="true"></i>
-                </form>
-            </div>
-        </div>
-        <div class="container" style="padding-top: 5rem">
-            <div class="advertisement-list white-font">
-                <h3 class="text-align-center">Current rides available:</h3>
-                <br>
-                <table class="table table-sm table-dark">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Time</th>
-                        <th scope="col">Pick up</th>
-                        <th scope="col">Destination</th>
-                        <th scope="col"># Spots</th>
-                        <th scope="col">Highest Bid ($S)</th>
-                        <th scope="col">Number of Bidders</th>
-                        <th scope="col">Time Remaining</th>
-                        <th scope="col">Bid</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>13/11/2019</td>
-                        <td>13:00:00</td>
-                        <td>Kent Ridge</td>
-                        <td>Changi Airport Terminal 2</td>
-                        <td>4</td>
-                        <td>22</td>
-                        <td>10</td>
-                        <td>00:05:30</td>
-                        <td><a href="/bid" class="btn btn-outline-dark">Bid</a></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="container">
-            <div class="bid-list white-font">
-                <h3 class="text-align-center">You bidded for:</h3>
-                <br>
-                <table class="table table-sm table-dark">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Time</th>
-                        <th scope="col">Pick up</th>
-                        <th scope="col">Destination</th>
-                        <th scope="col">Your Bid ($S)</th>
-                        <th scope="col">Highest Bid ($S)</th>
-                        <th scope="col">Number of Bidders</th>
-                        <th scope="col">Time Remaining</th>
-                        <th scope="col">Bid Status</th>
-                        <th scope="col">Delete</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>13/11/2019</td>
-                        <td>13:00:00</td>
-                        <td>Kent Ridge</td>
-                        <td>Changi Airport Terminal 2</td>
-                        <td>23</td>
-                        <td>25</td>
-                        <td>10</td>
-                        <td>00:05:30</td>
-                        <td>Pending</td>
-                        <td>
-                            <button type="button" class="btn btn-outline-dark">Delete</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+{% include 'navbar-header.html' %}
+<div class="main-content" style="padding-top: 10rem">
+    <div class="container">
+        <div class="search white-font text-align-center">
+            <h3>Where to?</h3>
+            <form class="form-inline md-form form-sm">
+                <input class="form-control form-control-sm mr-3 w-75" type="text" placeholder="Search"
+                       aria-label="Search">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </form>
         </div>
     </div>
+    <div class="container" style="padding-top: 5rem">
+        <div class="advertisement-list white-font">
+            <h3 class="text-align-center">Current rides available:</h3>
+            <br>
+            <table class="table table-sm table-dark">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Pick up</th>
+                    <th scope="col">Destination</th>
+                    <th scope="col"># Spots</th>
+                    <th scope="col">Highest Bid ($S)</th>
+                    <th scope="col">Number of Bidders</th>
+                    <th scope="col">Time Remaining</th>
+                    <th scope="col">Bid</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>13/11/2019</td>
+                    <td>13:00:00</td>
+                    <td>Kent Ridge</td>
+                    <td>Changi Airport Terminal 2</td>
+                    <td>4</td>
+                    <td>22</td>
+                    <td>10</td>
+                    <td>00:05:30</td>
+                    <td><a href="/bid" class="btn btn-outline-dark">Bid</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="container">
+        <div class="bid-list white-font">
+            <h3 class="text-align-center">You bidded for:</h3>
+            <br>
+            <table class="table table-sm table-dark">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Pick up</th>
+                    <th scope="col">Destination</th>
+                    <th scope="col">Your Bid ($S)</th>
+                    <th scope="col">Highest Bid ($S)</th>
+                    <th scope="col">Number of Bidders</th>
+                    <th scope="col">Time Remaining</th>
+                    <th scope="col">Bid Status</th>
+                    <th scope="col">Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>13/11/2019</td>
+                    <td>13:00:00</td>
+                    <td>Kent Ridge</td>
+                    <td>Changi Airport Terminal 2</td>
+                    <td>23</td>
+                    <td>25</td>
+                    <td>10</td>
+                    <td>00:05:30</td>
+                    <td>Pending</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-dark">Delete</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-    </body>
+</body>
 </html>

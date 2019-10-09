@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Registration</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style-simple.css">
+    <link rel="stylesheet" href="jquery.datetimepicker.min.css">
+</head>
+<body class="blue-background">
+
+{% include 'navbar-header.html' %}
+
+<div class="container" style="padding-top: 10rem">
+    <div class="car-registration-title white-font">
+        <h3 class="text-align-center">Add your car details and you'll be ready to start sharing rides!</h3>
+    </div>
+    <form class="car-registration-form">
+        <div class="form-row white-font">
+            <div class="form-group col-md-6">
+                <label for="brand">Brand</label>
+                <input type="text" class="form-control" id="brand" placeholder="e.g. Mazda">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="model">Model</label>
+                <input type="text" class="form-control" id="model" placeholder="e.g. CX5">
+            </div>
+        </div>
+        <div class="form-row white-font">
+            <div class="form-group col-md-6">
+                <label for="plate-num">Car Plate Number</label>
+                <input type="text" class="form-control" id="plate-num" placeholder="e.g. SXX 1234">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="colour">Car Colour</label>
+                <input type="text" class="form-control" id="colour" placeholder="e.g. Red">
+            </div>
+        </div>
+        <div class="form-row white-font">
+            <button type="button" class="btn btn-outline-dark" formmethod="post">Add Car</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

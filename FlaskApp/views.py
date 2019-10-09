@@ -77,6 +77,13 @@ def render_scheduled_page():
     else:
         return redirect("/login")
 
+@view.route("/car-registration", methods=["GET"])
+def render_car_registration_page():
+    if current_user.is_authenticated:
+        return render_template("car-registration.html", current_user=current_user)
+    else:
+        return redirect("/login")
+
 @view.route("/privileged-page", methods=["GET"])
 @login_required
 def render_privileged_page():

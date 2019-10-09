@@ -11,6 +11,9 @@
 
 {% include 'navbar-header.html' %}
 
+{# if the user does not have a car yet, include the driver registration page #}
+
+{# else show the create advertisement list #}
 <div class="container" style="padding-top: 10rem">
     <div class="advertisement-title white-font">
         <h3 class="text-align-center">Share your ride!</h3>
@@ -64,6 +67,11 @@
         </div>
     </form>
 </div>
+
+<div class="container white-font" style="padding-top: 5rem; text-align: center">
+    <a href="/car-registration" class="btn btn-outline-dark">Want to register another car?</a>
+</div>
+
 <div class="container" style="padding-top: 5rem">
     <div class="bid-list white-font">
         <h3 class="text-align-center">Advertisements Listed:</h3>

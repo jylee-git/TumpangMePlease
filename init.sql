@@ -1,3 +1,8 @@
+CREATE TABLE Account (
+	accountID varchar(20) SERIAL PRIMARY KEY, /* Serial does automatic increment? https://chartio.com/resources/tutorials/how-to-define-an-auto-increment-primary-key-in-postgresql/ */
+	password varchar(50) NOT NULL
+);
+
 CREATE TABLE User (
 	username varchar(50) PRIMARY KEY,
     firstName varchar(20) NOT NULL,
@@ -8,13 +13,13 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Driver (
-	username varchar(50) PRIMARY KEY REFERENCES User (username),
+	username varchar(50) PRIMARY KEY REFERENCES User ON DELETE cascade,
 	d_rating integer,
 	license_no integer NOT NULL
 );
 
 CREATE TABLE Passenger (
-	username varchar(50) PRIMARY KEY REFERENCES User (username),
+	username varchar(50) PRIMARY KEY REFERENCES User ON DELETE cascade,
 	p_rating integer
 );
 
@@ -45,7 +50,7 @@ CREATE TABLE Ride (
 );
 
 CREATE TABLE Advertisement (
-	timePosted integer PRIMARY KEY,
+    	timePosted integer PRIMARY KEY,
     numPassengers integer NOT NULL,
     departureTime integer NOT NULL,
     price integer NOT NULL,
@@ -54,7 +59,58 @@ CREATE TABLE Advertisement (
 );
 
 
+/****************************************************************
+RELATIONSHIPS
+****************************************************************/
+CREATE TABLE Creates (
+	timePosted	integer,
+	username	varchar(50) REFERENCES Driver ON DELETE cascade
+	PRIMARY KEY (timePosted, username)
+);
 
+CREATE TABLE Bids (
+	username 	varchar(50)	REFERENCES Passenger (username),
+	timePosted 	integer 	REFERENCES Account,
+	time 		integer,
+	price		integer,
+	status		varchar(20),
+	no_passengers	integer,
+	PRIMARY KEY (username, timePosted)
+);
+
+CREATE TABLE Schedules (
+	rideID		varchar(20) REFERENCES Ride,
+	username 	varchar(50),
+	timePosted 	integer,
+	status		varchar(20),
+PRIMARY KEY (rideID, username, timePosted),
+FOREIGN KEY (username, timePosted) REFERENCES Bids (username, timePosted)
+);
+
+CREATE TABLE Has (
+	username	varchar(50) REFERENCES User,
+	accountID	integer REFERENCES Account,
+	PRIMARY KEY (username, accountID)
+);
+
+CREATE TABLE Redeems (
+	rideID		varchar(20) REFERENCES Ride,
+	promoCode	varchar(20) REFERENCES Promo,
+	username 	varchar(50),
+PRIMARY KEY (rideID, promoCode, username)
+);
+
+CREATE TABLE Owns (
+	username	varchar(50) REFERENCES Driver,
+	plateNumber	varchar(20) REFERENCES Car,
+	PRIMARY KEY (username, plateNumber)
+);
+
+CREATE TABLE Iss (
+	plateNumber	varchar(20) REFERENCES Car,
+	name		varchar(20) REFERENCES Model,
+	PRIMARY KEY (plateNumber, name)
+);
 
 /****************************************************************
 DATA INSERTION

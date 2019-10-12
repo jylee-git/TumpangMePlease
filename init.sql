@@ -4,7 +4,7 @@ CREATE TABLE AppUser (
     firstName varchar(20) NOT NULL,
     lastName varchar(20) NOT NULL,
     address varchar(50) NOT NULL,
-    phoneNumber integer NOT NULL
+    phoneNumber varchar(20) NOT NULL
 );
 
 CREATE TABLE Driver (
@@ -148,4 +148,4 @@ insert into AppUser values ('user18', 'Hew', 'Leakner', '93231 Starling Junction
 insert into AppUser values ('user19', 'Mallissa', 'Mahmood', '90 Loftsgordon Road', 'password', 9435003533);
 insert into AppUser values ('user20', 'Jocelyn', 'Seabrook', '68 Mifflin Junction', 'password', 6749453810);
 
-INSERT INTO Driver VALUES ('user4', , 'S1234567C');
+INSERT INTO Driver VALUES ('user4', NULL, 1234567);

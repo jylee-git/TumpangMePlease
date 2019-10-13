@@ -98,7 +98,8 @@ CREATE TABLE Bids (
     price 			INTEGER,
     status			varchar(20),
     no_passengers 	INTEGER,
-    PRIMARY KEY (passengerID, timePosted, driverID)
+    PRIMARY KEY (passengerID, timePosted, driverID),
+    CHECK       (passengerID <> driverID)
 );
 
 CREATE TABLE Schedules (
@@ -127,8 +128,8 @@ CREATE TABLE Owns (
 
 CREATE TABLE Belongs (
     plateNumber	varchar(20) REFERENCES Car,
-    name		TEXT	    NOT NULL,
     brand 		TEXT        NOT NULL,
+    name		TEXT	    NOT NULL,
     PRIMARY KEY (plateNumber),
     FOREIGN KEY (name, brand) REFERENCES Model
 );
@@ -330,7 +331,23 @@ INSERT INTO Place VALUES ('Upper Changi');
 
 -- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from
 INSERT INTO Advertisement VALUES (DEFAULT, 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
-INSERT INTO Advertisement VALUES (DEFAULT, 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
-INSERT INTO Advertisement VALUES (DEFAULT, 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
+INSERT INTO Advertisement VALUES (DEFAULT, 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
+INSERT INTO Advertisement VALUES (DEFAULT, 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
 
--- Bids: passId, driverID, timePosted, price, status
+-- Bids: passId, driverID, timePosted, price, status, numPass
+INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2019-12-12 12:30', 10, 'nani?', 2);
+INSERT INTO Bids VALUES ('user12', 'user3', TIMESTAMP '2019-12-12 12:30', 20, 'nani?', 2);
+INSERT INTO Bids VALUES ('user13', 'user3', TIMESTAMP '2019-12-12 12:30', 30, 'nani?', 2);
+INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2019-12-12 12:30', 10, 'nani?', 2);
+INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2019-12-12 12:30', 20, 'nani?', 2);
+INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2019-12-12 12:30', 30, 'nani?', 2);
+
+-- Owns: driverID, plateNum
+INSERT INTO Owns VALUES ('user1', 'SFV7687J');
+INSERT INTO Owns VALUES ('user2', 'S1');
+INSERT INTO Owns VALUES ('user3', 'EU9288C');
+
+-- Belongs: plateNum, name, brand
+INSERT INTO Belongs VALUES ('SFV7687J', 'Toyota', 'Mirai');
+INSERT INTO Belongs VALUES ('S1', 'Toyota', 'Mirai');
+INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');

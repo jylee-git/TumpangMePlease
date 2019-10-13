@@ -21,7 +21,7 @@ DROP TABLE IF EXISTS Belongs CASCADE;
 /********
 ENTITY TABLES
 ***********/
-
+BEGIN TRANSACTION;
 
 CREATE TABLE AppUser (
     username 	varchar(50) PRIMARY KEY,
@@ -44,7 +44,7 @@ CREATE TABLE Passenger (
 
 CREATE TABLE Model (
     brand 	TEXT,
-    name	varchar(50),
+    name	TEXT,
     size 	INTEGER NOT NULL,
     PRIMARY KEY (name, brand)
 );
@@ -75,7 +75,7 @@ CREATE TABLE Place (
 );
 
 CREATE TABLE Advertisement (
-    timePosted 		TIMESTAMP,
+    timePosted 		TIMESTAMP   DEFAULT current_timestamp,
     driverID 		varchar(50) REFERENCES Driver ON DELETE CASCADE,
     numPassengers 	INTEGER 	NOT NULL,
     departureTime 	INTEGER 	NOT NULL,
@@ -90,11 +90,6 @@ CREATE TABLE Advertisement (
 /****************************************************************
 RELATIONSHIPS
 ****************************************************************/
-CREATE TABLE Creates (	-- Driver creates advertisement; weak entity
-    timePosted	TIMESTAMP,
-    username	varchar(50) REFERENCES Driver ON DELETE CASCADE,
-    PRIMARY KEY (timePosted, username)
-);
 
 CREATE TABLE Bids (
     passengerID 	varchar(50) REFERENCES Passenger ON DELETE CASCADE,
@@ -132,13 +127,13 @@ CREATE TABLE Owns (
 
 CREATE TABLE Belongs (
     plateNumber	varchar(20) REFERENCES Car,
-    name		varchar(20)	NOT NULL,
-    brand 		varchar(50) NOT NULL,
+    name		TEXT	    NOT NULL,
+    brand 		TEXT        NOT NULL,
     PRIMARY KEY (plateNumber),
     FOREIGN KEY (name, brand) REFERENCES Model
 );
 
-
+COMMIT;
 
 /****************************************************************
 DATA INSERTION
@@ -192,127 +187,129 @@ INSERT INTO Driver VALUES ('user3', NULL, 22023);
 INSERT INTO Model VALUES ('')
 
 
-'Jurong East'
-'Bukit Batok'
-'Bukit Gombak'
-'Choa Chu Kang'
-'Yew Tee'
-'Kranji'
-'Marsiling'
-'Woodlands'
-'Admiralty'
-'Sembawang'
-'Canberra'
-'Yishun'
-'Khatib'
-'Yio Chu Kang'
-'Ang Mo Kio'
-'Bishan'
-'Braddell'
-'Toa Payoh'
-'Novena'
-'Newton'
-'Orchard'
-'Somerset'
-'Dhoby Ghaut'
-'City Hall'
-'Raffles Place'
-'Marina Bay'
-'Marina South Pier'
-
-'Pasir Ris'
-'Tampines'
-'Simei'
-'Tanah Merah'
-'Bedok'
-'Kembangan'
-'Eunos'
-'Paya Lebar'
-'Ajunied'
-'Kallang'
-'Lavender'
-'Bugis'
-'Tanjong Pagar'
-'Outram Park'
-'Tiong Bahru'
-'Redhill'
-'Queenstown'
-'Commonwealth'
-'Buona Vista'
-'Dover'
-'Clementi'
-'Chinese Garden'
-'Lakeside'
-'Boon Lay'
-'Pioneer'
-'Joo Koon'
-'Gul Circle'
-'Tuas Crescent'
-'Tuas West Road'
-'Tuas Link'
-'Expo'
-'Changi Airport'
-'Harborfront'
-'Chinatown'
-'Clarke Quay'
-'Little India'
-'Farrer Park'
-'Boon Keng'
-'Potong Pasir'
-'Woodleigh'
-'Serangoon'
-'Kovan'
-'Hougang'
-'Buangkok'
-'Sengkang'
-'Punggol'
-'Bras Basah'
-'Esplanade'
-'Promenade'
-'Nicol Highway'
-'Stadium'
-'Mountbatten'
-'Dakota'
-'Mac Pherson'
-'Tai Seng'
-'Bartley'
-'Lorong Chuan'
-'Marymount'
-'Caldecoot'
-'Botanic Gardens'
-'Farrer Road'
-'Holland Village'
-'One North'
-'Kent Ridge'
-'Haw Par Villa'
-'Pasir Panjang'
-'Labrador Park'
-'Telok Blangah'
-'Bayfront'
-'Marina Bay'
-'Bukit Panjang'
-'Cashew'
-'Hillview'
-'Beauty World'
-'King Albert Park'
-'Sixth Avenue'
-'Tan Kah Kee'
-'Stevens'
-'Rochor'
-'Downtown'
-'Telok Ayer'
-'Fort Canning'
-'Bencoolen'
-'Jalan Besar'
-'Bendemeer'
-'Geylang Bahru'
-'Mattar'
-'Ubi'
-'Kaki Bukit'
-'Bedok North'
-'Bedok Reservoir'
-'Tampines West'
-'Tampines East'
-'Upper Changi'
+/**
+ * For inserting into places
+*/
+INSERT INTO Place VALUES ('Jurong East');
+INSERT INTO Place VALUES ('Bukit Batok');
+INSERT INTO Place VALUES ('Bukit Gombak');
+INSERT INTO Place VALUES ('Choa Chu Kang');
+INSERT INTO Place VALUES ('Yew Tee');
+INSERT INTO Place VALUES ('Kranji');
+INSERT INTO Place VALUES ('Marsiling');
+INSERT INTO Place VALUES ('Woodlands');
+INSERT INTO Place VALUES ('Admiralty');
+INSERT INTO Place VALUES ('Sembawang');
+INSERT INTO Place VALUES ('Canberra');
+INSERT INTO Place VALUES ('Yishun');
+INSERT INTO Place VALUES ('Khatib');
+INSERT INTO Place VALUES ('Yio Chu Kang');
+INSERT INTO Place VALUES ('Ang Mo Kio');
+INSERT INTO Place VALUES ('Bishan');
+INSERT INTO Place VALUES ('Braddell');
+INSERT INTO Place VALUES ('Toa Payoh');
+INSERT INTO Place VALUES ('Novena');
+INSERT INTO Place VALUES ('Newton');
+INSERT INTO Place VALUES ('Orchard');
+INSERT INTO Place VALUES ('Somerset');
+INSERT INTO Place VALUES ('Dhoby Ghaut');
+INSERT INTO Place VALUES ('City Hall');
+INSERT INTO Place VALUES ('Raffles Place');
+INSERT INTO Place VALUES ('Marina Bay');
+INSERT INTO Place VALUES ('Marina South Pier');
+INSERT INTO Place VALUES ('Pasir Ris');
+INSERT INTO Place VALUES ('Tampines');
+INSERT INTO Place VALUES ('Simei');
+INSERT INTO Place VALUES ('Tanah Merah');
+INSERT INTO Place VALUES ('Bedok');
+INSERT INTO Place VALUES ('Kembangan');
+INSERT INTO Place VALUES ('Eunos');
+INSERT INTO Place VALUES ('Paya Lebar');
+INSERT INTO Place VALUES ('Ajunied');
+INSERT INTO Place VALUES ('Kallang');
+INSERT INTO Place VALUES ('Lavender');
+INSERT INTO Place VALUES ('Bugis');
+INSERT INTO Place VALUES ('Tanjong Pagar');
+INSERT INTO Place VALUES ('Outram Park');
+INSERT INTO Place VALUES ('Tiong Bahru');
+INSERT INTO Place VALUES ('Redhill');
+INSERT INTO Place VALUES ('Queenstown');
+INSERT INTO Place VALUES ('Commonwealth');
+INSERT INTO Place VALUES ('Buona Vista');
+INSERT INTO Place VALUES ('Dover');
+INSERT INTO Place VALUES ('Clementi');
+INSERT INTO Place VALUES ('Chinese Garden');
+INSERT INTO Place VALUES ('Lakeside');
+INSERT INTO Place VALUES ('Boon Lay');
+INSERT INTO Place VALUES ('Pioneer');
+INSERT INTO Place VALUES ('Joo Koon');
+INSERT INTO Place VALUES ('Gul Circle');
+INSERT INTO Place VALUES ('Tuas Crescent');
+INSERT INTO Place VALUES ('Tuas West Road');
+INSERT INTO Place VALUES ('Tuas Link');
+INSERT INTO Place VALUES ('Expo');
+INSERT INTO Place VALUES ('Changi Airport');
+INSERT INTO Place VALUES ('Harborfront');
+INSERT INTO Place VALUES ('Chinatown');
+INSERT INTO Place VALUES ('Clarke Quay');
+INSERT INTO Place VALUES ('Little India');
+INSERT INTO Place VALUES ('Farrer Park');
+INSERT INTO Place VALUES ('Boon Keng');
+INSERT INTO Place VALUES ('Potong Pasir');
+INSERT INTO Place VALUES ('Woodleigh');
+INSERT INTO Place VALUES ('Serangoon');
+INSERT INTO Place VALUES ('Kovan');
+INSERT INTO Place VALUES ('Hougang');
+INSERT INTO Place VALUES ('Buangkok');
+INSERT INTO Place VALUES ('Sengkang');
+INSERT INTO Place VALUES ('Punggol');
+INSERT INTO Place VALUES ('Bras Basah');
+INSERT INTO Place VALUES ('Esplanade');
+INSERT INTO Place VALUES ('Promenade');
+INSERT INTO Place VALUES ('Nicol Highway');
+INSERT INTO Place VALUES ('Stadium');
+INSERT INTO Place VALUES ('Mountbatten');
+INSERT INTO Place VALUES ('Dakota');
+INSERT INTO Place VALUES ('Mac Pherson');
+INSERT INTO Place VALUES ('Tai Seng');
+INSERT INTO Place VALUES ('Bartley');
+INSERT INTO Place VALUES ('Lorong Chuan');
+INSERT INTO Place VALUES ('Marymount');
+INSERT INTO Place VALUES ('Caldecoot');
+INSERT INTO Place VALUES ('Botanic Gardens');
+INSERT INTO Place VALUES ('Farrer Road');
+INSERT INTO Place VALUES ('Holland Village');
+INSERT INTO Place VALUES ('One North');
+INSERT INTO Place VALUES ('Kent Ridge');
+INSERT INTO Place VALUES ('Haw Par Villa');
+INSERT INTO Place VALUES ('Pasir Panjang');
+INSERT INTO Place VALUES ('Labrador Park');
+INSERT INTO Place VALUES ('Telok Blangah');
+INSERT INTO Place VALUES ('Bayfront');
+INSERT INTO Place VALUES ('Marina Bay');
+INSERT INTO Place VALUES ('Bukit Panjang');
+INSERT INTO Place VALUES ('Cashew');
+INSERT INTO Place VALUES ('Hillview');
+INSERT INTO Place VALUES ('Beauty World');
+INSERT INTO Place VALUES ('King Albert Park');
+INSERT INTO Place VALUES ('Sixth Avenue');
+INSERT INTO Place VALUES ('Tan Kah Kee');
+INSERT INTO Place VALUES ('Stevens');
+INSERT INTO Place VALUES ('Rochor');
+INSERT INTO Place VALUES ('Downtown');
+INSERT INTO Place VALUES ('Telok Ayer');
+INSERT INTO Place VALUES ('Fort Canning');
+INSERT INTO Place VALUES ('Bencoolen');
+INSERT INTO Place VALUES ('Jalan Besar');
+INSERT INTO Place VALUES ('Bendemeer');
+INSERT INTO Place VALUES ('Geylang Bahru');
+INSERT INTO Place VALUES ('Mattar');
+INSERT INTO Place VALUES ('Ubi');
+INSERT INTO Place VALUES ('Kaki Bukit');
+INSERT INTO Place VALUES ('Bedok North');
+INSERT INTO Place VALUES ('Bedok Reservoir');
+INSERT INTO Place VALUES ('Tampines West');
+INSERT INTO Place VALUES ('Tampines East');
+INSERT INTO Place VALUES ('Upper Changi');
 
 

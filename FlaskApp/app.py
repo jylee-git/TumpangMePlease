@@ -12,11 +12,11 @@ app.register_blueprint(view)
 # Config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{username}:{password}@{host}:{port}/{database}'\
     .format(
-        username='<username>',
-        password='<password>',
+        username='postgres',
+        password='password',
         host='localhost',
-        port=<port number>,
-        database='<database_name>'
+        port=5000,
+        database='postgres'
     )
 app.config['SECRET_KEY'] = 'A random key to use CRF for forms'
 

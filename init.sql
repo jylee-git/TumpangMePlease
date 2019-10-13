@@ -98,7 +98,7 @@ CREATE TABLE Bids (
     price 			INTEGER,
     status			varchar(20),
     no_passengers 	INTEGER,
-    PRIMARY KEY (passengerID, timePosted, driverID)
+    PRIMARY KEY (passengerID, timePosted, driverID),
     CHECK       (passengerID <> driverID)
 );
 

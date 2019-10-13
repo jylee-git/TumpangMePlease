@@ -1,9 +1,8 @@
 CREATE TABLE AppUser (
 	username 	varchar(50) PRIMARY KEY,
 	password 	varchar(50) NOT NULL,
-    firstName	varchar(20) NOT NULL,
-    lastName 	varchar(20) NOT NULL,
-    address 	varchar(50) NOT NULL,
+	firstName	varchar(20) NOT NULL,
+	lastName 	varchar(20) NOT NULL,
 	phoneNumber	varchar(20) NOT NULL
 );
 

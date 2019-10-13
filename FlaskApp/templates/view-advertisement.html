@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create an advertisement</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style-simple.css">
+    <link rel="stylesheet" href="jquery.datetimepicker.min.css">
+</head>
+<body class="blue-background">
+
+{% include 'navbar-header.html' %}
+
+{# if the user does not have a car yet, include the driver registration page #}
+
+{# else show the create advertisement list #}
+
+<div class="container" style="padding-top: 15rem">
+    <div class="bid-list white-font">
+        <h3 class="text-align-center">Advertisements Listed:</h3>
+        <br>
+        <table class="table table-sm table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Pick up</th>
+                <th scope="col">Destination</th>
+                <th scope="col">Your Bid ($S)</th>
+                <th scope="col">Highest Bid ($S)</th>
+                <th scope="col">Number of Bidders</th>
+                <th scope="col">Time Remaining</th>
+                <th scope="col">Bid Status</th>
+                <th scope="col">Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>13/11/2019</td>
+                <td>13:00:00</td>
+                <td>Kent Ridge</td>
+                <td>Changi Airport Terminal 2</td>
+                <td>23</td>
+                <td>25</td>
+                <td>10</td>
+                <td>00:05:30</td>
+                <td>Pending</td>
+                <td>
+                    <button type="button" class="btn delete-button">Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="container">
+    <div class="bid-list white-font">
+        <h3 class="text-align-center">List of bids for your advertisements:</h3>
+        <br>
+        <table class="table table-sm table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Advertisement No</th>
+                {# Advertisement No refers to the index of the advertisement #}
+                <th scope="col">Passenger Username</th>
+                <th scope="col">Bid ($S)</th>
+                <th scope="col"># Passengers</th>
+                <th scope="col">Accept Offer?</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>1</td>
+                <td>adiyogaisthebest</td>
+                <td>25</td>
+                <td>2</td>
+                <td>
+                    <button type="button" class="btn accept-button">Accept</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

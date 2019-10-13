@@ -105,3 +105,11 @@ form.loginForm {
 .scheduled-list {
     border-radius: 1rem;
 }
+
+.delete-button {
+    background-color: rgba(200, 0, 0, 0.5)
+}
+
+.accept-button {
+    background-color: rgba(0, 200, 0, 0.5)
+}

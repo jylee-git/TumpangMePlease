@@ -131,7 +131,7 @@ CREATE TABLE Belongs (
     brand 		TEXT        NOT NULL,
     name		TEXT	    NOT NULL,
     PRIMARY KEY (plateNumber),
-    FOREIGN KEY (name, brand) REFERENCES Model
+    FOREIGN KEY (brand, name) REFERENCES Model
 );
 
 COMMIT;

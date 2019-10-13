@@ -46,7 +46,7 @@ CREATE TABLE Model (
     brand 	TEXT,
     name	TEXT,
     size 	INTEGER NOT NULL,
-    PRIMARY KEY (name, brand)
+    PRIMARY KEY (brand, name)
 );
 
 CREATE TABLE Car (
@@ -180,16 +180,32 @@ insert into Passenger values ('user18');
 insert into Passenger values ('user19');
 insert into Passenger values ('user20');
 
+-- Driver: username, d_rating(NULL), license_no
 INSERT INTO Driver VALUES ('user1', NULL, 1234567);
 INSERT INTO Driver VALUES ('user2', NULL, 2337);
 INSERT INTO Driver VALUES ('user3', NULL, 22023);
 
-INSERT INTO Model VALUES ('')
+-- Model: brand, name, size
+INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);
+INSERT INTO Model VALUES ('Toyota', 'Prius', 5);
+INSERT INTO Model VALUES ('Toyota', 'Camry', 5);
+INSERT INTO Model VALUES ('Honda', 'Civic', 5);
+INSERT INTO Model VALUES ('Honda', 'CRV', 7);
+INSERT INTO Model VALUES ('Lexus', 'X1', 5);
 
+-- Car: plateNumber, colors
+INSERT INTO Car VALUES ('SFV7687J', 'White');
+INSERT INTO Car VALUES ('S1', 'White');
+INSERT INTO Car VALUES ('EU9288C', 'Gray');
 
-/**
- * For inserting into places
-*/
+-- Promo: promoCode, quotaLeft, maxDiscount, minPrice, disc
+INSERT INTO Promo VALUES ('a1a', 10, 20, 10, 20);
+INSERT INTO Promo VALUES ('a1b', 1, 10, 0, 20);
+
+-- Ride: rideID(NULL), p_comment, p_rating, d_comment, d_rating
+INSERT INTO Ride VALUES(DEFAULT, NULL, NULL, NULL, NULL);
+
+-- Place: name (of place)
 INSERT INTO Place VALUES ('Jurong East');
 INSERT INTO Place VALUES ('Bukit Batok');
 INSERT INTO Place VALUES ('Bukit Gombak');
@@ -312,12 +328,9 @@ INSERT INTO Place VALUES ('Tampines West');
 INSERT INTO Place VALUES ('Tampines East');
 INSERT INTO Place VALUES ('Upper Changi');
 
+-- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from
+INSERT INTO Advertisement VALUES (DEFAULT, 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
+INSERT INTO Advertisement VALUES (DEFAULT, 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
+INSERT INTO Advertisement VALUES (DEFAULT, 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
 
-
-/**
- * Might need to move this somewhere else
- */
-
-INSERT INTO Advertisement VALUES (current_timestamp, 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
-INSERT INTO Advertisement VALUES (current_timestamp, 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
-INSERT INTO Advertisement VALUES (current_timestamp, 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
+-- Bids: passId, driverID, timePosted, price, status

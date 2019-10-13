@@ -1,58 +1,65 @@
 CREATE TABLE AppUser (
-	username varchar(50) PRIMARY KEY,
-	password varchar(50) NOT NULL,
-    firstName varchar(20) NOT NULL,
-    lastName varchar(20) NOT NULL,
-    address varchar(50) NOT NULL,
-    phoneNumber varchar(20) NOT NULL
+	username 	varchar(50) PRIMARY KEY,
+	password 	varchar(50) NOT NULL,
+    firstName	varchar(20) NOT NULL,
+    lastName 	varchar(20) NOT NULL,
+    address 	varchar(50) NOT NULL,
+	phoneNumber	varchar(20) NOT NULL
 );
 
 CREATE TABLE Driver (
-	username varchar(50) PRIMARY KEY REFERENCES AppUser ON DELETE cascade,
-	d_rating integer,
-	license_no integer NOT NULL
+	username 	varchar(50) PRIMARY KEY REFERENCES AppUser ON DELETE CASCADE,
+	d_rating 	INTEGER,
+	license_no 	INTEGER NOT NULL
 );
 
 CREATE TABLE Passenger (
-	username varchar(50) PRIMARY KEY REFERENCES AppUser ON DELETE cascade,
-	p_rating integer
+	username varchar(50) PRIMARY KEY REFERENCES AppUser ON DELETE CASCADE,
+	p_rating INTEGER
 );
 
 CREATE TABLE Model (
-	name varchar(20),
-	brand varchar(50),
-    size INTEGER NOT NULL,
+	name	varchar(20),
+	brand 	varchar(50),
+    size 	INTEGER NOT NULL,
 	PRIMARY KEY (name, brand)
 );
 
 CREATE TABLE Car (
 	plateNumber varchar(20) PRIMARY KEY,
-    colours  varchar(20) NOT NULL
+    colours  	varchar(20) NOT NULL
 );
 
 CREATE TABLE Promo (
-	promoCode varchar(20) PRIMARY KEY,
-	quotaLeft integer NOT NULL,
-	maxDiscount integer,   -- Can we put default here?
-	minPrice integer,		
-	discount integer NOT NULL	
+	promoCode 	varchar(20) PRIMARY KEY,
+	quotaLeft 	INTEGER NOT NULL,
+	maxDiscount INTEGER,
+	minPrice 	INTEGER,		
+	discount 	INTEGER NOT NULL	
 );
 
 CREATE TABLE Ride (
-	rideID varchar(20) PRIMARY KEY,	-- Is this auto increment?
-    p_comment varchar(50),
-    p_rating integer,
-    d_comment varchar(50),
-    d_rating integer	
+	rideID 		SERIAL PRIMARY KEY,
+    p_comment 	varchar(50),
+    p_rating	INTEGER,
+    d_comment 	varchar(50),
+    d_rating 	INTEGER	
+);
+
+CREATE TABLE Place (
+	name varchar(50) PRIMARY KEY
 );
 
 CREATE TABLE Advertisement (
-	timePosted integer PRIMARY KEY,	-- Change to AdID instead? Since this is a driverID concat with time
-    numPassengers integer NOT NULL,
-    departureTime integer NOT NULL,
-    price integer NOT NULL,
-    toPlace varchar(50) NOT NULL,
-    fromPlace varchar(50) NOT NULL
+	timePosted 		TIMESTAMP,
+	driverID 		varchar(50) REFERENCES Driver ON DELETE CASCADE,
+    numPassengers 	INTEGER 	NOT NULL,
+    departureTime 	INTEGER 	NOT NULL,
+    price 			INTEGER 	NOT NULL,
+    toPlace 		varchar(50) NOT NULL REFERENCES Place,
+    fromPlace 		varchar(50) NOT NULL REFERENCES Place,
+
+	PRIMARY KEY (timePosted, driverID)
 );
 
 
@@ -60,68 +67,71 @@ CREATE TABLE Advertisement (
 RELATIONSHIPS
 ****************************************************************/
 CREATE TABLE Creates (	-- Driver creates advertisement; weak entity
-	timePosted	integer,
-	username	varchar(50) REFERENCES Driver ON DELETE cascade,
+	timePosted	TIMESTAMP,
+	username	varchar(50) REFERENCES Driver ON DELETE CASCADE,
 	PRIMARY KEY (timePosted, username)
 );
 
 CREATE TABLE Bids (
-	username 		varchar(50)	REFERENCES Passenger (username),
-	timePosted 		integer 	REFERENCES Advertisement ON DELETE CASCADE,
-	time 			integer 	NOT NULL,
-	price			integer,
+	passengerID 	varchar(50) REFERENCES Passenger ON DELETE CASCADE,
+	driverID 		varchar(50) REFERENCES Driver	 ON DELETE CASCADE,
+	timePosted 		TIMESTAMP,
+	price 			INTEGER,
 	status			varchar(20),
-	no_passengers	integer,
-	PRIMARY KEY (username, timePosted)
+	no_passengers 	INTEGER,
+	PRIMARY KEY (passengerID, timePosted, driverID)
 );
 
 CREATE TABLE Schedules (
-	rideID		varchar(20) REFERENCES Ride,
-	username 	varchar(50),
-	timePosted 	integer,
-	status		varchar(20),
-PRIMARY KEY (rideID, username, timePosted),
-FOREIGN KEY (username, timePosted) REFERENCES Bids (username, timePosted)
+	rideID		INTEGER 	REFERENCES Ride,
+	passengerID	varchar(50) NOT NULL,
+	driverID 	varchar(50) NOT NULL,
+	timePosted 	TIMESTAMP 	NOT NULL,
+	status		varchar(20)	DEFAULT 'pending',
+	PRIMARY KEY (rideID),
+	FOREIGN KEY (passengerID, timePosted, driverID) REFERENCES Bids,
+
+	CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
 
 CREATE TABLE Redeems (
-	rideID		varchar(20) REFERENCES Ride,
-	promoCode	varchar(20) REFERENCES Promo,
-	username 	varchar(50) REFERENCES Passenger,
-PRIMARY KEY (rideID, promoCode, username)
+	rideID		INTEGER 	PRIMARY KEY REFERENCES Ride,
+	promoCode	varchar(20) NOT NULL 	REFERENCES Promo,
+	username 	varchar(50) NOT NULL 	REFERENCES Passenger
 );
 
 CREATE TABLE Owns (
-	username	varchar(50) REFERENCES Driver,
+	driverID	varchar(50) REFERENCES Driver,
 	plateNumber	varchar(20) REFERENCES Car,
-	PRIMARY KEY (username, plateNumber)
+	PRIMARY KEY (driverID, plateNumber)
 );
 
 CREATE TABLE Belongs (
 	plateNumber	varchar(20) REFERENCES Car,
-	name		varchar(20),
-	brand 		varchar(50),
-	PRIMARY KEY (plateNumber, name),
+	name		varchar(20)	NOT NULL,
+	brand 		varchar(50) NOT NULL,
+	PRIMARY KEY (plateNumber),
 	FOREIGN KEY (name, brand) REFERENCES Model
 );
 
 /*****************
 For our own debuggging only
 ******************/
-DROP TABLE IF EXISTS AppUser;
-DROP TABLE IF EXISTS Driver;
-DROP TABLE IF EXISTS Passenger;
-DROP TABLE IF EXISTS Advertisement;
-DROP TABLE IF EXISTS Ride;
-DROP TABLE IF EXISTS Redeems;
-DROP TABLE IF EXISTS Car;
-DROP TABLE IF EXISTS Model;
-DROP TABLE IF EXISTS Owns;
-DROP TABLE IF EXISTS Belongs;
-DROP TABLE IF EXISTS Creates;
-DROP TABLE IF EXISTS Bids;
-DROP TABLE IF EXISTS Schedules;
-DROP TABLE IF EXISTS Promo;
+DROP TABLE IF EXISTS AppUser CASCADE;
+DROP TABLE IF EXISTS Driver CASCADE;
+DROP TABLE IF EXISTS Passenger CASCADE;
+DROP TABLE IF EXISTS Advertisement CASCADE;
+DROP TABLE IF EXISTS Ride CASCADE;
+DROP TABLE IF EXISTS Redeems CASCADE;
+DROP TABLE IF EXISTS Car CASCADE;
+DROP TABLE IF EXISTS Model CASCADE;
+DROP TABLE IF EXISTS Owns CASCADE;
+DROP TABLE IF EXISTS Belongs CASCADE;
+DROP TABLE IF EXISTS Creates CASCADE;
+DROP TABLE IF EXISTS Bids CASCADE;
+DROP TABLE IF EXISTS Schedules CASCADE;
+DROP TABLE IF EXISTS Promo CASCADE;
+DROP TABLE IF EXISTS Place CASCADE;
 
 
 /****************************************************************

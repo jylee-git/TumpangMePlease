@@ -78,7 +78,7 @@ CREATE TABLE Advertisement (
     timePosted 		TIMESTAMP   DEFAULT current_timestamp,
     driverID 		varchar(50) REFERENCES Driver ON DELETE CASCADE,
     numPassengers 	INTEGER 	NOT NULL,
-    departureTime 	INTEGER 	NOT NULL,
+    departureTime 	TIMESTAMP 	NOT NULL,
     price 			INTEGER 	NOT NULL,
     toPlace 		varchar(50) NOT NULL REFERENCES Place,
     fromPlace 		varchar(50) NOT NULL REFERENCES Place,
@@ -313,3 +313,11 @@ INSERT INTO Place VALUES ('Tampines East');
 INSERT INTO Place VALUES ('Upper Changi');
 
 
+
+/**
+ * Might need to move this somewhere else
+ */
+
+INSERT INTO Advertisement VALUES (current_timestamp, 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
+INSERT INTO Advertisement VALUES (current_timestamp, 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
+INSERT INTO Advertisement VALUES (current_timestamp, 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');

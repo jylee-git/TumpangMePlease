@@ -1,8 +1,33 @@
+/*****************
+For our own debuggging only
+******************/
+DROP TABLE IF EXISTS AppUser CASCADE;
+DROP TABLE IF EXISTS Driver CASCADE;
+DROP TABLE IF EXISTS Passenger CASCADE;
+DROP TABLE IF EXISTS Model CASCADE;
+DROP TABLE IF EXISTS Car CASCADE;
+DROP TABLE IF EXISTS Promo CASCADE;
+DROP TABLE IF EXISTS Ride CASCADE;
+DROP TABLE IF EXISTS Place CASCADE;
+DROP TABLE IF EXISTS Advertisement CASCADE;
+DROP TABLE IF EXISTS Creates CASCADE;
+DROP TABLE IF EXISTS Bids CASCADE;
+DROP TABLE IF EXISTS Schedules CASCADE;
+DROP TABLE IF EXISTS Redeems CASCADE;
+DROP TABLE IF EXISTS Owns CASCADE;
+DROP TABLE IF EXISTS Belongs CASCADE;
+
+
+/********
+ENTITY TABLES
+***********/
+
+
 CREATE TABLE AppUser (
     username 	varchar(50) PRIMARY KEY,
-    password 	varchar(50) NOT NULL,
     firstName	varchar(20) NOT NULL,
     lastName 	varchar(20) NOT NULL,
+    password 	varchar(50) NOT NULL,
     phoneNumber	varchar(20) NOT NULL
 );
 
@@ -113,49 +138,51 @@ CREATE TABLE Belongs (
     FOREIGN KEY (name, brand) REFERENCES Model
 );
 
-/*****************
-For our own debuggging only
-******************/
-DROP TABLE IF EXISTS AppUser CASCADE;
-DROP TABLE IF EXISTS Driver CASCADE;
-DROP TABLE IF EXISTS Passenger CASCADE;
-DROP TABLE IF EXISTS Model CASCADE;
-DROP TABLE IF EXISTS Car CASCADE;
-DROP TABLE IF EXISTS Promo CASCADE;
-DROP TABLE IF EXISTS Ride CASCADE;
-DROP TABLE IF EXISTS Place CASCADE;
-DROP TABLE IF EXISTS Advertisement CASCADE;
-DROP TABLE IF EXISTS Creates CASCADE;
-DROP TABLE IF EXISTS Bids CASCADE;
-DROP TABLE IF EXISTS Schedules CASCADE;
-DROP TABLE IF EXISTS Redeems CASCADE;
-DROP TABLE IF EXISTS Owns CASCADE;
-DROP TABLE IF EXISTS Belongs CASCADE;
-
 
 
 /****************************************************************
 DATA INSERTION
 ****************************************************************/
-insert into AppUser values ('user1', 'Cart', 'Klemensiewicz', '88 Hudson Crossing', 'password', 2863945039);
-insert into AppUser values ('user2', 'Kit', 'Thurlow', '56695 Cambridge Hill', 'password', 8215865769);
-insert into AppUser values ('user3', 'Brynna', 'Fetter', '6683 Sundown Park', 'password', 7734451473);
-insert into AppUser values ('user4', 'Silvester', 'Churly', '82 Bellgrove Pass', 'password', 1365739490);
-insert into AppUser values ('user5', 'Hugo', 'Shoesmith', '7 Sunfield Lane', 'password', 3436796564);
-insert into AppUser values ('user6', 'Theodor', 'MacCostigan', '6 Chive Crossing', 'password', 2055996866);
-insert into AppUser values ('user7', 'Heriberto', 'Antusch', '981 Briar Crest Way', 'password', 3029039526);
-insert into AppUser values ('user8', 'Georgia', 'Morgue', '6972 Carberry Point', 'password', 5377426205);
-insert into AppUser values ('user9', 'Marius', 'Reavell', '8544 Eggendart Lane', 'password', 9725999259);
-insert into AppUser values ('user10', 'Pennie', 'Nelle', '2 Ridgeview Drive', 'password', 2645471052);
-insert into AppUser values ('user11', 'Derick', 'Kennaway', '76300 Kim Junction', 'password', 5185617186);
-insert into AppUser values ('user12', 'Othelia', 'Divine', '66 Esch Parkway', 'password', 9182609085);
-insert into AppUser values ('user13', 'Concordia', 'Kobierra', '42 Esker Way', 'password', 5544703777);
-insert into AppUser values ('user14', 'Sonnie', 'Llop', '4336 2nd Terrace', 'password', 3995005082);
-insert into AppUser values ('user15', 'Estella', 'McCroary', '16 Holmberg Drive', 'password', 4832356120);
-insert into AppUser values ('user16', 'Joanie', 'Wanley', '17902 Summit Point', 'password', 7106811550);
-insert into AppUser values ('user17', 'Hillary', 'Izon', '50 Fuller Road', 'password', 5355440695);
-insert into AppUser values ('user18', 'Hew', 'Leakner', '93231 Starling Junction', 'password', 4794001078);
-insert into AppUser values ('user19', 'Mallissa', 'Mahmood', '90 Loftsgordon Road', 'password', 9435003533);
-insert into AppUser values ('user20', 'Jocelyn', 'Seabrook', '68 Mifflin Junction', 'password', 6749453810);
+insert into AppUser values ('user1', 'Cart', 'Klemensiewicz', 'password', 2863945039);
+insert into AppUser values ('user2', 'Kit', 'Thurlow', 'password', 8215865769);
+insert into AppUser values ('user3', 'Brynna', 'Fetter', 'password', 7734451473);
+insert into AppUser values ('user4', 'Silvester', 'Churly', 'password', 1365739490);
+insert into AppUser values ('user5', 'Hugo', 'Shoesmith', 'password', 3436796564);
+insert into AppUser values ('user6', 'Theodor', 'MacCostigan', 'password', 2055996866);
+insert into AppUser values ('user7', 'Heriberto', 'Antusch', 'password', 3029039526);
+insert into AppUser values ('user8', 'Georgia', 'Morgue', 'password', 5377426205);
+insert into AppUser values ('user9', 'Marius', 'Reavell', 'password', 9725999259);
+insert into AppUser values ('user10', 'Pennie', 'Nelle', 'password', 2645471052);
+insert into AppUser values ('user11', 'Derick', 'Kennaway', 'password', 5185617186);
+insert into AppUser values ('user12', 'Othelia', 'Divine', 'password', 9182609085);
+insert into AppUser values ('user13', 'Concordia', 'Kobierra', 'password', 5544703777);
+insert into AppUser values ('user14', 'Sonnie', 'Llop', 'password', 3995005082);
+insert into AppUser values ('user15', 'Estella', 'McCroary', 'password', 4832356120);
+insert into AppUser values ('user16', 'Joanie', 'Wanley', 'password', 7106811550);
+insert into AppUser values ('user17', 'Hillary', 'Izon', 'password', 5355440695);
+insert into AppUser values ('user18', 'Hew', 'Leakner', 'password', 4794001078);
+insert into AppUser values ('user19', 'Mallissa', 'Mahmood', 'password', 9435003533);
+insert into AppUser values ('user20', 'Jocelyn', 'Seabrook', 'password', 6749453810);
+
+insert into Passenger values ('user1');
+insert into Passenger values ('user2');
+insert into Passenger values ('user3');
+insert into Passenger values ('user4');
+insert into Passenger values ('user5');
+insert into Passenger values ('user6');
+insert into Passenger values ('user7');
+insert into Passenger values ('user8');
+insert into Passenger values ('user9');
+insert into Passenger values ('user10');
+insert into Passenger values ('user11');
+insert into Passenger values ('user12');
+insert into Passenger values ('user13');
+insert into Passenger values ('user14');
+insert into Passenger values ('user15');
+insert into Passenger values ('user16');
+insert into Passenger values ('user17');
+insert into Passenger values ('user18');
+insert into Passenger values ('user19');
+insert into Passenger values ('user20');
 
 INSERT INTO Driver VALUES ('user4', NULL, 1234567);

@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{username}:{password}@{hos
         username='postgres',
         password='password',
         host='localhost',
-        port=5000,
+        port=5432,
         database='postgres'
     )
 app.config['SECRET_KEY'] = 'A random key to use CRF for forms'

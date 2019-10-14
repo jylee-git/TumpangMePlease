@@ -7,12 +7,12 @@ DROP TABLE IF EXISTS Passenger CASCADE;
 DROP TABLE IF EXISTS Model CASCADE;
 DROP TABLE IF EXISTS Car CASCADE;
 DROP TABLE IF EXISTS Promo CASCADE;
-DROP TABLE IF EXISTS Ride CASCADE;
+DROP TABLE IF EXISTS ScheduledRide CASCADE;
 DROP TABLE IF EXISTS Place CASCADE;
 DROP TABLE IF EXISTS Advertisement CASCADE;
 DROP TABLE IF EXISTS Creates CASCADE;
 DROP TABLE IF EXISTS Bids CASCADE;
-DROP TABLE IF EXISTS Schedules CASCADE;
+DROP TABLE IF EXISTS Review CASCADE;
 DROP TABLE IF EXISTS Redeems CASCADE;
 DROP TABLE IF EXISTS Owns CASCADE;
 DROP TABLE IF EXISTS Belongs CASCADE;
@@ -62,14 +62,6 @@ CREATE TABLE Promo (
     discount 	INTEGER NOT NULL	
 );
 
-CREATE TABLE Ride (
-    rideID 		SERIAL PRIMARY KEY,
-    p_comment 	varchar(50),
-    p_rating	INTEGER,
-    d_comment 	varchar(50),
-    d_rating 	INTEGER	
-);
-
 CREATE TABLE Place (
     name varchar(50) PRIMARY KEY
 );
@@ -102,20 +94,27 @@ CREATE TABLE Bids (
     CHECK       (passengerID <> driverID)
 );
 
-CREATE TABLE Schedules (
-    rideID		INTEGER 	REFERENCES Ride,
+CREATE TABLE ScheduledRide (
+    rideID		SERIAL 	    PRIMARY KEY,
     passengerID	varchar(50) NOT NULL,
     driverID 	varchar(50) NOT NULL,
     timePosted 	TIMESTAMP 	NOT NULL,
     status		varchar(20)	DEFAULT 'pending',
-    PRIMARY KEY (rideID),
     FOREIGN KEY (passengerID, timePosted, driverID) REFERENCES Bids,
 
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
 
+CREATE TABLE Review (
+    rideID 	    INTEGER PRIMARY KEY REFERENCES ScheduledRide ON DELETE CASCADE,
+    p_comment 	varchar(50),
+    p_rating	INTEGER,
+    d_comment 	varchar(50),
+    d_rating 	INTEGER	
+);
+
 CREATE TABLE Redeems (
-    rideID		INTEGER 	PRIMARY KEY REFERENCES Ride,
+    rideID		INTEGER 	PRIMARY KEY REFERENCES ScheduledRide,
     promoCode	varchar(20) NOT NULL 	REFERENCES Promo,
     username 	varchar(50) NOT NULL 	REFERENCES Passenger
 );
@@ -202,9 +201,6 @@ INSERT INTO Car VALUES ('EU9288C', 'Gray');
 -- Promo: promoCode, quotaLeft, maxDiscount, minPrice, disc
 INSERT INTO Promo VALUES ('a1a', 10, 20, 10, 20);
 INSERT INTO Promo VALUES ('a1b', 1, 10, 0, 20);
-
--- Ride: rideID(NULL), p_comment, p_rating, d_comment, d_rating
-INSERT INTO Ride VALUES(DEFAULT, NULL, NULL, NULL, NULL);
 
 -- Place: name (of place)
 INSERT INTO Place VALUES ('Jurong East');
@@ -341,6 +337,10 @@ INSERT INTO Bids VALUES ('user13', 'user3', TIMESTAMP '2019-12-12 12:30', 30, 'n
 INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2019-12-12 12:30', 10, 'nani?', 2);
 INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2019-12-12 12:30', 20, 'nani?', 2);
 INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2019-12-12 12:30', 30, 'nani?', 2);
+
+-- Ride: rideID(NULL), passID, driverID, timePosted, status
+INSERT INTO ScheduledRide VALUES(DEFAULT, 'user11', 'user3', TIMESTAMP '2019-12-12 12:30', DEFAULT);
+INSERT INTO ScheduledRide VALUES(DEFAULT, 'user14', 'user2', TIMESTAMP '2019-12-12 12:30', 'ongoing');
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');

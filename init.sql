@@ -1,13 +1,13 @@
 /*****************
 For our own debuggging only
 ******************/
-DROP TABLE IF EXISTS AppUser CASCADE;
+DROP TABLE IF EXISTS App_User CASCADE;
 DROP TABLE IF EXISTS Driver CASCADE;
 DROP TABLE IF EXISTS Passenger CASCADE;
 DROP TABLE IF EXISTS Model CASCADE;
 DROP TABLE IF EXISTS Car CASCADE;
 DROP TABLE IF EXISTS Promo CASCADE;
-DROP TABLE IF EXISTS ScheduledRide CASCADE;
+DROP TABLE IF EXISTS Scheduled_Ride CASCADE;
 DROP TABLE IF EXISTS Place CASCADE;
 DROP TABLE IF EXISTS Advertisement CASCADE;
 DROP TABLE IF EXISTS Creates CASCADE;
@@ -23,22 +23,22 @@ ENTITY TABLES
 ***********/
 BEGIN TRANSACTION;
 
-CREATE TABLE AppUser (
-    username    varchar(50) PRIMARY KEY,
-    firstName   varchar(20) NOT NULL,
-    lastName    varchar(20) NOT NULL,
-    password    varchar(50) NOT NULL,
-    phoneNumber varchar(20) NOT NULL
+CREATE TABLE App_User (
+    username     varchar(50) PRIMARY KEY,
+    first_name   varchar(20) NOT NULL,
+    last_name    varchar(20) NOT NULL,
+    password     varchar(50) NOT NULL,
+    phone_number varchar(20) NOT NULL
 );
 
 CREATE TABLE Driver (
-    username     varchar(50) PRIMARY KEY REFERENCES AppUser ON DELETE CASCADE,
+    username     varchar(50) PRIMARY KEY REFERENCES App_User ON DELETE CASCADE,
     d_rating     INTEGER,
     license_no   INTEGER NOT NULL
 );
 
 CREATE TABLE Passenger (
-    username varchar(50) PRIMARY KEY REFERENCES AppUser ON DELETE CASCADE,
+    username varchar(50) PRIMARY KEY REFERENCES App_User ON DELETE CASCADE,
     p_rating INTEGER
 );
 
@@ -50,16 +50,16 @@ CREATE TABLE Model (
 );
 
 CREATE TABLE Car (
-    plateNumber varchar(20) PRIMARY KEY,
-    colours     varchar(20) NOT NULL
+    plate_number varchar(20) PRIMARY KEY,
+    colours      varchar(20) NOT NULL
 );
 
 CREATE TABLE Promo (
-    promoCode   varchar(20) PRIMARY KEY,
-    quotaLeft   INTEGER NOT NULL,
-    maxDiscount INTEGER,
-    minPrice    INTEGER,
-    discount    INTEGER NOT NULL
+    promo_code   varchar(20) PRIMARY KEY,
+    quota_left   INTEGER NOT NULL,
+    max_discount INTEGER,
+    min_price    INTEGER,
+    discount     INTEGER NOT NULL
 );
 
 CREATE TABLE Place (
@@ -67,15 +67,15 @@ CREATE TABLE Place (
 );
 
 CREATE TABLE Advertisement (
-    timePosted       TIMESTAMP   DEFAULT current_timestamp,
-    driverID         varchar(50) REFERENCES Driver ON DELETE CASCADE,
-    numPassengers    INTEGER     NOT NULL,
-    departureTime    TIMESTAMP   NOT NULL,
-    price            INTEGER     NOT NULL,
-    toPlace          varchar(50) NOT NULL REFERENCES Place,
-    fromPlace        varchar(50) NOT NULL REFERENCES Place,
+    time_posted       TIMESTAMP   DEFAULT current_timestamp,
+    driver_ID         varchar(50) REFERENCES Driver ON DELETE CASCADE,
+    num_passengers    INTEGER     NOT NULL,
+    departure_time    TIMESTAMP   NOT NULL,
+    price             INTEGER     NOT NULL,
+    to_place          varchar(50) NOT NULL REFERENCES Place,
+    from_place        varchar(50) NOT NULL REFERENCES Place,
 
-    PRIMARY KEY (timePosted, driverID)
+    PRIMARY KEY (time_posted, driver_ID)
 );
 
 
@@ -84,29 +84,29 @@ RELATIONSHIPS
 ****************************************************************/
 
 CREATE TABLE Bids (
-    passengerID     varchar(50) REFERENCES Passenger ON DELETE CASCADE,
-    driverID        varchar(50) REFERENCES Driver     ON DELETE CASCADE,
-    timePosted      TIMESTAMP,
-    price           INTEGER,
-    status          varchar(20),
-    no_passengers   INTEGER,
-    PRIMARY KEY (passengerID, timePosted, driverID),
-    CHECK       (passengerID <> driverID)
+    passenger_ID     varchar(50) REFERENCES Passenger ON DELETE CASCADE,
+    driver_ID        varchar(50) REFERENCES Driver    ON DELETE CASCADE,
+    time_posted      TIMESTAMP,
+    price            INTEGER,
+    status           varchar(20),
+    no_passengers    INTEGER,
+    PRIMARY KEY (passenger_ID, time_posted, driver_ID),
+    CHECK       (passenger_ID <> driver_ID)
 );
 
-CREATE TABLE ScheduledRide (
-    rideID        SERIAL      PRIMARY KEY,
-    passengerID   varchar(50) NOT NULL,
-    driverID      varchar(50) NOT NULL,
-    timePosted    TIMESTAMP   NOT NULL,
-    status        varchar(20) DEFAULT 'pending',
-    FOREIGN KEY (passengerID, timePosted, driverID) REFERENCES Bids,
+CREATE TABLE Scheduled_Ride (
+    ride_ID        SERIAL      PRIMARY KEY,
+    passenger_ID   varchar(50) NOT NULL,
+    driver_ID      varchar(50) NOT NULL,
+    time_posted    TIMESTAMP   NOT NULL,
+    status         varchar(20) DEFAULT 'pending',
+    FOREIGN KEY (passenger_ID, time_posted, driver_ID) REFERENCES Bids,
 
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
 
 CREATE TABLE Review (
-    rideID      INTEGER PRIMARY KEY REFERENCES ScheduledRide ON DELETE CASCADE,
+    rideID      INTEGER PRIMARY KEY REFERENCES Scheduled_Ride ON DELETE CASCADE,
     p_comment   varchar(50),
     p_rating    INTEGER,
     d_comment   varchar(50),
@@ -114,22 +114,22 @@ CREATE TABLE Review (
 );
 
 CREATE TABLE Redeems (
-    rideID       INTEGER     PRIMARY KEY  REFERENCES ScheduledRide,
-    promoCode    varchar(20) NOT NULL     REFERENCES Promo,
-    username     varchar(50) NOT NULL     REFERENCES Passenger
+    ride_ID       INTEGER     PRIMARY KEY  REFERENCES Scheduled_Ride,
+    promo_code    varchar(20) NOT NULL     REFERENCES Promo,
+    username      varchar(50) NOT NULL     REFERENCES Passenger
 );
 
 CREATE TABLE Owns (
-    driverID    varchar(50) REFERENCES Driver,
-    plateNumber varchar(20) REFERENCES Car,
-    PRIMARY KEY (driverID, plateNumber)
+    driver_ID    varchar(50) REFERENCES Driver,
+    plate_number varchar(20) REFERENCES Car,
+    PRIMARY KEY (driver_ID, plate_number)
 );
 
 CREATE TABLE Belongs (
-    plateNumber varchar(20) REFERENCES Car,
+    plate_number varchar(20) REFERENCES Car,
     brand       TEXT        NOT NULL,
     name        TEXT        NOT NULL,
-    PRIMARY KEY (plateNumber),
+    PRIMARY KEY (plate_number),
     FOREIGN KEY (brand, name) REFERENCES Model
 );
 
@@ -138,26 +138,26 @@ COMMIT;
 /****************************************************************
 DATA INSERTION
 ****************************************************************/
-insert into AppUser values ('user1', 'Cart', 'Klemensiewicz', 'password', 2863945039);
-insert into AppUser values ('user2', 'Kit', 'Thurlow', 'password', 8215865769);
-insert into AppUser values ('user3', 'Brynna', 'Fetter', 'password', 7734451473);
-insert into AppUser values ('user4', 'Silvester', 'Churly', 'password', 1365739490);
-insert into AppUser values ('user5', 'Hugo', 'Shoesmith', 'password', 3436796564);
-insert into AppUser values ('user6', 'Theodor', 'MacCostigan', 'password', 2055996866);
-insert into AppUser values ('user7', 'Heriberto', 'Antusch', 'password', 3029039526);
-insert into AppUser values ('user8', 'Georgia', 'Morgue', 'password', 5377426205);
-insert into AppUser values ('user9', 'Marius', 'Reavell', 'password', 9725999259);
-insert into AppUser values ('user10', 'Pennie', 'Nelle', 'password', 2645471052);
-insert into AppUser values ('user11', 'Derick', 'Kennaway', 'password', 5185617186);
-insert into AppUser values ('user12', 'Othelia', 'Divine', 'password', 9182609085);
-insert into AppUser values ('user13', 'Concordia', 'Kobierra', 'password', 5544703777);
-insert into AppUser values ('user14', 'Sonnie', 'Llop', 'password', 3995005082);
-insert into AppUser values ('user15', 'Estella', 'McCroary', 'password', 4832356120);
-insert into AppUser values ('user16', 'Joanie', 'Wanley', 'password', 7106811550);
-insert into AppUser values ('user17', 'Hillary', 'Izon', 'password', 5355440695);
-insert into AppUser values ('user18', 'Hew', 'Leakner', 'password', 4794001078);
-insert into AppUser values ('user19', 'Mallissa', 'Mahmood', 'password', 9435003533);
-insert into AppUser values ('user20', 'Jocelyn', 'Seabrook', 'password', 6749453810);
+insert into App_User values ('user1', 'Cart', 'Klemensiewicz', 'password', 2863945039);
+insert into App_User values ('user2', 'Kit', 'Thurlow', 'password', 8215865769);
+insert into App_User values ('user3', 'Brynna', 'Fetter', 'password', 7734451473);
+insert into App_User values ('user4', 'Silvester', 'Churly', 'password', 1365739490);
+insert into App_User values ('user5', 'Hugo', 'Shoesmith', 'password', 3436796564);
+insert into App_User values ('user6', 'Theodor', 'MacCostigan', 'password', 2055996866);
+insert into App_User values ('user7', 'Heriberto', 'Antusch', 'password', 3029039526);
+insert into App_User values ('user8', 'Georgia', 'Morgue', 'password', 5377426205);
+insert into App_User values ('user9', 'Marius', 'Reavell', 'password', 9725999259);
+insert into App_User values ('user10', 'Pennie', 'Nelle', 'password', 2645471052);
+insert into App_User values ('user11', 'Derick', 'Kennaway', 'password', 5185617186);
+insert into App_User values ('user12', 'Othelia', 'Divine', 'password', 9182609085);
+insert into App_User values ('user13', 'Concordia', 'Kobierra', 'password', 5544703777);
+insert into App_User values ('user14', 'Sonnie', 'Llop', 'password', 3995005082);
+insert into App_User values ('user15', 'Estella', 'McCroary', 'password', 4832356120);
+insert into App_User values ('user16', 'Joanie', 'Wanley', 'password', 7106811550);
+insert into App_User values ('user17', 'Hillary', 'Izon', 'password', 5355440695);
+insert into App_User values ('user18', 'Hew', 'Leakner', 'password', 4794001078);
+insert into App_User values ('user19', 'Mallissa', 'Mahmood', 'password', 9435003533);
+insert into App_User values ('user20', 'Jocelyn', 'Seabrook', 'password', 6749453810);
 
 insert into Passenger values ('user1');
 insert into Passenger values ('user2');
@@ -339,8 +339,8 @@ INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2019-12-12 12:30', 20, 'n
 INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2019-12-12 12:30', 30, 'nani?', 2);
 
 -- Ride: rideID(NULL), passID, driverID, timePosted, status
-INSERT INTO ScheduledRide VALUES(DEFAULT, 'user11', 'user3', TIMESTAMP '2019-12-12 12:30', DEFAULT);
-INSERT INTO ScheduledRide VALUES(DEFAULT, 'user14', 'user2', TIMESTAMP '2019-12-12 12:30', 'ongoing');
+INSERT INTO Scheduled_Ride VALUES(DEFAULT, 'user11', 'user3', TIMESTAMP '2019-12-12 12:30', DEFAULT);
+INSERT INTO Scheduled_Ride VALUES(DEFAULT, 'user14', 'user2', TIMESTAMP '2019-12-12 12:30', 'ongoing');
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');

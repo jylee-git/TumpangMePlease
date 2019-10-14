@@ -4,7 +4,6 @@ from __init__ import db, login_manager
 from views import view
 
 app = Flask(__name__)
-
 # Routing
 app.register_blueprint(view)
 

@@ -24,17 +24,17 @@ ENTITY TABLES
 BEGIN TRANSACTION;
 
 CREATE TABLE AppUser (
-    username 	varchar(50) PRIMARY KEY,
-    firstName	varchar(20) NOT NULL,
-    lastName 	varchar(20) NOT NULL,
-    password 	varchar(50) NOT NULL,
-    phoneNumber	varchar(20) NOT NULL
+    username    varchar(50) PRIMARY KEY,
+    firstName   varchar(20) NOT NULL,
+    lastName    varchar(20) NOT NULL,
+    password    varchar(50) NOT NULL,
+    phoneNumber varchar(20) NOT NULL
 );
 
 CREATE TABLE Driver (
-    username 	varchar(50) PRIMARY KEY REFERENCES AppUser ON DELETE CASCADE,
-    d_rating 	INTEGER,
-    license_no 	INTEGER NOT NULL
+    username     varchar(50) PRIMARY KEY REFERENCES AppUser ON DELETE CASCADE,
+    d_rating     INTEGER,
+    license_no   INTEGER NOT NULL
 );
 
 CREATE TABLE Passenger (
@@ -43,23 +43,23 @@ CREATE TABLE Passenger (
 );
 
 CREATE TABLE Model (
-    brand 	TEXT,
-    name	TEXT,
-    size 	INTEGER NOT NULL,
+    brand   TEXT,
+    name    TEXT,
+    size    INTEGER NOT NULL,
     PRIMARY KEY (brand, name)
 );
 
 CREATE TABLE Car (
     plateNumber varchar(20) PRIMARY KEY,
-    colours  	varchar(20) NOT NULL
+    colours     varchar(20) NOT NULL
 );
 
 CREATE TABLE Promo (
-    promoCode 	varchar(20) PRIMARY KEY,
-    quotaLeft 	INTEGER NOT NULL,
+    promoCode   varchar(20) PRIMARY KEY,
+    quotaLeft   INTEGER NOT NULL,
     maxDiscount INTEGER,
-    minPrice 	INTEGER,		
-    discount 	INTEGER NOT NULL	
+    minPrice    INTEGER,
+    discount    INTEGER NOT NULL
 );
 
 CREATE TABLE Place (
@@ -67,13 +67,13 @@ CREATE TABLE Place (
 );
 
 CREATE TABLE Advertisement (
-    timePosted 		TIMESTAMP   DEFAULT current_timestamp,
-    driverID 		varchar(50) REFERENCES Driver ON DELETE CASCADE,
-    numPassengers 	INTEGER 	NOT NULL,
-    departureTime 	TIMESTAMP 	NOT NULL,
-    price 			INTEGER 	NOT NULL,
-    toPlace 		varchar(50) NOT NULL REFERENCES Place,
-    fromPlace 		varchar(50) NOT NULL REFERENCES Place,
+    timePosted       TIMESTAMP   DEFAULT current_timestamp,
+    driverID         varchar(50) REFERENCES Driver ON DELETE CASCADE,
+    numPassengers    INTEGER     NOT NULL,
+    departureTime    TIMESTAMP   NOT NULL,
+    price            INTEGER     NOT NULL,
+    toPlace          varchar(50) NOT NULL REFERENCES Place,
+    fromPlace        varchar(50) NOT NULL REFERENCES Place,
 
     PRIMARY KEY (timePosted, driverID)
 );
@@ -84,51 +84,51 @@ RELATIONSHIPS
 ****************************************************************/
 
 CREATE TABLE Bids (
-    passengerID 	varchar(50) REFERENCES Passenger ON DELETE CASCADE,
-    driverID 		varchar(50) REFERENCES Driver	 ON DELETE CASCADE,
-    timePosted 		TIMESTAMP,
-    price 			INTEGER,
-    status			varchar(20),
-    no_passengers 	INTEGER,
+    passengerID     varchar(50) REFERENCES Passenger ON DELETE CASCADE,
+    driverID        varchar(50) REFERENCES Driver     ON DELETE CASCADE,
+    timePosted      TIMESTAMP,
+    price           INTEGER,
+    status          varchar(20),
+    no_passengers   INTEGER,
     PRIMARY KEY (passengerID, timePosted, driverID),
     CHECK       (passengerID <> driverID)
 );
 
 CREATE TABLE ScheduledRide (
-    rideID		SERIAL 	    PRIMARY KEY,
-    passengerID	varchar(50) NOT NULL,
-    driverID 	varchar(50) NOT NULL,
-    timePosted 	TIMESTAMP 	NOT NULL,
-    status		varchar(20)	DEFAULT 'pending',
+    rideID        SERIAL      PRIMARY KEY,
+    passengerID   varchar(50) NOT NULL,
+    driverID      varchar(50) NOT NULL,
+    timePosted    TIMESTAMP   NOT NULL,
+    status        varchar(20) DEFAULT 'pending',
     FOREIGN KEY (passengerID, timePosted, driverID) REFERENCES Bids,
 
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
 
 CREATE TABLE Review (
-    rideID 	    INTEGER PRIMARY KEY REFERENCES ScheduledRide ON DELETE CASCADE,
-    p_comment 	varchar(50),
-    p_rating	INTEGER,
-    d_comment 	varchar(50),
-    d_rating 	INTEGER	
+    rideID      INTEGER PRIMARY KEY REFERENCES ScheduledRide ON DELETE CASCADE,
+    p_comment   varchar(50),
+    p_rating    INTEGER,
+    d_comment   varchar(50),
+    d_rating    INTEGER
 );
 
 CREATE TABLE Redeems (
-    rideID		INTEGER 	PRIMARY KEY REFERENCES ScheduledRide,
-    promoCode	varchar(20) NOT NULL 	REFERENCES Promo,
-    username 	varchar(50) NOT NULL 	REFERENCES Passenger
+    rideID       INTEGER     PRIMARY KEY  REFERENCES ScheduledRide,
+    promoCode    varchar(20) NOT NULL     REFERENCES Promo,
+    username     varchar(50) NOT NULL     REFERENCES Passenger
 );
 
 CREATE TABLE Owns (
-    driverID	varchar(50) REFERENCES Driver,
-    plateNumber	varchar(20) REFERENCES Car,
+    driverID    varchar(50) REFERENCES Driver,
+    plateNumber varchar(20) REFERENCES Car,
     PRIMARY KEY (driverID, plateNumber)
 );
 
 CREATE TABLE Belongs (
-    plateNumber	varchar(20) REFERENCES Car,
-    brand 		TEXT        NOT NULL,
-    name		TEXT	    NOT NULL,
+    plateNumber varchar(20) REFERENCES Car,
+    brand       TEXT        NOT NULL,
+    name        TEXT        NOT NULL,
     PRIMARY KEY (plateNumber),
     FOREIGN KEY (brand, name) REFERENCES Model
 );

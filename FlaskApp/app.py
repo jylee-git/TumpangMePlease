@@ -4,7 +4,6 @@ from __init__ import db, login_manager
 from views import view
 
 app = Flask(__name__)
-
 # Routing
 app.register_blueprint(view)
 
@@ -12,11 +11,11 @@ app.register_blueprint(view)
 # Config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{username}:{password}@{host}:{port}/{database}'\
     .format(
-        username='<username>',
-        password='<password>',
+        username='postgres',
+        password='jamespang1',
         host='localhost',
-        port=<port number>,
-        database='<database_name>'
+        port=5432,
+        database='postgres'
     )
 app.config['SECRET_KEY'] = 'A random key to use CRF for forms'
 

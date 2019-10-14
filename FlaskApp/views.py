@@ -3,14 +3,14 @@ from flask_login import current_user, login_required, login_user
 
 from __init__ import db, login_manager
 from forms import LoginForm, RegistrationForm
-from models import WebUser
+from models import AppUser
 
 view = Blueprint("view", __name__)
 
 
 @login_manager.user_loader
 def load_user(username):
-    user = WebUser.query.filter_by(username=username).first()
+    user = AppUser.query.filter_by(username=username).first()
     return user or current_user
 
 
@@ -30,13 +30,14 @@ def render_registration_page():
         first_name = form.first_name.data
         last_name = form.last_name.data
         password = form.password.data
-        query = "SELECT * FROM web_user WHERE username = '{}'".format(username)
+        phone_num = form.phone_number.data
+        query = "SELECT * FROM app_user WHERE username = '{}'".format(username)
         exists_user = db.session.execute(query).fetchone()
         if exists_user:
             form.username.errors.append("{} is already in use.".format(username))
         else:
-            query = "INSERT INTO web_user(username, first_name, last_name, password) VALUES ('{}', '{}', '{}', '{}')"\
-                .format(username, first_name, last_name, password)
+            query = "INSERT INTO app_user(username, first_name, last_name, password, phone_number) VALUES ('{}', '{}', '{}', '{}', '{}')"\
+                .format(username, first_name, last_name, password, phone_num)
             db.session.execute(query)
             db.session.commit()
             form.message = "Register successful! Please login with your newly created account."
@@ -51,7 +52,7 @@ def render_login_page():
         print("password entered:", form.password.data)
         print(form.validate_on_submit())
     if form.validate_on_submit():
-        user = WebUser.query.filter_by(username=form.username.data).first()
+        user = AppUser.query.filter_by(username=form.username.data).first()
         if user:
             # TODO: You may want to verify if password is correct
             if user.password == form.password.data:

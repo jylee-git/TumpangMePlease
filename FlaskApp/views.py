@@ -36,7 +36,8 @@ def render_registration_page():
         if exists_user:
             form.username.errors.append("{} is already in use.".format(username))
         else:
-            query = "INSERT INTO app_user(username, first_name, last_name, password, phone_number) VALUES ('{}', '{}', '{}', '{}', '{}')"\
+            query = "INSERT INTO app_user(username, first_name, last_name, password, phone_number) " \
+                    "VALUES ('{}', '{}', '{}', '{}', '{}')"\
                 .format(username, first_name, last_name, password, phone_num)
             db.session.execute(query)
             db.session.commit()
@@ -64,12 +65,14 @@ def render_login_page():
             form.username.errors.append("No such user! Please login with a valid username or register to continue.")
     return render_template("index.html", form=form)
 
+
 @view.route("/scheduled", methods=["GET"])
 def render_scheduled_page():
     if current_user.is_authenticated:
         return render_template("scheduled.html", current_user=current_user)
     else:
         return redirect("/login")
+
 
 @view.route("/car-registration", methods=["GET"])
 def render_car_registration_page():
@@ -78,6 +81,7 @@ def render_car_registration_page():
     else:
         return redirect("/login")
 
+
 @view.route("/create-advertisement", methods=["GET", "POST"])
 def render_create_advertisement_page():
     if current_user.is_authenticated:
@@ -85,12 +89,14 @@ def render_create_advertisement_page():
     else:
         return redirect("/login")
 
+
 @view.route("/view-advertisement", methods=["GET"])
 def render_view_advertisement_page():
     if current_user.is_authenticated:
         return render_template("view-advertisement.html", current_user=current_user)
     else:
         return redirect("/login")
+
 
 @view.route("/privileged-page", methods=["GET"])
 @login_required

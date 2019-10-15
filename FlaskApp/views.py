@@ -1,5 +1,5 @@
 from flask import Blueprint, redirect, render_template
-from flask_login import current_user, login_required, login_user
+from flask_login import current_user, login_required, login_user, logout_user
 
 from __init__ import db, login_manager
 from forms import LoginForm, RegistrationForm
@@ -60,6 +60,12 @@ def render_registration_page():
             db.session.commit()
             form.message = "Register successful! Please login with your newly created account."
     return render_template("registration.html", form=form)
+
+
+@view.route("/logout")
+def logout():
+    logout_user()
+    return redirect("/login")
 
 
 @view.route("/login", methods=["GET", "POST"])

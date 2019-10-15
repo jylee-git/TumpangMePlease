@@ -326,9 +326,9 @@ INSERT INTO Place VALUES ('Tampines East');
 INSERT INTO Place VALUES ('Upper Changi');
 
 -- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from
-INSERT INTO Advertisement VALUES (DEFAULT, 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
-INSERT INTO Advertisement VALUES (DEFAULT, 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
-INSERT INTO Advertisement VALUES (DEFAULT, 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-12-12 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-12-12 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-12-12 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
 
 -- Bids: passId, driverID, timePosted, price, status, numPass
 INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2019-12-12 12:30', 10, 'nani?', 2);

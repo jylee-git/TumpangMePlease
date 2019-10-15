@@ -85,7 +85,7 @@ form.loginForm {
     padding-bottom: 15px;
 }
 
-.btn {
+.btn-outline-dark {
     margin-top: 0;
     background-color: rgba(255, 255, 255, 0.2);
 }
@@ -107,9 +107,17 @@ form.loginForm {
 }
 
 .delete-button {
-    background-color: rgba(200, 0, 0, 0.5)
+    background-color: rgba(200, 0, 0, 0.5);
 }
 
 .accept-button {
-    background-color: rgba(0, 200, 0, 0.5)
+    background-color: rgba(0, 200, 0, 0.5);
+}
+
+.bootstrap-datetimepicker-widget {
+    color: black;
+}
+
+.glyphicon {
+    color: black;
 }

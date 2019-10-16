@@ -67,7 +67,7 @@ CREATE TABLE Place (
 );
 
 CREATE TABLE Advertisement (
-    time_posted       TIMESTAMP   DEFAULT current_timestamp,
+    time_posted       TIMESTAMP   DEFAULT date_trunc('second', current_timestamp),
     driver_ID         varchar(50) REFERENCES Driver ON DELETE CASCADE,
     num_passengers    INTEGER     NOT NULL,
     departure_time    TIMESTAMP   NOT NULL,

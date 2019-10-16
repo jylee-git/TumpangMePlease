@@ -19,3 +19,12 @@ class AppUser(db.Model):
 
     def get_id(self):
         return self.username
+
+class Advertisement(db.Model):
+    time_posted = db.Column(db.String, primary_key=True)
+    driver_id = db.Column(db.String, primary_key=True)
+    num_passengers = db.Column(db.String, nullable=False)
+    departure_time = db.Column(db.String, nullable=False)
+    price = db.Column(db.String, nullable=False)
+    to_place = db.Column(db.String, nullable=False)
+    from_place = db.Column(db.String, nullable=False)

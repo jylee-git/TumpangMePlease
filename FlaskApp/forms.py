@@ -4,8 +4,13 @@ from wtforms.validators import InputRequired, ValidationError
 
 
 def is_valid_name(form, field):
-    if not all(map(lambda char: char.isalpha(), field.data)):
-        raise ValidationError('This field should only contain alphabets')
+    if not all(map(lambda char: char.isalpha() or char.isnumeric(), field.data)):
+        raise ValidationError('This field should only contain alphanumerics!')
+
+
+def is_valid_phone_number(form, field):
+    if not all(map(lambda char: char.isnumeric(), field.data)):
+        raise ValidationError('This field should only contain numerics!')
 
 
 def agrees_terms_and_conditions(form, field):
@@ -26,11 +31,12 @@ class RegistrationForm(FlaskForm):
     )
     last_name = StringField(
         label='Last name',
-        validators=[is_valid_name],
+        validators=[InputRequired(), is_valid_name],
         render_kw={'placeholder': 'Last Name'}
     )
     phone_number = StringField(
         label='Phone Number',
+        validators=[InputRequired(), is_valid_phone_number],
         render_kw={'placeholder': 'Phone Number'}
     )
     password = PasswordField(

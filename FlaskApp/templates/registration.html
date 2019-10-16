@@ -33,6 +33,13 @@
 
         <div class="formField">
             {{ form.phone_number }}
+            {% if form.phone_number.errors %}
+                <div class="errorMessage">
+                    {% for error in form.phone_number.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
 
         <div class="formField">

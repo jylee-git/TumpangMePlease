@@ -41,22 +41,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>13/11/2019</td>
-                    <td>13:00:00</td>
-                    <td>Kent Ridge</td>
-                    <td>Changi Airport Terminal 2</td>
-                    <td>4</td>
-                    <td>22</td>
-                    <td>10</td>
-                    <td>00:05:30</td>
-                    <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal"
-                                data-target="#bid-modal">Bid
-                        </button>
-                    </td>
-                </tr>
+                {% for ad in ad_list %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ ad[0] }}</td>
+                        <td>{{ ad[1] }}</td>
+                        <td>{{ ad[2] }}</td>
+                        <td>{{ ad[3] }}</td>
+                        <td>{{ ad[4] }}</td>
+                        <td>{{ ad[5] }}</td>
+                        <td>{{ ad[6] }}</td>
+                        <td>{{ ad[7] }}</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-dark" data-toggle="modal"
+                                    data-target="#bid-modal">Bid
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -73,6 +75,7 @@
                     <th scope="col">Time</th>
                     <th scope="col">Pick up</th>
                     <th scope="col">Destination</th>
+                    <th scope="col"># Passengers</th>
                     <th scope="col">Your Bid ($S)</th>
                     <th scope="col">Highest Bid ($S)</th>
                     <th scope="col">Number of Bidders</th>
@@ -82,21 +85,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>13/11/2019</td>
-                    <td>13:00:00</td>
-                    <td>Kent Ridge</td>
-                    <td>Changi Airport Terminal 2</td>
-                    <td>23</td>
-                    <td>25</td>
-                    <td>10</td>
-                    <td>00:05:30</td>
-                    <td>Pending</td>
-                    <td>
-                        <button type="button" class="btn delete-button">Delete</button>
-                    </td>
-                </tr>
+                {% for bid in bid_list %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ bid[0] }}</td>
+                        <td>{{ bid[1] }}</td>
+                        <td>{{ bid[2] }}</td>
+                        <td>{{ bid[3] }}</td>
+                        <td>{{ bid[4] }}</td>
+                        <td>{{ bid[5] }}</td>
+                        <td>{{ bid[6] }}</td>
+                        <td>{{ bid[7] }}</td>
+                        <td>{{ bid[8] }}</td>
+                        <td>{{ bid[9] }}</td>
+                        <td>
+                            <button type="button" class="btn delete-button">Delete</button>
+                        </td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>

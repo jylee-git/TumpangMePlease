@@ -33,13 +33,15 @@ def render_home_page():
                          "where (a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)) " \
                          "and b.passenger_id= '{}'".format(current_user.username)
         bid_list = db.session.execute(bid_list_query).fetchall()
+        print(bid_list)
+        print(ad_list)
 
         form = BidForm()
         if form.is_submitted():
             print("Bid amount: $", form.bidPrice.data)
             print("numPassengers entered: ", form.num_passengers.data)
 
-        return render_template("home.html", current_user=current_user, ad_list=ad_list, bid_list=bid_list, form=form)
+        return render_template("home.html", current_user=current_user, ad_list=ad_list, bid_list=bid_list)
     else:
         return redirect("/login")
 
@@ -113,7 +115,12 @@ def render_car_registration_page():
 @view.route("/create-advertisement", methods=["GET", "POST"])
 def render_create_advertisement_page():
     if current_user.is_authenticated:
-        return render_template("create-advertisement.html", current_user=current_user)
+        car_model_list_query = "SELECT * FROM belongs WHERE belongs.plate_number in " \
+                               "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}')".format(current_user.username)
+        # car_model_list_query = "SELECT plate_number FROM owns WHERE driver_id = '{}'".format(current_user.username)
+        car_model_list = db.session.execute(car_model_list_query).fetchall()
+        print(car_model_list)
+        return render_template("create-advertisement.html", current_user=current_user, car_model_list = car_model_list)
     else:
         return redirect("/login")
 
@@ -121,7 +128,22 @@ def render_create_advertisement_page():
 @view.route("/view-advertisement", methods=["GET"])
 def render_view_advertisement_page():
     if current_user.is_authenticated:
-        return render_template("view-advertisement.html", current_user=current_user)
+        driver_ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.from_place, a.to_place, " \
+                "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as my_bid," \
+                "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
+                "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
+                "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
+                "(SELECT status from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid_status" \
+                " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
+        driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
+        
+        driver_bid_list_query = "SELECT a.departure_time::time(0) as advertisement_num, " \
+                "(SELECT passenger_id from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as passenger_username," \
+                "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid, a.num_passengers" \
+                " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
+        driver_bid_list = db.session.execute(driver_bid_list_query).fetchall()
+                
+        return render_template("view-advertisement.html", current_user=current_user, driver_ad_list = driver_ad_list, driver_bid_list = driver_bid_list)
     else:
         return redirect("/login")
 

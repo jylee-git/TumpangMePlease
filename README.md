@@ -39,17 +39,16 @@ You may want to set up virtual environment on your machine to void
 package conflicts. But this is optional.
 
 If you are using anaconda, please follow the following step
-`conda create -n yourenvname python=x.x anaconda`
-
-`conda activate yourenvname`
-
-`conda install -n yourenvname [package]`
-
-`conda deactivate`
+<br/>`conda create -n yourenvname python=x.x anaconda`
+<br/>`conda activate yourenvname`
+<br/>`conda install -n yourenvname [package]`
+<br/>`conda deactivate`
 
 The packages needed to run the scripts provided in this guide can be downloaded and installed via:
 
 `pip install -r /<...>/cs2102-python-flask-setup-guide/requirements.txt`
+<br/>or
+<br/>`conda install --file requirements.txt`
 
 Replace `<...>` with the corresponding path to `cs2102-python-flask-setup-guide` folder on your computer.
 

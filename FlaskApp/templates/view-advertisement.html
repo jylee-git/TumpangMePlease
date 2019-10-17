@@ -6,16 +6,17 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="static/css/style-simple.css">
     <link rel="stylesheet" href="jquery.datetimepicker.min.css">
+	
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 </head>
 <body class="blue-background">
 
 {% include 'navbar-header.html' %}
-
 {# if the user does not have a car yet, include the driver registration page #}
-
 {# else show the create advertisement list #}
 
-<div class="container" style="padding-top: 15rem">
+<div class="container" style="padding-top: 5rem">
     <div class="bid-list white-font">
         <h3 class="text-align-center">Advertisements Listed:</h3>
         <br>
@@ -36,21 +37,23 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>13/11/2019</td>
-                <td>13:00:00</td>
-                <td>Kent Ridge</td>
-                <td>Changi Airport Terminal 2</td>
-                <td>23</td>
-                <td>25</td>
-                <td>10</td>
-                <td>00:05:30</td>
-                <td>Pending</td>
+			{% for things in driver_ad_list %}
+				<tr>
+					<th scope="row">{{ loop.index }}</th>
+					<td>{{ things[0] }}</td>
+					<td>{{ things[1] }}</td>
+					<td>{{ things[2] }}</td>
+					<td>{{ things[3] }}</td>
+					<td>{{ things[4] }}</td>
+					<td>{{ things[5] }}</td>
+					<td>{{ things[6] }}</td>
+					<td>{{ things[7] }}</td>
+					<td>{{ things[8] }}</td>
                 <td>
                     <button type="button" class="btn delete-button">Delete</button>
                 </td>
             </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
@@ -72,16 +75,19 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>1</td>
-                <td>adiyogaisthebest</td>
-                <td>25</td>
-                <td>2</td>
+            <tbody>
+			{% for things in driver_bid_list %}
+				<tr>
+					<th scope="row">{{ loop.index }}</th>
+					<td>{{ things[0] }}</td>
+					<td>{{ things[1] }}</td>
+					<td>{{ things[2] }}</td>
+					<td>{{ things[3] }}</td>
                 <td>
                     <button type="button" class="btn accept-button">Accept</button>
                 </td>
             </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, DecimalField, SelectField, IntegerField
 from wtforms.validators import InputRequired, ValidationError
 
 
@@ -11,6 +11,10 @@ def is_valid_name(form, field):
 def is_valid_phone_number(form, field):
     if not all(map(lambda char: char.isnumeric(), field.data)):
         raise ValidationError('This field should only contain numerics!')
+
+def is_valid_bidding_price(form, field):
+    if not int(field.data) > 0.0:
+        raise ValidationError('Please enter a valid bidding price!')
 
 
 def agrees_terms_and_conditions(form, field):
@@ -56,4 +60,19 @@ class LoginForm(FlaskForm):
         label='Password',
         validators=[InputRequired()],
         render_kw={'placeholder': 'Password', 'class': 'input100'}
+    )
+
+######
+# for bid feature
+######
+class BidForm(FlaskForm):
+    bidPrice = DecimalField(
+        label='Bidding Price',
+        validators=[InputRequired(), is_valid_bidding_price],
+        render_kw={'placeholder': 'Bidding price'}
+    )
+    no_passengers = IntegerField(
+        label='Number of Passengers',
+        validators=[InputRequired()],
+        render_kw={'placeholder': 'Number of Passengers'}
     )

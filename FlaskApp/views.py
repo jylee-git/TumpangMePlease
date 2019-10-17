@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, render_template
 from flask_login import current_user, login_required, login_user, logout_user
 
 from __init__ import db, login_manager
-from forms import LoginForm, RegistrationForm
+from forms import LoginForm, RegistrationForm, BidForm
 from models import AppUser
 
 view = Blueprint("view", __name__)
@@ -13,7 +13,7 @@ def load_user(username):
     return user or current_user
 
 
-@view.route("/", methods=["GET"])
+@view.route("/", methods=["GET", "POST"])
 def render_home_page():
     if current_user.is_authenticated:
         ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.from_place, a.to_place, a.num_passengers," \
@@ -34,7 +34,12 @@ def render_home_page():
                          "and b.passenger_id= '{}'".format(current_user.username)
         bid_list = db.session.execute(bid_list_query).fetchall()
 
-        return render_template("home.html", current_user=current_user, ad_list=ad_list, bid_list=bid_list)
+        form = BidForm()
+        if form.is_submitted():
+            print("Bid amount: $", form.bidPrice.data)
+            print("numPassengers entered: ", form.num_passengers.data)
+
+        return render_template("home.html", current_user=current_user, ad_list=ad_list, bid_list=bid_list, form=form)
     else:
         return redirect("/login")
 
@@ -125,3 +130,11 @@ def render_view_advertisement_page():
 @login_required
 def render_privileged_page():
     return "<h1>Hello, {}!</h1>".format(current_user.first_name or current_user.username)
+
+# @view.route("/submit-bid")
+# def execute_bid():
+#     form = BidForm()
+#     if form.is_submitted:
+#         print(form.no_passengers.data)
+#         print(form.bidPrice.data)
+#     return 'nothing'

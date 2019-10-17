@@ -121,19 +121,14 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form class="bid-form">
+                <form class="BidForm">
                     <div class="form-row">
                         <label for="price">Bid Price ($S)</label>
-                        <input type="text" class="form-control" id="price" placeholder="Bidding Price">
+                        <input type="text" class="form-control" id="bidPrice" placeholder="Bidding Price">
                     </div>
                     <div class="form-row" style="margin-top: 3rem">
                         <label for="no_passengers"># of Passengers</label>
-                        <select class="form-control" id="no_passengers">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                        </select>
+                        <input type="number" class="form-control" id="no_passengers" placeholder="Number of passengers">
                     </div>
                     <div class="form-row">
                     </div>
@@ -141,11 +136,15 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn accept-button" id="confirmBidButton">Confirm Bid</button>
+                <button type="button" class="btn accept-button" id="confirmBidButton" formmethod="POST">Confirm Bid</button>
             </div>
             <script>
                 $("#confirmBidButton").on('click', function () {
-                    $(".bid-form").submit();
+                    //$(".bid-form").submit();
+                    $.getJSON('/', function(data) {
+                        //do nth
+                    });
+                    return false;
                 });
             </script>
         </div>

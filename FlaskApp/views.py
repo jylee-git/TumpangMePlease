@@ -16,22 +16,19 @@ def load_user(username):
 @view.route("/", methods=["GET", "POST"])
 def render_home_page():
     if current_user.is_authenticated:
-        ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.driver_id, a.from_place, a.to_place, a.num_passengers," \
+        ad_list_query = "SELECT a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
+                        "a.driver_id, a.from_place, a.to_place, a.num_passengers," \
                 "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
                 "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
                 "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
                 " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
         ad_list = db.session.execute(ad_list_query).fetchall()
 
-        bid_list_query = "select date(a.departure_time) as date, a.departure_time::time(0) as time, a.driver_id, a.from_place, " \
-                         "a.to_place, a.num_passengers, b.price as bid_price," \
-                         "(select max(price) from bids b1 where b1.time_posted = a.time_posted and b1.driver_id = a.driver_id) as highest_bid," \
-                         "(SELECT count(*) from bids b1 where b1.time_posted = a.time_posted and b1.driver_id = a.driver_id) as num_bidders," \
-                         "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
-                         "b.status " \
+        bid_list_query = "select a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
+                         "a.driver_id, a.from_place, a.to_place, a.num_passengers, b.price as bid_price, b.status " \
                          "from advertisement a JOIN bids b ON a.driver_id = b.driver_id and a.time_posted = b.time_posted " \
-                         "where (a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)) " \
-                         "and b.passenger_id= '{}'".format(current_user.username)
+                         "where " \
+                         "b.passenger_id= '{}'".format(current_user.username)
         bid_list = db.session.execute(bid_list_query).fetchall()
 
         # Bid form handling
@@ -39,7 +36,7 @@ def render_home_page():
         if form.is_submitted():
             price = form.price.data
             no_passengers = form.no_passengers.data
-            time_posted = form.hidden_dateposted.data + ' ' + form.hidden_timeposted.data
+            time_posted = form.hidden_timeposted.data
             driver_id = form.hidden_did.data
 
             # disallow bidding to own-self's advertisement
@@ -194,19 +191,19 @@ def render_view_advertisement_page():
         is_current_user_a_driver = Driver.query.filter_by(username=current_user.username).first()
 
         if is_current_user_a_driver:
-            driver_ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.from_place, a.to_place, " \
-                    "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as my_bid," \
-                    "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
-                    "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
-                    "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
-                    "(SELECT status from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid_status" \
-                    " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{}'".format(current_user.username)
+            driver_ad_list_query = "SELECT a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, a.from_place, a.to_place, " \
+                    "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = '{0}') as highest_bid," \
+                    "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = '{0}') as num_bidders," \
+                    "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
+                    " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{0}'".format(current_user.username)
             driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
 
-            driver_bid_list_query = "SELECT a.departure_time::time(0) as advertisement_num, " \
-                    "(SELECT passenger_id from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as passenger_username," \
-                    "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid, a.num_passengers" \
-                    " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{}'".format(current_user.username)
+
+            driver_bid_list_query = "select a.time_posted::timestamp(0) as date_posted, " \
+                         "b.passenger_id, b.price, a.num_passengers " \
+                         "from advertisement a JOIN bids b ON a.driver_id = b.driver_id and a.time_posted = b.time_posted " \
+                         "where " \
+                         "b.driver_id= '{}'".format(current_user.username)
             driver_bid_list = db.session.execute(driver_bid_list_query).fetchall()
 
             return render_template("view-advertisement.html", current_user=current_user, driver_ad_list=driver_ad_list, driver_bid_list=driver_bid_list)

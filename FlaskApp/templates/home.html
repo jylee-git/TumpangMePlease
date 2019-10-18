@@ -29,8 +29,8 @@
                 <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
+                    <th scope="col">Posted At</th>
+                    <th scope="col">Depart At</th>
                     <th scope="col">Driver</th>
                     <th scope="col">Pick up</th>
                     <th scope="col">Destination</th>
@@ -56,12 +56,11 @@
                         <td>{{ ad[8] }}</td>
                         <td>
                             <button type="button" class="btn btn-outline-dark bid-button" data-did="{{ ad[2] }}"
-                                    data-dateposted="{{ ad[0] }}" data-timeposted="{{ ad[1] }}">Bid
+                                    data-timeposted="{{ ad[0] }}">Bid
                             </button>
                             <script>
                                 $('.bid-button').click(function () {
                                     var did = $(this).attr('data-did');
-                                    var dateposted = $(this).attr('data-dateposted');
                                     var timeposted = $(this).attr('data-timeposted');
 
 
@@ -70,7 +69,6 @@
                                     });
 
                                     $("input[name=hidden_did]").val(did);
-                                    $("input[name=hidden_dateposted]").val(dateposted);
                                     $("input[name=hidden_timeposted]").val(timeposted);
 
                                 });</script>
@@ -89,16 +87,13 @@
                 <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
+                    <th scope="col">Posted At</th>
+                    <th scope="col">Depart At</th>
                     <th scope="col">Driver</th>
                     <th scope="col">Pick up</th>
                     <th scope="col">Destination</th>
                     <th scope="col"># Passengers</th>
                     <th scope="col">Your Bid ($S)</th>
-                    <th scope="col">Highest Bid ($S)</th>
-                    <th scope="col">Number of Bidders</th>
-                    <th scope="col">Time Remaining</th>
                     <th scope="col">Bid Status</th>
                     <th scope="col">Delete</th>
                 </tr>
@@ -115,9 +110,6 @@
                         <td>{{ bid[5] }}</td>
                         <td>{{ bid[6] }}</td>
                         <td>{{ bid[7] }}</td>
-                        <td>{{ bid[8] }}</td>
-                        <td>{{ bid[9] }}</td>
-                        <td>{{ bid[10] }}</td>
                         <td>
                             <button type="button" class="btn delete-button">Delete</button>
                         </td>
@@ -145,7 +137,6 @@
                     {{ form.csrf_token }}
 
                     {{ form.hidden_did }}
-                    {{ form.hidden_dateposted }}
                     {{ form.hidden_timeposted }}
 
                     <div class="formField" style="color: black">

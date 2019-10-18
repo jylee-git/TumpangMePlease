@@ -39,6 +39,9 @@
         <div class="form-row white-font">
             <button type="submit" class="btn btn-outline-dark" formmethod="post">Add Car</button>
         </div>
+        {% if register_error %}
+        You don't have a car now. Please register a car here.
+        {% endif %}
         {% if empty_error %}
         Input can't be empty! Must fill in all the fields!
         {% endif %}

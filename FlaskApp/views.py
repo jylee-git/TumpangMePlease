@@ -7,6 +7,7 @@ from models import AppUser
 
 view = Blueprint("view", __name__)
 
+
 @login_manager.user_loader
 def load_user(username):
     user = AppUser.query.filter_by(username=username).first()
@@ -17,10 +18,10 @@ def load_user(username):
 def render_home_page():
     if current_user.is_authenticated:
         ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.driver_id, a.from_place, a.to_place, a.num_passengers," \
-                "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
-                "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
-                "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
-                " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
+                        "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
+                        "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
+                        "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
+                        " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
         ad_list = db.session.execute(ad_list_query).fetchall()
 
         bid_list_query = "select date(a.departure_time) as date, a.departure_time::time(0) as time, a.driver_id, a.from_place, " \
@@ -71,7 +72,7 @@ def render_registration_page():
             form.username.errors.append("{} is already in use.".format(username))
         else:
             query = "INSERT INTO app_user(username, first_name, last_name, password, phone_number) " \
-                    "VALUES ('{}', '{}', '{}', '{}', '{}')"\
+                    "VALUES ('{}', '{}', '{}', '{}', '{}')" \
                 .format(username, first_name, last_name, password, phone_num)
             db.session.execute(query)
             db.session.commit()
@@ -119,7 +120,7 @@ def render_scheduled_page():
         return redirect("/login")
 
 
-@view.route("/car-registration", methods=["GET","POST"])
+@view.route("/car-registration", methods=["GET", "POST"])
 def render_car_registration_page():
     if current_user.is_authenticated:
         if request.method == "POST":
@@ -127,33 +128,33 @@ def render_car_registration_page():
             model = request.form['model']
             plate_num = request.form['plate-num']
             color = request.form['colour']
-            if(brand == "" or model == "" or plate_num == "" or color == "") :
+            if (brand == "" or model == "" or plate_num == "" or color == ""):
                 # input fields are empty
-                return render_template("car-registration.html", current_user=current_user, empty_error = True)
+                return render_template("car-registration.html", current_user=current_user, empty_error=True)
             else:
                 print(brand)
                 print(model)
                 check_model_query = "SELECT * FROM model WHERE " \
-                                "model.brand = '{}' AND model.name = '{}'".format(brand, model)
+                                    "model.brand = '{}' AND model.name = '{}'".format(brand, model)
                 check_model = db.session.execute(check_model_query).fetchall()
-                if(len(check_model) != 0) :
+                if (len(check_model) != 0):
                     # model exists in DB
                     # add plate number and color to car
                     # add car to owns
                     check_car_query = "SELECT * FROM car WHERE car.plate_number = '{}'".format(plate_num)
                     check_car = db.session.execute(check_car_query).fetchall()
-                    if(len(check_car) != 0) :
+                    if (len(check_car) != 0):
                         # The car has been registered!
-                        return render_template("car-registration.html", current_user=current_user, exist_car_error = True)
+                        return render_template("car-registration.html", current_user=current_user, exist_car_error=True)
                     else:
                         add_car_query = "INSERT INTO car(plate_number, colours) " \
-                            "VALUES ('{}', '{}')".format(plate_num, color)
+                                        "VALUES ('{}', '{}')".format(plate_num, color)
                         db.session.execute(add_car_query)
                         add_car_model_query = "INSERT INTO belongs(plate_number, brand, name) " \
-                                        "VALUES ('{}', '{}', '{}')".format(plate_num, brand, model)
+                                              "VALUES ('{}', '{}', '{}')".format(plate_num, brand, model)
                         db.session.execute(add_car_model_query)
                         add_owns_query = "INSERT INTO owns(driver_id, plate_number) " \
-                                        "VALUES ('{}', '{}')".format(current_user.username, plate_num)
+                                         "VALUES ('{}', '{}')".format(current_user.username, plate_num)
                         db.session.execute(add_owns_query)
                         db.session.commit()
                         return render_template("car-registration.html", current_user=current_user, success=True)
@@ -169,20 +170,55 @@ def render_car_registration_page():
 def render_create_advertisement_page():
     if current_user.is_authenticated:
         car_model_list_query = "SELECT * FROM belongs WHERE belongs.plate_number in " \
-                               "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}')".format(current_user.username)
+                               "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}')".format(
+            current_user.username)
         car_model_list = db.session.execute(car_model_list_query).fetchall()
+        if len(car_model_list) == 0 :
+            return redirect("/car-registration")
+        place_list_query = "SELECT * FROM place"
+        place_list = db.session.execute(place_list_query).fetchall()
         print(car_model_list)
         if request.method == "POST":
+            from_place = request.form['from']
+            to_place = request.form['to']
+            num_passenger = request.form['no_passengers']
+            price = request.form['price']
             car_model = request.form['car_model']
-            print(car_model)
-        # max_passenger_query = "WITH X AS " \
-        #                       "(SELECT * FROM belongs WHERE belongs.plate_number in " \
-        #                        "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}'))" \
-        #                        "SELECT MAX(size) FROM model " \
-        #                        "WHERE EXISTS (SELECT 1 FROM X WHERE X.brand = model.brand AND X.name = model.name)".format(current_user.username)
-        # max_passenger = db.session.execute(max_passenger_query).fetchall()
-        # print(max_passenger)
-        return render_template("create-advertisement.html", current_user=current_user, car_model_list = car_model_list)
+            departure_time = request.form['departure_time']
+            if from_place == "" or to_place == "" or num_passenger == "" or car_model == "" or price == "":
+                    return render_template("create-advertisement.html", current_user=current_user,
+                                           car_model_list=car_model_list,
+                                           place_list=place_list, empty_error=True)
+            else:
+                if from_place == to_place:
+                    return render_template("create-advertisement.html", current_user=current_user,
+                                           car_model_list=car_model_list,
+                                           place_list=place_list, same_place_error=True)
+                else:
+                    # check number of passengers
+                    split_string = car_model.split(" ")
+                    car_model_brand = split_string[0]
+                    car_model_name = split_string[1]
+                    check_size_query = "SELECT size from model WHERE model.brand = '{}' AND model.name = '{}'".format(
+                        car_model_brand, car_model_name)
+                    check_size = db.session.execute(check_size_query).fetchall()
+
+                    if int(num_passenger) > check_size[0][0]:
+                        return render_template("create-advertisement.html", current_user=current_user,
+                                               car_model_list=car_model_list,
+                                               place_list=place_list, exceed_limit_error=True)
+                    else:
+                        add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place) " \
+                                                  "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}')".format \
+                            (current_user.username, num_passenger, departure_time, price, to_place, from_place)
+                        db.session.execute(add_advertisement_query)
+                        db.session.commit()
+                        return render_template("create-advertisement.html", current_user=current_user,
+                                               car_model_list=car_model_list,
+                                               place_list=place_list, success=True)
+
+        return render_template("create-advertisement.html", current_user=current_user, car_model_list=car_model_list,
+                               place_list=place_list)
     else:
         return redirect("/login")
 
@@ -191,21 +227,22 @@ def render_create_advertisement_page():
 def render_view_advertisement_page():
     if current_user.is_authenticated:
         driver_ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.from_place, a.to_place, " \
-                "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as my_bid," \
-                "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
-                "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
-                "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
-                "(SELECT status from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid_status" \
-                " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
+                               "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as my_bid," \
+                               "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
+                               "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
+                               "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
+                               "(SELECT status from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid_status" \
+                               " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
         driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
-        
+
         driver_bid_list_query = "SELECT a.departure_time::time(0) as advertisement_num, " \
-                "(SELECT passenger_id from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as passenger_username," \
-                "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid, a.num_passengers" \
-                " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
+                                "(SELECT passenger_id from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as passenger_username," \
+                                "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid, a.num_passengers" \
+                                " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
         driver_bid_list = db.session.execute(driver_bid_list_query).fetchall()
-                
-        return render_template("view-advertisement.html", current_user=current_user, driver_ad_list = driver_ad_list, driver_bid_list = driver_bid_list)
+
+        return render_template("view-advertisement.html", current_user=current_user, driver_ad_list=driver_ad_list,
+                               driver_bid_list=driver_bid_list)
     else:
         return redirect("/login")
 

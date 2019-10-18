@@ -67,7 +67,7 @@ CREATE TABLE Place (
 );
 
 CREATE TABLE Advertisement (
-    time_posted       TIMESTAMP   DEFAULT current_timestamp,
+    time_posted       TIMESTAMP   DEFAULT date_trunc('second', current_timestamp),
     driver_ID         varchar(50) REFERENCES Driver ON DELETE CASCADE,
     num_passengers    INTEGER     NOT NULL,
     departure_time    TIMESTAMP   NOT NULL,
@@ -92,6 +92,7 @@ CREATE TABLE Bids (
     no_passengers    INTEGER,
     PRIMARY KEY (passenger_ID, time_posted, driver_ID),
     CHECK       (passenger_ID <> driver_ID)
+    CHECK       (status = 'ongoing' OR status = 'successful' OR status = 'failed')
 );
 
 CREATE TABLE Scheduled_Ride (
@@ -326,17 +327,17 @@ INSERT INTO Place VALUES ('Tampines East');
 INSERT INTO Place VALUES ('Upper Changi');
 
 -- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from
-INSERT INTO Advertisement VALUES (TIMESTAMP '2019-12-12 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2019-12-12 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2019-12-12 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
 
 -- Bids: passId, driverID, timePosted, price, status, numPass
-INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2019-12-12 12:30', 10, 'nani?', 2);
-INSERT INTO Bids VALUES ('user12', 'user3', TIMESTAMP '2019-12-12 12:30', 20, 'nani?', 2);
-INSERT INTO Bids VALUES ('user13', 'user3', TIMESTAMP '2019-12-12 12:30', 30, 'nani?', 2);
-INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2019-12-12 12:30', 10, 'nani?', 2);
-INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2019-12-12 12:30', 20, 'nani?', 2);
-INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2019-12-12 12:30', 30, 'nani?', 2);
+INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 10, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user12', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user13', 'user3', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2018-12-10 12:30', 10, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
 
 -- Ride: rideID(NULL), passID, driverID, timePosted, status
 INSERT INTO Scheduled_Ride VALUES(DEFAULT, 'user11', 'user3', TIMESTAMP '2019-12-12 12:30', DEFAULT);

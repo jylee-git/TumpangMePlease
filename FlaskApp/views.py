@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, render_template, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from __init__ import db, login_manager
-from forms import LoginForm, RegistrationForm
+from forms import LoginForm, RegistrationForm, BidForm
 from models import AppUser
 
 view = Blueprint("view", __name__)
@@ -13,17 +13,17 @@ def load_user(username):
     return user or current_user
 
 
-@view.route("/", methods=["GET"])
+@view.route("/", methods=["GET", "POST"])
 def render_home_page():
     if current_user.is_authenticated:
-        ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.from_place, a.to_place, a.num_passengers," \
+        ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.driver_id, a.from_place, a.to_place, a.num_passengers," \
                 "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
                 "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
                 "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
                 " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
         ad_list = db.session.execute(ad_list_query).fetchall()
 
-        bid_list_query = "select date(a.departure_time) as date, a.departure_time::time(0) as time, a.from_place, " \
+        bid_list_query = "select date(a.departure_time) as date, a.departure_time::time(0) as time, a.driver_id, a.from_place, " \
                          "a.to_place, a.num_passengers, b.price as bid_price," \
                          "(select max(price) from bids b1 where b1.time_posted = a.time_posted and b1.driver_id = a.driver_id) as highest_bid," \
                          "(SELECT count(*) from bids b1 where b1.time_posted = a.time_posted and b1.driver_id = a.driver_id) as num_bidders," \
@@ -33,9 +33,25 @@ def render_home_page():
                          "where (a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)) " \
                          "and b.passenger_id= '{}'".format(current_user.username)
         bid_list = db.session.execute(bid_list_query).fetchall()
-        print(bid_list)
-        print(ad_list)
-        return render_template("home.html", current_user=current_user, ad_list=ad_list, bid_list=bid_list)
+
+        # Bid form handling
+        form = BidForm()
+        if form.is_submitted():
+            price = form.price.data
+            no_passengers = form.no_passengers.data
+            time_posted = form.hidden_dateposted.data + ' ' + form.hidden_timeposted.data
+            driver_id = form.hidden_did.data
+
+            # disallow bidding to own-self's advertisement
+
+            # update when exists, insert when it does not exists
+            query = "INSERT INTO bids(passenger_id, driver_id, time_posted, price, status, no_passengers) " \
+                    "VALUES ('{}', '{}', '{}', '{}', 'ongoing', '{}')".format(current_user.username, driver_id,
+                                                                              time_posted, price, no_passengers)
+            db.session.execute(query)
+            db.session.commit()
+
+        return render_template("home.html", form=form, current_user=current_user, ad_list=ad_list, bid_list=bid_list)
     else:
         return redirect("/login")
 
@@ -59,6 +75,11 @@ def render_registration_page():
                 .format(username, first_name, last_name, password, phone_num)
             db.session.execute(query)
             db.session.commit()
+
+            query = "INSERT INTO passenger(username, p_rating) VALUES('{}', NULL)".format(username)
+            db.session.execute(query)
+            db.session.commit()
+
             form.message = "Register successful! Please login with your newly created account."
     return render_template("registration.html", form=form)
 

@@ -20,6 +20,7 @@ class AppUser(db.Model):
     def get_id(self):
         return self.username
 
+
 class Advertisement(db.Model):
     time_posted = db.Column(db.String, primary_key=True)
     driver_id = db.Column(db.String, primary_key=True)
@@ -28,3 +29,12 @@ class Advertisement(db.Model):
     price = db.Column(db.String, nullable=False)
     to_place = db.Column(db.String, nullable=False)
     from_place = db.Column(db.String, nullable=False)
+
+
+class Bids(db.Model):
+    passenger_id = db.Column(db.String, primary_key=True)
+    driver_id = db.Column(db.String, primary_key=True)
+    time_posted = db.Column(db.String, primary_key=True)
+    price = db.Column(db.String, nullable=False)
+    status = db.Column(db.String)
+    no_passengers = db.Column(db.String, nullable=False)

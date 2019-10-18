@@ -59,6 +59,11 @@ def render_registration_page():
                 .format(username, first_name, last_name, password, phone_num)
             db.session.execute(query)
             db.session.commit()
+
+            query = "INSERT INTO passenger(username, p_rating) VALUES('{}', NULL)".format(username)
+            db.session.execute(query)
+            db.session.commit()
+
             form.message = "Register successful! Please login with your newly created account."
     return render_template("registration.html", form=form)
 

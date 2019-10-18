@@ -15,29 +15,29 @@
     <div class="car-registration-title white-font">
         <h3 class="text-align-center">Add your car details and you'll be ready to start sharing rides!</h3>
     </div>
-    <form class="car-registration-form">
+    <form class="car-registration-form" method="post">
         <div class="form-row white-font">
             <div class="form-group col-md-6">
                 <label for="brand">Brand</label>
-                <input type="text" class="form-control" id="brand" placeholder="e.g. Mazda">
+                <input type="text" class="form-control" name="brand" placeholder="e.g. Mazda">
             </div>
             <div class="form-group col-md-6">
                 <label for="model">Model</label>
-                <input type="text" class="form-control" id="model" placeholder="e.g. CX5">
+                <input type="text" class="form-control" name="model" placeholder="e.g. CX5">
             </div>
         </div>
         <div class="form-row white-font">
             <div class="form-group col-md-6">
                 <label for="plate-num">Car Plate Number</label>
-                <input type="text" class="form-control" id="plate-num" placeholder="e.g. SXX1234">
+                <input type="text" class="form-control" name="plate-num" placeholder="e.g. SXX1234">
             </div>
             <div class="form-group col-md-6">
                 <label for="colour">Car Colour</label>
-                <input type="text" class="form-control" id="colour" placeholder="e.g. Red">
+                <input type="text" class="form-control" name="colour" placeholder="e.g. Red">
             </div>
         </div>
         <div class="form-row white-font">
-            <button type="button" class="btn btn-outline-dark" formmethod="post">Add Car</button>
+            <button type="submit" class="btn btn-outline-dark" formmethod="post">Add Car</button>
         </div>
     </form>
 </div>

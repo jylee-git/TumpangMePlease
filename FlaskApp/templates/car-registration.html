@@ -39,6 +39,18 @@
         <div class="form-row white-font">
             <button type="submit" class="btn btn-outline-dark" formmethod="post">Add Car</button>
         </div>
+        {% if empty_error %}
+        Input can't be empty! Must fill in all the fields!
+        {% endif %}
+        {% if car_model_error %}
+        The car brand and model don't exist!
+        {% endif %}
+        {% if exist_car_error %}
+        You have already registered this car!
+        {% endif %}
+        {% if success %}
+        You have successfully registered this car!
+        {% endif %}
     </form>
 </div>
 </body>

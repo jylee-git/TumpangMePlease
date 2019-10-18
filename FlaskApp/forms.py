@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, SelectField, HiddenField
 from wtforms.validators import InputRequired, ValidationError
 
 
@@ -8,7 +8,7 @@ def is_valid_name(form, field):
         raise ValidationError('This field should only contain alphanumerics!')
 
 
-def is_valid_phone_number(form, field):
+def is_valid_number(form, field):
     if not all(map(lambda char: char.isnumeric(), field.data)):
         raise ValidationError('This field should only contain numerics!')
 
@@ -36,7 +36,7 @@ class RegistrationForm(FlaskForm):
     )
     phone_number = StringField(
         label='Phone Number',
-        validators=[InputRequired(), is_valid_phone_number],
+        validators=[InputRequired(), is_valid_number],
         render_kw={'placeholder': 'Phone Number'}
     )
     password = PasswordField(
@@ -57,3 +57,19 @@ class LoginForm(FlaskForm):
         validators=[InputRequired()],
         render_kw={'placeholder': 'Password', 'class': 'input100'}
     )
+
+
+class BidForm(FlaskForm):
+    hidden_did = HiddenField()
+    hidden_dateposted = HiddenField()
+    hidden_timeposted = HiddenField()
+    price = StringField(
+        label='Price',
+        validators=[InputRequired(), is_valid_number],
+        render_kw={'placeholder': 'Bidding Price ($)'}
+    )
+    no_passengers = SelectField(
+        label='# of Passengers',
+        choices=[(1, 1), (2, 2), (3, 3), (4, 4)]
+    )
+

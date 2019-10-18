@@ -212,7 +212,8 @@ def render_view_advertisement_page():
             return render_template("view-advertisement.html", current_user=current_user, driver_ad_list=driver_ad_list, driver_bid_list=driver_bid_list)
         else:
             # disallow user to view advertisement that he has created if he's not a driver in the first place
-            return render_template("car-registration.html")
+            message = "Please register a car in order to view your list of advertisements!"
+            return render_template("car-registration.html", message=message)
     else:
         return redirect("/login")
 

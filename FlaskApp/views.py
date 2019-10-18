@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template
+from flask import Blueprint, redirect, render_template, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from __init__ import db, login_manager
@@ -119,9 +119,45 @@ def render_scheduled_page():
         return redirect("/login")
 
 
-@view.route("/car-registration", methods=["GET"])
+@view.route("/car-registration", methods=["GET","POST"])
 def render_car_registration_page():
     if current_user.is_authenticated:
+        if request.method == "POST":
+            brand = request.form['brand']
+            model = request.form['model']
+            plate_num = request.form['plate-num']
+            color = request.form['colour']
+            if(brand == "" or model == "" or plate_num == "" or color == "") :
+                # input fields are empty
+                return render_template("car-registration.html", current_user=current_user, empty_error = True)
+            else:
+                print(brand)
+                print(model)
+                check_model_query = "SELECT * FROM model WHERE " \
+                                "model.brand = '{}' AND model.name = '{}'".format(brand, model)
+                check_model = db.session.execute(check_model_query).fetchall()
+                if(len(check_model) != 0) :
+                    # model exists in DB
+                    # add plate number and color to car
+                    # add car to owns
+                    check_car_query = "SELECT * FROM car WHERE car.plate_number = '{}'".format(plate_num)
+                    check_car = db.session.execute(check_car_query).fetchall()
+                    if(len(check_car) != 0) :
+                        # The car has been registered!
+                        return render_template("car-registration.html", current_user=current_user, exist_car_error = True)
+                    else:
+                        add_car_query = "INSERT INTO car(plate_number, colours) " \
+                            "VALUES ('{}', '{}')".format(plate_num, color)
+                        db.session.execute(add_car_query)
+                        db.session.commit()
+                        add_owns_query = "INSERT INTO owns(driver_id, plate_number) " \
+                                        "VALUES ('{}', '{}')".format(current_user.username, plate_num)
+                        db.session.execute(add_owns_query)
+                        db.session.commit()
+                        return render_template("car-registration.html", current_user=current_user, success=True)
+                else:
+                    # model doesn't exist in DB
+                    return render_template("car-registration.html", current_user=current_user, car_model_error=True)
         return render_template("car-registration.html", current_user=current_user)
     else:
         return redirect("/login")
@@ -132,10 +168,16 @@ def render_create_advertisement_page():
     if current_user.is_authenticated:
         car_model_list_query = "SELECT * FROM belongs WHERE belongs.plate_number in " \
                                "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}')".format(current_user.username)
-        # car_model_list_query = "SELECT plate_number FROM owns WHERE driver_id = '{}'".format(current_user.username)
         car_model_list = db.session.execute(car_model_list_query).fetchall()
         print(car_model_list)
-        return render_template("create-advertisement.html", current_user=current_user, car_model_list = car_model_list)
+        max_passenger_query = "WITH X AS " \
+                              "(SELECT * FROM belongs WHERE belongs.plate_number in " \
+                               "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}'))" \
+                               "SELECT MAX(size) FROM model " \
+                               "WHERE EXISTS (SELECT 1 FROM X WHERE X.brand = model.brand AND X.name = model.name)".format(current_user.username)
+        max_passenger = db.session.execute(max_passenger_query).fetchall()
+        print(max_passenger)
+        return render_template("create-advertisement.html", current_user=current_user, car_model_list = car_model_list, max_passenger = max_passenger)
     else:
         return redirect("/login")
 

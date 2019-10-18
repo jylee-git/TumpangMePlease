@@ -37,12 +37,13 @@
         <div class="form-row white-font">
             <div class="form-group col-md-3">
                 <label for="no_passengers">Max # of Passengers</label>
-                <select class="form-control" id="no_passengers">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                </select>
+                <input type="text" class="form-control" id="no_passengers" placeholder="Number of Passengers">
+<!--                <select class="form-control" id="no_passengers">-->
+<!--                    <option>1</option>-->
+<!--                    <option>2</option>-->
+<!--                    <option>3</option>-->
+<!--                    <option>4</option>-->
+<!--                </select>-->
             </div>
             <div class="form-group col-md-3">
                 <label for="price">Min Price ($S)</label>
@@ -50,12 +51,14 @@
             </div>
             <div class="form-group col-md-6">
                 <label for="car">Car Using For This Advertisement</label>
-                <select class="form-control" id="car_models">
-                    {# need to convert this to the cars inputted by driver #}
-                    {% for car_model in car_model_list %}
-                        <option>{{car_model[1] + " " + car_model[2] + " (" + car_model[0] + ")"}}</option>
-                    {% endfor %}
-                </select>
+                <form id="car_model_form" name="car_model_form" method="POST">
+                    <select class="form-control" id="car_model" name="car_model" onchange="this.form.submit();">
+                        {# need to convert this to the cars inputted by driver #}
+                        {% for car_model in car_model_list %}
+                            <option>{{car_model[1] + " " + car_model[2] + " (" + car_model[0] + ")"}}</option>
+                        {% endfor %}
+                    </select>
+                </form>
             </div>
         </div>
 

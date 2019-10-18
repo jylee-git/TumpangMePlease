@@ -3,7 +3,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from __init__ import db, login_manager
 from forms import LoginForm, RegistrationForm, BidForm
-from models import AppUser
+from models import AppUser, Driver
 
 view = Blueprint("view", __name__)
 
@@ -190,22 +190,29 @@ def render_create_advertisement_page():
 @view.route("/view-advertisement", methods=["GET"])
 def render_view_advertisement_page():
     if current_user.is_authenticated:
-        driver_ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.from_place, a.to_place, " \
-                "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as my_bid," \
-                "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
-                "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
-                "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
-                "(SELECT status from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid_status" \
-                " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{}'".format(current_user.username)
-        driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
-        
-        driver_bid_list_query = "SELECT a.departure_time::time(0) as advertisement_num, " \
-                "(SELECT passenger_id from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as passenger_username," \
-                "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid, a.num_passengers" \
-                " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{}'".format(current_user.username)
-        driver_bid_list = db.session.execute(driver_bid_list_query).fetchall()
-                
-        return render_template("view-advertisement.html", current_user=current_user, driver_ad_list = driver_ad_list, driver_bid_list = driver_bid_list)
+
+        is_current_user_a_driver = Driver.query.filter_by(username=current_user.username).first()
+
+        if is_current_user_a_driver:
+            driver_ad_list_query = "SELECT date(a.departure_time) as date, a.departure_time::time(0) as time, a.from_place, a.to_place, " \
+                    "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as my_bid," \
+                    "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
+                    "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
+                    "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
+                    "(SELECT status from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid_status" \
+                    " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{}'".format(current_user.username)
+            driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
+
+            driver_bid_list_query = "SELECT a.departure_time::time(0) as advertisement_num, " \
+                    "(SELECT passenger_id from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as passenger_username," \
+                    "(SELECT price from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as bid, a.num_passengers" \
+                    " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{}'".format(current_user.username)
+            driver_bid_list = db.session.execute(driver_bid_list_query).fetchall()
+
+            return render_template("view-advertisement.html", current_user=current_user, driver_ad_list=driver_ad_list, driver_bid_list=driver_bid_list)
+        else:
+            # disallow user to view advertisement that he has created if he's not a driver in the first place
+            return render_template("car-registration.html")
     else:
         return redirect("/login")
 

@@ -149,7 +149,9 @@ def render_car_registration_page():
                         add_car_query = "INSERT INTO car(plate_number, colours) " \
                             "VALUES ('{}', '{}')".format(plate_num, color)
                         db.session.execute(add_car_query)
-                        db.session.commit()
+                        add_car_model_query = "INSERT INTO belongs(plate_number, brand, name) " \
+                                        "VALUES ('{}', '{}', '{}')".format(plate_num, brand, model)
+                        db.session.execute(add_car_model_query)
                         add_owns_query = "INSERT INTO owns(driver_id, plate_number) " \
                                         "VALUES ('{}', '{}')".format(current_user.username, plate_num)
                         db.session.execute(add_owns_query)
@@ -170,14 +172,17 @@ def render_create_advertisement_page():
                                "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}')".format(current_user.username)
         car_model_list = db.session.execute(car_model_list_query).fetchall()
         print(car_model_list)
-        max_passenger_query = "WITH X AS " \
-                              "(SELECT * FROM belongs WHERE belongs.plate_number in " \
-                               "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}'))" \
-                               "SELECT MAX(size) FROM model " \
-                               "WHERE EXISTS (SELECT 1 FROM X WHERE X.brand = model.brand AND X.name = model.name)".format(current_user.username)
-        max_passenger = db.session.execute(max_passenger_query).fetchall()
-        print(max_passenger)
-        return render_template("create-advertisement.html", current_user=current_user, car_model_list = car_model_list, max_passenger = max_passenger)
+        if request.method == "POST":
+            car_model = request.form['car_model']
+            print(car_model)
+        # max_passenger_query = "WITH X AS " \
+        #                       "(SELECT * FROM belongs WHERE belongs.plate_number in " \
+        #                        "(SELECT plate_number FROM owns WHERE owns.driver_id = '{}'))" \
+        #                        "SELECT MAX(size) FROM model " \
+        #                        "WHERE EXISTS (SELECT 1 FROM X WHERE X.brand = model.brand AND X.name = model.name)".format(current_user.username)
+        # max_passenger = db.session.execute(max_passenger_query).fetchall()
+        # print(max_passenger)
+        return render_template("create-advertisement.html", current_user=current_user, car_model_list = car_model_list)
     else:
         return redirect("/login")
 

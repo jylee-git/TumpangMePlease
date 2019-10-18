@@ -92,6 +92,7 @@ CREATE TABLE Bids (
     no_passengers    INTEGER,
     PRIMARY KEY (passenger_ID, time_posted, driver_ID),
     CHECK       (passenger_ID <> driver_ID)
+    CHECK       (status = 'ongoing' OR status = 'successful' OR status = 'failed')
 );
 
 CREATE TABLE Scheduled_Ride (

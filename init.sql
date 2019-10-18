@@ -33,8 +33,7 @@ CREATE TABLE App_User (
 
 CREATE TABLE Driver (
     username     varchar(50) PRIMARY KEY REFERENCES App_User ON DELETE CASCADE,
-    d_rating     INTEGER,
-    license_no   INTEGER NOT NULL
+    d_rating     INTEGER
 );
 
 CREATE TABLE Passenger (
@@ -181,10 +180,10 @@ insert into Passenger values ('user18');
 insert into Passenger values ('user19');
 insert into Passenger values ('user20');
 
--- Driver: username, d_rating(NULL), license_no
-INSERT INTO Driver VALUES ('user1', NULL, 1234567);
-INSERT INTO Driver VALUES ('user2', NULL, 2337);
-INSERT INTO Driver VALUES ('user3', NULL, 22023);
+-- Driver: username, d_rating(NULL)
+INSERT INTO Driver VALUES ('user1', NULL);
+INSERT INTO Driver VALUES ('user2', NULL);
+INSERT INTO Driver VALUES ('user3', NULL);
 
 -- Model: brand, name, size
 INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);

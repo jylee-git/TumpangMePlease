@@ -31,6 +31,7 @@
                     <th scope="col">#</th>
                     <th scope="col">Date</th>
                     <th scope="col">Time</th>
+                    <th scope="col">Driver</th>
                     <th scope="col">Pick up</th>
                     <th scope="col">Destination</th>
                     <th scope="col"># Spots</th>
@@ -52,10 +53,27 @@
                         <td>{{ ad[5] }}</td>
                         <td>{{ ad[6] }}</td>
                         <td>{{ ad[7] }}</td>
+                        <td>{{ ad[8] }}</td>
                         <td>
-                            <button type="button" class="btn btn-outline-dark" data-toggle="modal"
-                                    data-target="#bid-modal">Bid
+                            <button type="button" class="btn btn-outline-dark bid-button" data-did="{{ ad[2] }}"
+                                    data-dateposted="{{ ad[0] }}" data-timeposted="{{ ad[1] }}">Bid
                             </button>
+                            <script>
+                                $('.bid-button').click(function () {
+                                    var did = $(this).attr('data-did');
+                                    var dateposted = $(this).attr('data-dateposted');
+                                    var timeposted = $(this).attr('data-timeposted');
+
+
+                                    $('#bid-modal').modal({
+                                        show: true
+                                    });
+
+                                    $("input[name=hidden_did]").val(did);
+                                    $("input[name=hidden_dateposted]").val(dateposted);
+                                    $("input[name=hidden_timeposted]").val(timeposted);
+
+                                });</script>
                         </td>
                     </tr>
                 {% endfor %}
@@ -73,6 +91,7 @@
                     <th scope="col">#</th>
                     <th scope="col">Date</th>
                     <th scope="col">Time</th>
+                    <th scope="col">Driver</th>
                     <th scope="col">Pick up</th>
                     <th scope="col">Destination</th>
                     <th scope="col"># Passengers</th>
@@ -98,6 +117,7 @@
                         <td>{{ bid[7] }}</td>
                         <td>{{ bid[8] }}</td>
                         <td>{{ bid[9] }}</td>
+                        <td>{{ bid[10] }}</td>
                         <td>
                             <button type="button" class="btn delete-button">Delete</button>
                         </td>
@@ -121,27 +141,41 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form class="bid-form">
-                    <div class="form-row">
-                        <label for="price">Bid Price ($S)</label>
-                        <input type="text" class="form-control" id="price" placeholder="Bidding Price">
+                <form class="bid-form" method="post" action="/">
+                    {{ form.csrf_token }}
+
+                    {{ form.hidden_did }}
+                    {{ form.hidden_dateposted }}
+                    {{ form.hidden_timeposted }}
+
+                    <div class="formField" style="color: black">
+                        {{ form.price }}
+                        {% if form.price.errors %}
+                            <div class="errorMessage">
+                                {% for error in form.price.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
-                    <div class="form-row" style="margin-top: 3rem">
-                        <label for="no_passengers"># of Passengers</label>
-                        <select class="form-control" id="no_passengers">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
+
+                    <div class="formField" style="color: black">
+                        No of passengers:
+                        {{ form.no_passengers }}
+                        {% if form.no_passengers.errors %}
+                            <div class="errorMessage">
+                                {% for error in form.no_passengers.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn accept-button" id="confirmBidButton">Confirm Bid</button>
+                <button type="button" class="btn accept-button" id="confirmBidButton">Confirm Bid
+                </button>
             </div>
             <script>
                 $("#confirmBidButton").on('click', function () {

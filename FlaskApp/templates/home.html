@@ -21,6 +21,16 @@
             </form>
         </div>
     </div>
+    <div>
+        <div class="error-summary errorMessage">
+            {% for error in form.no_passengers.errors %}
+                <h4> Error in your number of passengers: {{ error }} </h4>
+            {% endfor %}
+            {% for error in form.price.errors %}
+                <h4> Error in your bidding price: {{ error }} </h4>
+            {% endfor %}
+        </div>
+    </div>
     <div class="container" style="padding-top: 5rem">
         <div class="advertisement-list white-font">
             <h3 class="text-align-center">Current rides available:</h3>
@@ -56,21 +66,20 @@
                         <td>{{ ad[8] }}</td>
                         <td>
                             <button type="button" class="btn btn-outline-dark bid-button" data-did="{{ ad[2] }}"
-                                    data-timeposted="{{ ad[0] }}">Bid
+                                    data-dateposted="{{ ad[0] }}" data-maxPax="{{ ad[5] }}">Bid
                             </button>
                             <script>
                                 $('.bid-button').click(function () {
                                     var did = $(this).attr('data-did');
-                                    var timeposted = $(this).attr('data-timeposted');
-
-
+                                    var dateposted = $(this).attr('data-dateposted');
                                     $('#bid-modal').modal({
                                         show: true
                                     });
 
+                                    // Setting the hidden value so that the other HTML can use
                                     $("input[name=hidden_did]").val(did);
-                                    $("input[name=hidden_timeposted]").val(timeposted);
-
+                                    $("input[name=hidden_dateposted]").val(dateposted);
+                                    $("input[name=hidden_maxPax]").val($(this).attr('data-maxPax'));
                                 });</script>
                         </td>
                     </tr>
@@ -111,7 +120,24 @@
                         <td>{{ bid[6] }}</td>
                         <td>{{ bid[7] }}</td>
                         <td>
-                            <button type="button" class="btn delete-button">Delete</button>
+                            <button type="button" class="btn delete-button" 
+                            onclick="deleteBid('{{ bid[2] }}', '{{ bid[0] }}')">Delete</button>
+                            <script>
+                                function deleteBid(driverID, datePosted) {
+                                    if (confirm("Are you sure to delete the bid?")) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/delete_bid",
+                                            data: {driver_id: driverID, dateposted: datePosted},
+                                            dataType: "text",
+                                            success: function(data) {
+                                                alert("Successfully removed bid.");
+                                                location.reload();
+                                            }
+                                        });
+                                    }
+                                }
+                            </script>
                         </td>
                     </tr>
                 {% endfor %}
@@ -137,7 +163,8 @@
                     {{ form.csrf_token }}
 
                     {{ form.hidden_did }}
-                    {{ form.hidden_timeposted }}
+                    {{ form.hidden_dateposted }}
+                    {{ form.hidden_maxPax }}
 
                     <div class="formField" style="color: black">
                         {{ form.price }}

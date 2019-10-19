@@ -5,6 +5,8 @@ from __init__ import db, login_manager
 from forms import LoginForm, RegistrationForm, BidForm
 from models import AppUser, Driver
 
+from bidManager import makeBid
+
 view = Blueprint("view", __name__)
 
 
@@ -27,7 +29,7 @@ def render_home_page():
         ad_list = db.session.execute(ad_list_query).fetchall()
 
         bid_list_query = "select a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
-                         "a.driver_id, a.from_place, a.to_place, a.num_passengers, b.price as bid_price, b.status " \
+                         "a.driver_id, a.from_place, a.to_place, b.no_passengers, b.price as bid_price, b.status " \
                          "from advertisement a JOIN bids b ON a.driver_id = b.driver_id and a.time_posted = b.time_posted " \
                          "where " \
                          "b.passenger_id= '{}'".format(current_user.username)
@@ -35,20 +37,20 @@ def render_home_page():
 
         # Bid form handling
         form = BidForm()
+        form.no_passengers.errors = ''
+        form.no_passengers.errors = ''
         if form.is_submitted():
             price = form.price.data
             no_passengers = form.no_passengers.data
-            time_posted = form.hidden_timeposted.data
+            time_posted = form.hidden_dateposted.data
             driver_id = form.hidden_did.data
-
-            # disallow bidding to own-self's advertisement
-
-            # update when exists, insert when it does not exists
-            query = "INSERT INTO bids(passenger_id, driver_id, time_posted, price, status, no_passengers) " \
-                    "VALUES ('{}', '{}', '{}', '{}', 'ongoing', '{}')".format(current_user.username, driver_id,
-                                                                              time_posted, price, no_passengers)
-            db.session.execute(query)
-            db.session.commit()
+            if form.validate_on_submit():
+                # disallow bidding to own-self's advertisement
+                if int(no_passengers) > int(form.hidden_maxPax.data):
+                    form.no_passengers.errors.append('Max number of passengers allowed should be {}.'.format(form.hidden_maxPax.data))
+                else:
+                    makeBid(current_user.username, time_posted, driver_id, price, no_passengers)
+                    return redirect("/")
 
         return render_template("home.html", form=form, current_user=current_user, ad_list=ad_list, bid_list=bid_list)
     else:
@@ -256,3 +258,17 @@ def render_view_advertisement_page():
 @login_required
 def render_privileged_page():
     return "<h1>Hello, {}!</h1>".format(current_user.first_name or current_user.username)
+
+
+####
+# BID RELATED FUNCTIONALITIES
+####
+@view.route("/delete_bid", methods=["GET", "POST"])
+def delete_bid():
+    print('request.form: ', request.form)
+    query = "DELETE FROM Bids WHERE (passenger_ID, time_posted, driver_ID) = ('{}', '{}', '{}')"\
+        .format(current_user.username, request.form['dateposted'], request.form['driver_id'])
+    print(query)
+    db.session.execute(query)
+    db.session.commit()
+    return redirect("/")

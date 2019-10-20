@@ -100,6 +100,7 @@ CREATE TABLE Ride (
     driver_ID      varchar(50) NOT NULL,
     time_posted    TIMESTAMP   NOT NULL,
     status         varchar(20) DEFAULT 'pending',
+    is_paid        BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (passenger_ID, time_posted, driver_ID) REFERENCES Bids,
 
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
@@ -339,7 +340,7 @@ INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2018-12-10 12:30', 20, 'o
 INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
 
 -- Ride: rideID(NULL), passID, driverID, timePosted, status
-INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT);
+INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT);
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');

@@ -115,7 +115,20 @@ def render_login_page():
 @view.route("/scheduled", methods=["GET"])
 def render_scheduled_page():
     if current_user.is_authenticated:
-        return render_template("scheduled.html", current_user=current_user)
+        upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid FROM Ride r" \
+                               " INNER JOIN " \
+                               "Advertisement a " \
+                               "ON r.time_posted = a.time_posted and r.driver_id = a.driver_id" \
+                               " INNER JOIN " \
+                               "Owns o " \
+                               "ON r.driver_id = o.driver_id " \
+                               " INNER JOIN " \
+                               "app_user a_u " \
+                               "ON r.driver_id = a_u.username " \
+                               "WHERE r.passenger_id = '{}'".format(current_user.username)
+        upcoming_rides = db.session.execute(upcoming_rides_query).fetchall()
+        print(upcoming_rides)
+        return render_template("scheduled.html", current_user=current_user, upcoming_rides=upcoming_rides)
     else:
         return redirect("/login")
 

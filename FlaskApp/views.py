@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, render_template, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from __init__ import db, login_manager
-from forms import LoginForm, RegistrationForm, BidForm
+from forms import LoginForm, RegistrationForm, BidForm, PaymentForm
 from models import AppUser, Driver
 
 from bidManager import makeBid
@@ -115,7 +115,8 @@ def render_login_page():
 @view.route("/scheduled", methods=["GET"])
 def render_scheduled_page():
     if current_user.is_authenticated:
-        upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid FROM Ride r" \
+        upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, " \
+                               "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid FROM Ride r" \
                                " INNER JOIN " \
                                "Advertisement a " \
                                "ON r.time_posted = a.time_posted and r.driver_id = a.driver_id" \
@@ -285,3 +286,76 @@ def delete_bid():
     db.session.execute(query)
     db.session.commit()
     return redirect("/")
+
+
+@view.route("/payment/<ride_id>", methods=["GET"])
+def get_payment_page(ride_id):
+    query = "SELECT r.ride_id, r.time_posted, r.driver_id, b.price" \
+            " FROM Ride r INNER JOIN Bids b " \
+            "ON r.driver_id = b.driver_id and r.time_posted = b.time_posted and r.passenger_id = b.passenger_id" \
+            " WHERE r.ride_id = '{}' and r.passenger_id = '{}'".format(ride_id, current_user.username)
+
+    payment_details = db.session.execute(query).fetchone()
+    form = PaymentForm()
+
+    return render_template("payment.html", details=payment_details, form=form)
+
+
+@view.route("/payment/<ride_id>", methods=["POST"])
+def pay(ride_id):
+    query = "SELECT r.ride_id, r.time_posted, r.driver_id, b.price" \
+            " FROM Ride r INNER JOIN Bids b " \
+            "ON r.driver_id = b.driver_id and r.time_posted = b.time_posted and r.passenger_id = b.passenger_id" \
+            " WHERE r.ride_id = '{}' and r.passenger_id = '{}'".format(ride_id, current_user.username)
+    update_ride_payment_status_query = "UPDATE Ride SET is_paid = TRUE WHERE ride_id = '{}'".format(ride_id)
+
+    payment_details = db.session.execute(query).fetchone()
+    form = PaymentForm()
+
+    if form.is_submitted:
+        promo_code = form.promo_code.data
+        promo_query = "SELECT * from promo WHERE promo_code = '{}'".format(promo_code)
+        exists_promo = db.session.execute(promo_query).fetchone()
+        current_bid_price = payment_details[3]
+        form.promo_code.errors = []
+        is_paid_ride_query = "SELECT * FROM Ride WHERE is_paid=TRUE"
+        is_paid_ride = db.session.execute(is_paid_ride_query).fetchone()
+
+        if is_paid_ride:
+            form.message = "You already paid for the ride!"
+        elif exists_promo:
+            num_used_for_promo_query = "SELECT COUNT(*) FROM Redeems WHERE promo_code = '{}'".format(promo_code)
+            num_used_for_promo = db.session.execute(num_used_for_promo_query).fetchone()[0]
+            max_quota = exists_promo[1]
+            min_price_to_use_promo = exists_promo[3]
+            discount_amount = exists_promo[4]
+
+            if num_used_for_promo >= max_quota:
+                form.promo_code.errors.append("Promo code has been fully redeemed!")
+            elif current_bid_price < min_price_to_use_promo:
+                form.promo_code.errors.append("Your ride does not fulfill the minimum price of ${} "
+                                              "to use this promo!".format(min_price_to_use_promo))
+            else:
+                redeems_insertion_query = "INSERT INTO redeems(ride_id, promo_code, username) " \
+                                          "VALUES ('{}', '{}', '{}')".format(ride_id, promo_code, current_user.username)
+                db.session.execute(redeems_insertion_query)
+                db.session.execute(update_ride_payment_status_query)
+                db.session.commit()
+
+                discounted_price = current_bid_price - discount_amount
+
+                # handle discount that exceeds the bid_price
+                if discounted_price < 0:
+                    discount_amount += discounted_price
+                    discounted_price = 0
+
+                form.message = "Payment of ${} (Discount of ${}) Successful!".format(discounted_price, discount_amount)
+
+        elif not promo_code:  # user did not type promo code
+            db.session.execute(update_ride_payment_status_query)
+            db.session.commit()
+            form.message = "Payment of ${} Successful!".format(current_bid_price)
+        else:
+            form.promo_code.errors.append('Promo code does not exists!')
+
+    return render_template("payment.html", details=payment_details, form=form)

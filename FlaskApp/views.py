@@ -296,9 +296,21 @@ def get_payment_page(ride_id):
             " WHERE r.ride_id = '{}' and r.passenger_id = '{}'".format(ride_id, current_user.username)
 
     payment_details = db.session.execute(query).fetchone()
+
+    bid_price = payment_details[3]
+    best_promo_query = "SELECT p.promo_code, p.discount FROM Promo p " \
+                       "WHERE p.min_price <= {} " \
+                       "and p.max_quota > (SELECT COUNT(*) FROM Redeems r WHERE r.promo_code = p.promo_code)" \
+                       "GROUP BY p.promo_code, p.discount " \
+                       "HAVING p.discount = max(p.discount)".format(bid_price)
+    best_promo = db.session.execute(best_promo_query).fetchone()
+    best_promo_message = ""
+    if best_promo:
+        best_promo_message = "Psst! Here's the best possible promo code (${} off) you could use: {}".format(best_promo[1], best_promo[0])
+        print(best_promo_message)
     form = PaymentForm()
 
-    return render_template("payment.html", details=payment_details, form=form)
+    return render_template("payment.html", details=payment_details, form=form, best_promo_message=best_promo_message)
 
 
 @view.route("/payment/<ride_id>", methods=["POST"])

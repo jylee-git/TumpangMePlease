@@ -55,7 +55,7 @@ CREATE TABLE Car (
 
 CREATE TABLE Promo (
     promo_code   varchar(20) PRIMARY KEY,
-    quota_left   INTEGER NOT NULL,
+    max_quota   INTEGER NOT NULL,
     max_discount INTEGER,
     min_price    INTEGER,
     discount     INTEGER NOT NULL

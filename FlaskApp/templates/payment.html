@@ -47,17 +47,21 @@
                 </div>
             </div>
         </form>
+        </form>
+        {% if best_promo_message %}
+            {{ best_promo_message }}
+        {% endif %}
     </div>
 </div>
 {% if form.promo_code.errors %}
-        <div class="errorMessage">
-            {% for error in form.promo_code.errors %}
-                {{ error }}
-            {% endfor %}
-        </div>
-    {% endif %}
-    {% if form.message %}
-        <div class="successMessage white-font" style="text-align: center">{{ form.message }}</div>
-    {% endif %}
+    <div class="errorMessage">
+        {% for error in form.promo_code.errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+{% endif %}
+{% if form.message %}
+    <div class="successMessage white-font" style="text-align: center">{{ form.message }}</div>
+{% endif %}
 </body>
 </html>

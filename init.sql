@@ -55,7 +55,7 @@ CREATE TABLE Car (
 
 CREATE TABLE Promo (
     promo_code   varchar(20) PRIMARY KEY,
-    quota_left   INTEGER NOT NULL,
+    max_quota   INTEGER NOT NULL,
     max_discount INTEGER,
     min_price    INTEGER,
     discount     INTEGER NOT NULL
@@ -185,6 +185,9 @@ insert into Passenger values ('user20');
 INSERT INTO Driver VALUES ('user1', NULL);
 INSERT INTO Driver VALUES ('user2', NULL);
 INSERT INTO Driver VALUES ('user3', NULL);
+INSERT INTO Driver VALUES ('user4', NULL);
+INSERT INTO Driver VALUES ('user5', NULL);
+INSERT INTO Driver VALUES ('user6', NULL);
 
 -- Model: brand, name, size
 INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);
@@ -193,15 +196,28 @@ INSERT INTO Model VALUES ('Toyota', 'Camry', 5);
 INSERT INTO Model VALUES ('Honda', 'Civic', 5);
 INSERT INTO Model VALUES ('Honda', 'CRV', 7);
 INSERT INTO Model VALUES ('Lexus', 'X1', 5);
+INSERT INTO Model VALUES ('Mazda', 'CX5', 5);
+INSERT INTO Model VALUES ('Lamborghini', 'Urus', 5);
+INSERT INTO Model VALUES ('Ferrari', 'Gen 5', 1);
+INSERT INTO Model VALUES ('Rolls Royce', 'Phantom', 5);
+INSERT INTO Model VALUES ('Range Rover', 'Rover III', 4);
+INSERT INTO Model VALUES ('Lexus', 'T10', 4);
 
 -- Car: plateNumber, colors
 INSERT INTO Car VALUES ('SFV7687J', 'White');
 INSERT INTO Car VALUES ('S1', 'White');
 INSERT INTO Car VALUES ('EU9288C', 'Gray');
+INSERT INTO Car VALUES ('AAA8888', 'Red');
+INSERT INTO Car VALUES ('BBB8888', 'Black');
+INSERT INTO Car VALUES ('CCC8888', 'Blue');
 
 -- Promo: promoCode, quotaLeft, maxDiscount, minPrice, disc
 INSERT INTO Promo VALUES ('a1a', 10, 20, 10, 20);
-INSERT INTO Promo VALUES ('a1b', 1, 10, 0, 20);
+INSERT INTO Promo VALUES ('a1b', 1, 10, 20, 20);
+INSERT INTO Promo VALUES ('50OFF', 1, 50, 100, 50);
+INSERT INTO Promo VALUES ('40OFF', 1, 40, 10, 40);
+INSERT INTO Promo VALUES ('10OFF', 0, 10, 20, 10);
+INSERT INTO Promo VALUES ('20OFF', 5, 20, 50, 20);
 
 -- Place: name (of place)
 INSERT INTO Place VALUES ('Jurong East');
@@ -330,24 +346,40 @@ INSERT INTO Place VALUES ('Upper Changi');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user4', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Kent Ridge', 'Changi Airport');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user5', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris');
 
 -- Bids: passId, driverID, timePosted, price, status, numPass
-INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 10, 'failed', 2);
+INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
 INSERT INTO Bids VALUES ('user12', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
 INSERT INTO Bids VALUES ('user13', 'user3', TIMESTAMP '2018-12-10 12:30', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2018-12-10 12:30', 10, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
 INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
 INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user1', 'user6', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
+INSERT INTO Bids VALUES ('user6', 'user5', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user9', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user7', 'user6', TIMESTAMP '2018-12-10 12:30', 50, 'successful', 2);
+INSERT INTO Bids VALUES ('user12', 'user5', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user3', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
 
 -- Ride: rideID(NULL), passID, driverID, timePosted, status
 INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT);
+INSERT INTO Ride VALUES(DEFAULT, 'user7', 'user6', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT);
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');
 INSERT INTO Owns VALUES ('user2', 'S1');
 INSERT INTO Owns VALUES ('user3', 'EU9288C');
+INSERT INTO Owns VALUES ('user4', 'AAA8888');
+INSERT INTO Owns VALUES ('user5', 'BBB8888');
+INSERT INTO Owns VALUES ('user6', 'CCC8888');
 
 -- Belongs: plateNum, name, brand
 INSERT INTO Belongs VALUES ('SFV7687J', 'Toyota', 'Mirai');
 INSERT INTO Belongs VALUES ('S1', 'Toyota', 'Mirai');
 INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');
+INSERT INTO Belongs VALUES ('AAA8888', 'Honda', 'CRV');
+INSERT INTO Belongs VALUES ('BBB8888', 'Honda', 'CRV');
+INSERT INTO Belongs VALUES ('CCC8888', 'Honda', 'CRV');

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment</title>
+    <link rel="stylesheet" href="static/css/style-simple.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+</head>
+<body class="blue-background">
+
+{% include 'navbar-header.html' %}
+
+<div class="container" style="padding-top: 15rem">
+    <div class="white-font">
+        <h2 class="text-align-center">Payment for:</h2>
+    </div>
+    <div class="white-font" style="margin-top: 5rem">
+        <table class="table table-sm table-dark">
+            <thead>
+            <tr>
+                <th scope="col">Ride ID</th>
+                <th scope="col">Time Posted</th>
+                <th scope="col">Recipient</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">{{ details[0] }}</th>
+                <td>{{ details[1] }}</td>
+                <td>{{ details[2] }}</td>
+            </tr>
+            </tbody>
+        </table>
+        <form class="paymentForm" method="post" style="text-align: center">
+            {{ form.csrf_token }}
+            <div class="form-row white-font">
+                <div class="form-group col-md-5">
+                    <h4>Price: {{ details[3] }}</h4>
+                </div>
+            </div>
+            <div class="formField" style="color: black">
+                {{ form.promo_code }}
+            </div>
+            <div class="form-row white-font" style="text-align: center">
+                <div class="form-group col-md-2">
+                    <button type="submit" class="btn btn-outline-dark" formmethod="post">Pay</button>
+                </div>
+            </div>
+        </form>
+        </form>
+        {% if best_promo_message %}
+            {{ best_promo_message }}
+        {% endif %}
+    </div>
+</div>
+{% if form.promo_code.errors %}
+    <div class="errorMessage">
+        {% for error in form.promo_code.errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+{% endif %}
+{% if form.message %}
+    <div class="successMessage white-font" style="text-align: center">{{ form.message }}</div>
+{% endif %}
+</body>
+</html>

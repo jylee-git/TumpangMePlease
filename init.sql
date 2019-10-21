@@ -392,7 +392,17 @@ RETURNS TRIGGER AS $$ BEGIN
 RAISE NOTICE 'New bid price should be higher'; RETURN NULL;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION insert_bid_failed()
+RETURNS TRIGGER AS $$ BEGIN
+RAISE NOTICE 'Bid price should be higher than 0.'; RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
 CREATE TRIGGER bid_update_trig
 BEFORE UPDATE ON bids FOR EACH ROW
 WHEN (NEW.price <= OLD.price)
 EXECUTE PROCEDURE update_bid_failed();
+
+CREATE TRIGGER bid_insert_trig
+BEFORE INSERT ON bids FOR EACH ROW
+WHEN (NEW.price <= 0)
+EXECUTE PROCEDURE insert_bid_failed();

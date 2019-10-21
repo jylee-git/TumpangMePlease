@@ -25,10 +25,9 @@ def makeBid(passenger_id, time_posted, driver_id, price, numPassengers):
                                                                                             time_posted, driver_id)
     else:
         query = "INSERT INTO bids(passenger_id, driver_id, time_posted, price, status, no_passengers) " \
-                "VALUES ('{}', '{}', '{}', '{}', 'ongoing', '{}')".format(current_user.username, driver_id,
-                                                                          time_posted, round(float(price), 2),
-                                                                          numPassengers)
+                "VALUES ('{}', '{}', '{}', '{}', 'ongoing', '{}');".format(current_user.username, driver_id,
+                                                                           time_posted, round(float(price), 2),
+                                                                           numPassengers)
     # print(query)
-    query_result = db.session.execute(query).fetchall()
-    print(query_result)
+    db.session.execute(query)
     db.session.commit()

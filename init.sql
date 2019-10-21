@@ -383,3 +383,16 @@ INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');
 INSERT INTO Belongs VALUES ('AAA8888', 'Honda', 'CRV');
 INSERT INTO Belongs VALUES ('BBB8888', 'Honda', 'CRV');
 INSERT INTO Belongs VALUES ('CCC8888', 'Honda', 'CRV');
+
+/****************************************************************
+FUNCTION and TRIGGER
+****************************************************************/
+CREATE OR REPLACE FUNCTION update_bid_failed()
+RETURNS TRIGGER AS $$ BEGIN
+RAISE NOTICE 'New bid price should be higher'; RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bid_update_trig
+BEFORE UPDATE ON bids FOR EACH ROW
+WHEN (NEW.price <= OLD.price)
+EXECUTE PROCEDURE update_bid_failed();

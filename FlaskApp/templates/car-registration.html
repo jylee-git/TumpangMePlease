@@ -59,6 +59,9 @@
         {% if not_same_car_error %}
         Other people have registered for this car. But the information you provided for this car is not the same.
         {% endif %}
+        {% if negative_passenger_error %}
+        Number of passenger must be positive!
+        {% endif %}
         {% if success %}
         You have successfully registered this car!
         {% endif %}

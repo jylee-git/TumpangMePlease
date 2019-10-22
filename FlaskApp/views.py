@@ -146,6 +146,8 @@ def render_car_registration_page():
             if (brand == "" or plate_num == "" or color == ""):
                 # input fields are empty
                 return render_template("car-registration.html", current_user=current_user, empty_error=True)
+            elif(int(no_passenger) <= 0):
+                return render_template("car-registration.html", current_user=current_user, negative_passenger_error=True)
             else:
                 check_car_query = "SELECT * FROM car WHERE car.plate_number = '{}';".format(plate_num)
                 check_car = db.session.execute(check_car_query).fetchall()
@@ -156,13 +158,6 @@ def render_car_registration_page():
                     existing_car_brand = check_car[0][2]
                     existing_car_passenger = check_car[0][3]
                     if (existing_car_brand != brand or int(existing_car_passenger) != int(no_passenger) or existing_car_colour != color):
-                        if(existing_car_brand != brand):
-                            print(existing_car_brand)
-                        if(existing_car_passenger != no_passenger):
-                            print(existing_car_passenger)
-                            print(no_passenger)
-                        if(existing_car_colour != color):
-                            print(existing_car_colour)
                         return render_template("car-registration.html", current_user=current_user,
                                                not_same_car_error=True)
                     else:
@@ -218,6 +213,10 @@ def render_create_advertisement_page():
                 return render_template("create-advertisement.html", current_user=current_user,
                                        car_model_list=car_list,
                                        place_list=place_list, empty_error=True)
+            elif(int(num_passenger) <= 0):
+                return render_template("create-advertisement.html", current_user=current_user,
+                                       car_model_list=car_list,
+                                       place_list=place_list, negative_passenger_error=True)
             else:
                 if from_place == to_place:
                     return render_template("create-advertisement.html", current_user=current_user,

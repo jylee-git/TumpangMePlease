@@ -77,7 +77,8 @@ CREATE TABLE Advertisement (
     to_place          varchar(50) NOT NULL REFERENCES Place,
     from_place        varchar(50) NOT NULL REFERENCES Place,
     ad_status         varchar(20) NOT NULL,
-    PRIMARY KEY (time_posted, driver_ID)
+    PRIMARY KEY (time_posted, driver_ID),
+    CHECK(num_passengers > 0)
 );
 
 

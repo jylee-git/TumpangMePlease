@@ -91,6 +91,9 @@
         {% if exceed_limit_error %}
         Your car can't take so many passengers!
         {% endif %}
+        {% if negative_passenger_error %}
+        Number of passengers should be positive!
+        {% endif %}
         {% if success %}
         You successfully added an advertisement!
         {% endif %}

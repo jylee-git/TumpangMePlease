@@ -138,42 +138,58 @@ def render_scheduled_page():
 @view.route("/car-registration", methods=["GET", "POST"])
 def render_car_registration_page():
     if current_user.is_authenticated:
-        # if request.method == "POST":
-        #     brand = request.form['brand']
-        #     plate_num = request.form['plate-num']
-        #     color = request.form['colour']
-        #     if (brand == "" or plate_num == "" or color == ""):
-        #         # input fields are empty
-        #         return render_template("car-registration.html", current_user=current_user, empty_error=True)
-        #     else:
-        #         print(brand)
-        #         check_model_query = "SELECT * FROM model WHERE " \
-        #                             "model.brand = '{}' AND model.name = '{}'".format(brand, model)
-        #         check_model = db.session.execute(check_model_query).fetchall()
-        #         if (len(check_model) != 0):
-        #             # model exists in DB
-        #             # add plate number and color to car
-        #             # add car to owns
-        #             check_car_query = "SELECT * FROM car WHERE car.plate_number = '{}'".format(plate_num)
-        #             check_car = db.session.execute(check_car_query).fetchall()
-        #             if (len(check_car) != 0):
-        #                 # The car has been registered!
-        #                 return render_template("car-registration.html", current_user=current_user, exist_car_error=True)
-        #             else:
-        #                 add_car_query = "INSERT INTO car(plate_number, colours) " \
-        #                                 "VALUES ('{}', '{}')".format(plate_num, color)
-        #                 db.session.execute(add_car_query)
-        #                 add_car_model_query = "INSERT INTO belongs(plate_number, brand, name) " \
-        #                                       "VALUES ('{}', '{}', '{}')".format(plate_num, brand, model)
-        #                 db.session.execute(add_car_model_query)
-        #                 add_owns_query = "INSERT INTO owns(driver_id, plate_number) " \
-        #                                  "VALUES ('{}', '{}')".format(current_user.username, plate_num)
-        #                 db.session.execute(add_owns_query)
-        #                 db.session.commit()
-        #                 return render_template("car-registration.html", current_user=current_user, success=True)
-        #         else:
-        #             # model doesn't exist in DB
-        #             return render_template("car-registration.html", current_user=current_user, car_model_error=True)
+        if request.method == "POST":
+            brand = request.form['brand']
+            plate_num = request.form['plate-num']
+            no_passenger = request.form['no_passengers']
+            color = request.form['colour']
+            if (brand == "" or plate_num == "" or color == ""):
+                # input fields are empty
+                return render_template("car-registration.html", current_user=current_user, empty_error=True)
+            else:
+                check_car_query = "SELECT * FROM car WHERE car.plate_number = '{}';".format(plate_num)
+                check_car = db.session.execute(check_car_query).fetchall()
+                if (len(check_car) != 0):
+                    # car exists in DB
+                    # check whether 2 cars are the same
+                    existing_car_colour = check_car[0][1]
+                    existing_car_brand = check_car[0][2]
+                    existing_car_passenger = check_car[0][3]
+                    if (existing_car_brand != brand or int(existing_car_passenger) != int(no_passenger) or existing_car_colour != color):
+                        if(existing_car_brand != brand):
+                            print(existing_car_brand)
+                        if(existing_car_passenger != no_passenger):
+                            print(existing_car_passenger)
+                            print(no_passenger)
+                        if(existing_car_colour != color):
+                            print(existing_car_colour)
+                        return render_template("car-registration.html", current_user=current_user,
+                                               not_same_car_error=True)
+                    else:
+                        # same car as in DB
+                        # insert into driver
+                        add_driver_query = "CALL add_driver('{}');".format(current_user.username)
+                        db.session.execute(add_driver_query)
+                        # insert into owns
+                        add_owns_query = "CALL add_owns('{}', '{}');".format(current_user.username, plate_num)
+                        db.session.execute(add_owns_query)
+                        db.session.commit()
+                        return render_template("car-registration.html", current_user=current_user, success=True)
+
+                else:
+                    # car doesn't exist in DB
+                    # insert a car
+                    add_car_query = "INSERT INTO car(plate_number, colour, brand, no_passengers) " \
+                        "VALUES ('{}','{}','{}','{}');".format(plate_num, color, brand, no_passenger)
+                    db.session.execute(add_car_query)
+                    # insert into driver
+                    add_driver_query = "CALL add_driver('{}');".format(current_user.username)
+                    db.session.execute(add_driver_query)
+                    # insert into owns
+                    add_owns_query = "CALL add_owns('{}', '{}');".format(current_user.username, plate_num)
+                    db.session.execute(add_owns_query)
+                    db.session.commit()
+                    return render_template("car-registration.html", current_user=current_user, success=True)
         return render_template("car-registration.html", current_user=current_user)
     else:
         return redirect("/login")
@@ -185,50 +201,51 @@ def render_create_advertisement_page():
         car_list_query = "SELECT brand, plate_number FROM owns NATURAL JOIN car WHERE owns.driver_id = '{}';".format(
             current_user.username)
         car_list = db.session.execute(car_list_query).fetchall()
-        if len(car_list) == 0 :
+        if len(car_list) == 0:
             return redirect("/car-registration")
         place_list_query = "SELECT * FROM place;"
         place_list = db.session.execute(place_list_query).fetchall()
         print(car_list)
-        # if request.method == "POST":
-        #     from_place = request.form['from']
-        #     to_place = request.form['to']
-        #     num_passenger = request.form['no_passengers']
-        #     price = request.form['price']
-        #     car_model = request.form['car_model']
-        #     departure_time = request.form['departure_time']
-        #     ad_status = "Active"
-        #     if from_place == "" or to_place == "" or num_passenger == "" or car_model == "" or price == "":
-        #             return render_template("create-advertisement.html", current_user=current_user,
-        #                                    car_model_list=car_model_list,
-        #                                    place_list=place_list, empty_error=True)
-        #     else:
-        #         if from_place == to_place:
-        #             return render_template("create-advertisement.html", current_user=current_user,
-        #                                    car_model_list=car_model_list,
-        #                                    place_list=place_list, same_place_error=True)
-        #         else:
-        #             # check number of passengers
-        #             split_string = car_model.split(" ")
-        #             car_model_brand = split_string[0]
-        #             car_model_name = split_string[1]
-        #             check_size_query = "SELECT size from model WHERE model.brand = '{}' AND model.name = '{}'".format(
-        #                 car_model_brand, car_model_name)
-        #             check_size = db.session.execute(check_size_query).fetchall()
-        #
-        #             if int(num_passenger) > check_size[0][0]:
-        #                 return render_template("create-advertisement.html", current_user=current_user,
-        #                                        car_model_list=car_model_list,
-        #                                        place_list=place_list, exceed_limit_error=True)
-        #             else:
-        #                 add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place, ad_status) " \
-        #                                           "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format \
-        #                     (current_user.username, num_passenger, departure_time, price, to_place, from_place, ad_status)
-        #                 db.session.execute(add_advertisement_query)
-        #                 db.session.commit()
-        #                 return render_template("create-advertisement.html", current_user=current_user,
-        #                                        car_model_list=car_model_list,
-        #                                        place_list=place_list, success=True)
+        if request.method == "POST":
+            from_place = request.form['from']
+            to_place = request.form['to']
+            num_passenger = request.form['no_passengers']
+            price = request.form['price']
+            car_model = request.form['car_model']
+            departure_time = request.form['departure_time']
+            ad_status = "Active"
+            if from_place == "" or to_place == "" or num_passenger == "" or car_model == "" or price == "":
+                return render_template("create-advertisement.html", current_user=current_user,
+                                       car_model_list=car_list,
+                                       place_list=place_list, empty_error=True)
+            else:
+                if from_place == to_place:
+                    return render_template("create-advertisement.html", current_user=current_user,
+                                           car_model_list=car_list,
+                                           place_list=place_list, same_place_error=True)
+                else:
+                    # check number of passengers
+                    split_string = car_model.split("|")
+                    car_plate_number = split_string[1]
+
+                    check_size_query = "SELECT no_passengers from car WHERE car.plate_number = '{}' ".format(
+                        car_plate_number)
+                    check_size = db.session.execute(check_size_query).fetchall()
+                    print(check_size)
+                    if int(num_passenger) > check_size[0][0]:
+                        return render_template("create-advertisement.html", current_user=current_user,
+                                               car_model_list=car_list,
+                                               place_list=place_list, exceed_limit_error=True)
+                    else:
+                        add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place, ad_status) " \
+                                                  "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format \
+                            (current_user.username, num_passenger, departure_time, price, to_place, from_place,
+                             ad_status)
+                        db.session.execute(add_advertisement_query)
+                        db.session.commit()
+                        return render_template("create-advertisement.html", current_user=current_user,
+                                               car_model_list=car_list,
+                                               place_list=place_list, success=True)
 
         return render_template("create-advertisement.html", current_user=current_user, car_model_list=car_list,
                                place_list=place_list)

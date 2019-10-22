@@ -409,4 +409,24 @@ BEFORE UPDATE ON bids FOR EACH ROW
 WHEN (NEW.price <= OLD.price)
 EXECUTE PROCEDURE update_bid_failed();
 
+CREATE OR REPLACE PROCEDURE
+add_driver(name varchar(20)) AS
+$tag$
+BEGIN
+IF NOT EXISTS(SELECT * FROM driver WHERE driver.username = name) THEN
+    INSERT INTO driver(username, d_rating) VALUES (name, NULL);
+END IF;
+END
+$tag$
+LANGUAGE plpgsql;
 
+CREATE OR REPLACE PROCEDURE
+add_owns(name varchar(20), number varchar(20)) AS
+$tag$
+BEGIN
+IF NOT EXISTS(SELECT * FROM owns WHERE owns.driver_id = name AND owns.plate_number = number) THEN
+    INSERT INTO owns(driver_id, plate_number) VALUES (name, number);
+END IF;
+END
+$tag$
+LANGUAGE plpgsql;

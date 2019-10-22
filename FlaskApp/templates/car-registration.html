@@ -28,7 +28,7 @@
             </div>
             <div class="form-group col-md-6">
                 <label for="model">Number of Passengers</label>
-                <input type="text" class="form-control" name="no_passengers" placeholder="e.g. 3">
+                <input type="number" class="form-control" name="no_passengers" placeholder="e.g. 3">
             </div>
         </div>
         <div class="form-row white-font">
@@ -55,6 +55,9 @@
         {% endif %}
         {% if exist_car_error %}
         You have already registered this car!
+        {% endif %}
+        {% if not_same_car_error %}
+        Other people have registered for this car. But the information you provided for this car is not the same.
         {% endif %}
         {% if success %}
         You have successfully registered this car!

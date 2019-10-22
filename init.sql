@@ -408,3 +408,5 @@ CREATE TRIGGER bid_update_trig
 BEFORE UPDATE ON bids FOR EACH ROW
 WHEN (NEW.price <= OLD.price)
 EXECUTE PROCEDURE update_bid_failed();
+
+

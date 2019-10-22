@@ -4,7 +4,7 @@ For our own debuggging only
 DROP TABLE IF EXISTS App_User CASCADE;
 DROP TABLE IF EXISTS Driver CASCADE;
 DROP TABLE IF EXISTS Passenger CASCADE;
-DROP TABLE IF EXISTS Model CASCADE;
+--DROP TABLE IF EXISTS Model CASCADE;
 DROP TABLE IF EXISTS Car CASCADE;
 DROP TABLE IF EXISTS Promo CASCADE;
 DROP TABLE IF EXISTS Ride CASCADE;
@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS Bids CASCADE;
 DROP TABLE IF EXISTS Review CASCADE;
 DROP TABLE IF EXISTS Redeems CASCADE;
 DROP TABLE IF EXISTS Owns CASCADE;
-DROP TABLE IF EXISTS Belongs CASCADE;
+--DROP TABLE IF EXISTS Belongs CASCADE;
 
 
 /********
@@ -41,16 +41,19 @@ CREATE TABLE Passenger (
     p_rating INTEGER
 );
 
-CREATE TABLE Model (
-    brand   TEXT,
-    name    TEXT,
-    size    INTEGER NOT NULL,
-    PRIMARY KEY (brand, name)
-);
+--CREATE TABLE Model (
+--    brand   TEXT,
+--    name    TEXT,
+--    size    INTEGER NOT NULL,
+--    PRIMARY KEY (brand, name)
+--);
 
 CREATE TABLE Car (
     plate_number varchar(20) PRIMARY KEY,
-    colours      varchar(20) NOT NULL
+    colour      varchar(20) NOT NULL,
+    brand         varchar(20) NOT NULL,
+    no_passengers        INTEGER NOT NULL,
+    CHECK(no_passengers >= 1)
 );
 
 CREATE TABLE Promo (
@@ -91,7 +94,8 @@ CREATE TABLE Bids (
     no_passengers    INTEGER,
     PRIMARY KEY (passenger_ID, time_posted, driver_ID),
     CHECK       (passenger_ID <> driver_ID),
-    CHECK       (status = 'ongoing' OR status = 'successful' OR status = 'failed')
+    CHECK       (status = 'ongoing' OR status = 'successful' OR status = 'failed'),
+    CHECK       (price > 0)
 );
 
 CREATE TABLE Ride (
@@ -102,7 +106,6 @@ CREATE TABLE Ride (
     status         varchar(20) DEFAULT 'pending',
     is_paid        BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (passenger_ID, time_posted, driver_ID) REFERENCES Bids,
-
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
 
@@ -126,13 +129,13 @@ CREATE TABLE Owns (
     PRIMARY KEY (driver_ID, plate_number)
 );
 
-CREATE TABLE Belongs (
-    plate_number varchar(20) REFERENCES Car,
-    brand       TEXT        NOT NULL,
-    name        TEXT        NOT NULL,
-    PRIMARY KEY (plate_number),
-    FOREIGN KEY (brand, name) REFERENCES Model
-);
+--CREATE TABLE Belongs (
+--    plate_number varchar(20) REFERENCES Car,
+--    brand       TEXT        NOT NULL,
+--    name        TEXT        NOT NULL,
+--    PRIMARY KEY (plate_number),
+--    FOREIGN KEY (brand, name) REFERENCES Model
+--);
 
 COMMIT;
 
@@ -196,27 +199,27 @@ INSERT INTO Driver VALUES ('user6', NULL);
 INSERT INTO Driver VALUES ('teo', NULL);
 
 -- Model: brand, name, size
-INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);
-INSERT INTO Model VALUES ('Toyota', 'Prius', 5);
-INSERT INTO Model VALUES ('Toyota', 'Camry', 5);
-INSERT INTO Model VALUES ('Honda', 'Civic', 5);
-INSERT INTO Model VALUES ('Honda', 'CRV', 7);
-INSERT INTO Model VALUES ('Lexus', 'X1', 5);
-INSERT INTO Model VALUES ('Mazda', 'CX5', 5);
-INSERT INTO Model VALUES ('Lamborghini', 'Urus', 5);
-INSERT INTO Model VALUES ('Ferrari', 'Gen 5', 1);
-INSERT INTO Model VALUES ('Rolls Royce', 'Phantom', 5);
-INSERT INTO Model VALUES ('Range Rover', 'Rover III', 4);
-INSERT INTO Model VALUES ('Lexus', 'T10', 4);
+--INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);
+--INSERT INTO Model VALUES ('Toyota', 'Prius', 5);
+--INSERT INTO Model VALUES ('Toyota', 'Camry', 5);
+--INSERT INTO Model VALUES ('Honda', 'Civic', 5);
+--INSERT INTO Model VALUES ('Honda', 'CRV', 7);
+--INSERT INTO Model VALUES ('Lexus', 'X1', 5);
+--INSERT INTO Model VALUES ('Mazda', 'CX5', 5);
+--INSERT INTO Model VALUES ('Lamborghini', 'Urus', 5);
+--INSERT INTO Model VALUES ('Ferrari', 'Gen 5', 1);
+--INSERT INTO Model VALUES ('Rolls Royce', 'Phantom', 5);
+--INSERT INTO Model VALUES ('Range Rover', 'Rover III', 4);
+--INSERT INTO Model VALUES ('Lexus', 'T10', 4);
 
 -- Car: plateNum, colors
-INSERT INTO Car VALUES ('SFV7687J', 'White');
-INSERT INTO Car VALUES ('S1', 'White');
-INSERT INTO Car VALUES ('EU9288C', 'Gray');
-INSERT INTO Car VALUES ('AAA8888', 'Red');
-INSERT INTO Car VALUES ('BBB8888', 'Black');
-INSERT INTO Car VALUES ('CCC8888', 'Blue');
-INSERT INTO Car VALUES ('007', 'Pink');
+INSERT INTO Car VALUES ('SFV7687J', 'White','Toyota',  5);
+INSERT INTO Car VALUES ('S1', 'White','Honda', 5);
+INSERT INTO Car VALUES ('EU9288C', 'Gray','Ferrari',2);
+INSERT INTO Car VALUES ('AAA8888', 'Red','Lexus', 4);
+INSERT INTO Car VALUES ('BBB8888', 'Black','Toyota',5);
+INSERT INTO Car VALUES ('CCC8888', 'Blue','Range Rover', 4);
+INSERT INTO Car VALUES ('007', 'Pink','Honda', 7);
 
 -- Promo: promoCode, quotaLeft, maxDiscount, minPrice, disc
 INSERT INTO Promo VALUES ('a1a', 10, 20, 10, 20);
@@ -385,13 +388,13 @@ INSERT INTO Owns VALUES ('user6', 'CCC8888');
 INSERT INTO Owns VALUES ('teo', '007');
 
 -- Belongs: plateNum, name, brand
-INSERT INTO Belongs VALUES ('SFV7687J', 'Toyota', 'Mirai');
-INSERT INTO Belongs VALUES ('S1', 'Toyota', 'Mirai');
-INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');
-INSERT INTO Belongs VALUES ('AAA8888', 'Honda', 'CRV');
-INSERT INTO Belongs VALUES ('BBB8888', 'Honda', 'CRV');
-INSERT INTO Belongs VALUES ('CCC8888', 'Honda', 'CRV');
-INSERT INTO Belongs VALUES ('007', 'Lexus', 'X1');
+--INSERT INTO Belongs VALUES ('SFV7687J', 'Toyota', 'Mirai');
+--INSERT INTO Belongs VALUES ('S1', 'Toyota', 'Mirai');
+--INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('AAA8888', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('BBB8888', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('CCC8888', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('007', 'Lexus', 'X1');
 
 /****************************************************************
 FUNCTION and TRIGGER
@@ -401,17 +404,7 @@ RETURNS TRIGGER AS $$ BEGIN
 RAISE NOTICE 'New bid price should be higher'; RETURN NULL;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION insert_bid_failed()
-RETURNS TRIGGER AS $$ BEGIN
-RAISE NOTICE 'Bid price should be higher than 0.'; RETURN NULL;
-END; $$ LANGUAGE plpgsql;
-
 CREATE TRIGGER bid_update_trig
 BEFORE UPDATE ON bids FOR EACH ROW
 WHEN (NEW.price <= OLD.price)
 EXECUTE PROCEDURE update_bid_failed();
-
-CREATE TRIGGER bid_insert_trig
-BEFORE INSERT ON bids FOR EACH ROW
-WHEN (NEW.price <= 0)
-EXECUTE PROCEDURE insert_bid_failed();

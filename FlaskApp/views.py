@@ -199,6 +199,7 @@ def render_create_advertisement_page():
             price = request.form['price']
             car_model = request.form['car_model']
             departure_time = request.form['departure_time']
+            ad_status = "Active"
             if from_place == "" or to_place == "" or num_passenger == "" or car_model == "" or price == "":
                     return render_template("create-advertisement.html", current_user=current_user,
                                            car_model_list=car_model_list,
@@ -222,9 +223,9 @@ def render_create_advertisement_page():
                                                car_model_list=car_model_list,
                                                place_list=place_list, exceed_limit_error=True)
                     else:
-                        add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place) " \
-                                                  "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}')".format \
-                            (current_user.username, num_passenger, departure_time, price, to_place, from_place)
+                        add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place, ad_status) " \
+                                                  "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format \
+                            (current_user.username, num_passenger, departure_time, price, to_place, from_place, ad_status)
                         db.session.execute(add_advertisement_query)
                         db.session.commit()
                         return render_template("create-advertisement.html", current_user=current_user,
@@ -247,7 +248,8 @@ def render_view_advertisement_page():
             driver_ad_list_query = "SELECT a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, a.from_place, a.to_place, " \
                     "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = '{0}') as highest_bid," \
                     "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = '{0}') as num_bidders," \
-                    "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
+                    "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
+                    "a.ad_status as ad_status" \
                     " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{0}'".format(current_user.username)
             driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
 

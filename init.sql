@@ -73,7 +73,7 @@ CREATE TABLE Advertisement (
     price             INTEGER     NOT NULL,
     to_place          varchar(50) NOT NULL REFERENCES Place,
     from_place        varchar(50) NOT NULL REFERENCES Place,
-
+    ad_status         varchar(20) NOT NULL,
     PRIMARY KEY (time_posted, driver_ID)
 );
 
@@ -139,6 +139,8 @@ COMMIT;
 /****************************************************************
 DATA INSERTION
 ****************************************************************/
+
+-- App_User: username, first_name, last_name, password, phone_number
 insert into App_User values ('user1', 'Cart', 'Klemensiewicz', 'password', 2863945039);
 insert into App_User values ('user2', 'Kit', 'Thurlow', 'password', 8215865769);
 insert into App_User values ('user3', 'Brynna', 'Fetter', 'password', 7734451473);
@@ -159,7 +161,9 @@ insert into App_User values ('user17', 'Hillary', 'Izon', 'password', 5355440695
 insert into App_User values ('user18', 'Hew', 'Leakner', 'password', 4794001078);
 insert into App_User values ('user19', 'Mallissa', 'Mahmood', 'password', 9435003533);
 insert into App_User values ('user20', 'Jocelyn', 'Seabrook', 'password', 6749453810);
+insert into App_User values ('teo', 'Shawn', 'teo', 'teo', 12345678);
 
+-- Passenger: username
 insert into Passenger values ('user1');
 insert into Passenger values ('user2');
 insert into Passenger values ('user3');
@@ -180,6 +184,7 @@ insert into Passenger values ('user17');
 insert into Passenger values ('user18');
 insert into Passenger values ('user19');
 insert into Passenger values ('user20');
+insert into Passenger values ('teo');
 
 -- Driver: username, d_rating(NULL)
 INSERT INTO Driver VALUES ('user1', NULL);
@@ -188,6 +193,7 @@ INSERT INTO Driver VALUES ('user3', NULL);
 INSERT INTO Driver VALUES ('user4', NULL);
 INSERT INTO Driver VALUES ('user5', NULL);
 INSERT INTO Driver VALUES ('user6', NULL);
+INSERT INTO Driver VALUES ('teo', NULL);
 
 -- Model: brand, name, size
 INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);
@@ -203,13 +209,14 @@ INSERT INTO Model VALUES ('Rolls Royce', 'Phantom', 5);
 INSERT INTO Model VALUES ('Range Rover', 'Rover III', 4);
 INSERT INTO Model VALUES ('Lexus', 'T10', 4);
 
--- Car: plateNumber, colors
+-- Car: plateNum, colors
 INSERT INTO Car VALUES ('SFV7687J', 'White');
 INSERT INTO Car VALUES ('S1', 'White');
 INSERT INTO Car VALUES ('EU9288C', 'Gray');
 INSERT INTO Car VALUES ('AAA8888', 'Red');
 INSERT INTO Car VALUES ('BBB8888', 'Black');
 INSERT INTO Car VALUES ('CCC8888', 'Blue');
+INSERT INTO Car VALUES ('007', 'Pink');
 
 -- Promo: promoCode, quotaLeft, maxDiscount, minPrice, disc
 INSERT INTO Promo VALUES ('a1a', 10, 20, 10, 20);
@@ -342,13 +349,13 @@ INSERT INTO Place VALUES ('Tampines West');
 INSERT INTO Place VALUES ('Tampines East');
 INSERT INTO Place VALUES ('Upper Changi');
 
--- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user4', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Kent Ridge', 'Changi Airport');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user5', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris');
+-- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from, ad_status
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user4', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Kent Ridge', 'Changi Airport', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user5', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
 
 -- Bids: passId, driverID, timePosted, price, status, numPass
 INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
@@ -375,6 +382,7 @@ INSERT INTO Owns VALUES ('user3', 'EU9288C');
 INSERT INTO Owns VALUES ('user4', 'AAA8888');
 INSERT INTO Owns VALUES ('user5', 'BBB8888');
 INSERT INTO Owns VALUES ('user6', 'CCC8888');
+INSERT INTO Owns VALUES ('teo', '007');
 
 -- Belongs: plateNum, name, brand
 INSERT INTO Belongs VALUES ('SFV7687J', 'Toyota', 'Mirai');
@@ -383,6 +391,7 @@ INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');
 INSERT INTO Belongs VALUES ('AAA8888', 'Honda', 'CRV');
 INSERT INTO Belongs VALUES ('BBB8888', 'Honda', 'CRV');
 INSERT INTO Belongs VALUES ('CCC8888', 'Honda', 'CRV');
+INSERT INTO Belongs VALUES ('007', 'Lexus', 'X1');
 
 /****************************************************************
 FUNCTION and TRIGGER

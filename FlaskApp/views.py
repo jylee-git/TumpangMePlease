@@ -6,6 +6,7 @@ from forms import LoginForm, RegistrationForm, BidForm, PaymentForm
 from models import AppUser, Driver
 
 from bidManager import makeBid
+from scheduleManager import getUpcomingPickups, isDriver
 
 view = Blueprint("view", __name__)
 
@@ -115,24 +116,25 @@ def render_login_page():
 
 @view.route("/scheduled", methods=["GET"])
 def render_scheduled_page():
-    if current_user.is_authenticated:
-        upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, " \
-                               "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid FROM Ride r" \
-                               " INNER JOIN " \
-                               "Advertisement a " \
-                               "ON r.time_posted = a.time_posted and r.driver_id = a.driver_id" \
-                               " INNER JOIN " \
-                               "Owns o " \
-                               "ON r.driver_id = o.driver_id " \
-                               " INNER JOIN " \
-                               "app_user a_u " \
-                               "ON r.driver_id = a_u.username " \
-                               "WHERE r.passenger_id = '{}'".format(current_user.username)
-        upcoming_rides = db.session.execute(upcoming_rides_query).fetchall()
-        print(upcoming_rides)
-        return render_template("scheduled.html", current_user=current_user, upcoming_rides=upcoming_rides)
-    else:
+    if not current_user.is_authenticated:
         return redirect("/login")
+
+    upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, " \
+                            "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid FROM Ride r" \
+                            " INNER JOIN " \
+                            "Advertisement a " \
+                            "ON r.time_posted = a.time_posted and r.driver_id = a.driver_id" \
+                            " INNER JOIN " \
+                            "Owns o " \
+                            "ON r.driver_id = o.driver_id " \
+                            " INNER JOIN " \
+                            "app_user a_u " \
+                            "ON r.driver_id = a_u.username " \
+                            "WHERE r.passenger_id = '{}'".format(current_user.username)
+    upcoming_rides = db.session.execute(upcoming_rides_query).fetchall()
+    print(upcoming_rides)
+    return render_template("scheduled.html", current_user=current_user, upcoming_rides=upcoming_rides,\
+        upcoming_pickups=getUpcomingPickups(current_user.username), is_driver=isDriver(current_user.username))
 
 
 @view.route("/car-registration", methods=["GET", "POST"])
@@ -389,3 +391,17 @@ def pay(ride_id):
             form.promo_code.errors.append('Promo code does not exists!')
 
     return render_template("payment.html", details=payment_details, form=form)
+
+
+####
+# SCHEDULE RELATED FUNCTIONAALITIES
+####
+@view.route("/update_pickup_status", methods=["POST"])
+def update_pickup_status():
+    query = "UPDATE Ride SET status = (CASE "\
+        "WHEN status = 'pending' THEN 'ongoing' "\
+        "ELSE 'completed' END) "\
+        "WHERE ride_ID = {}".format(request.form['ride_id'])
+    db.session.execute(query)
+    db.session.commit()
+    return '0'

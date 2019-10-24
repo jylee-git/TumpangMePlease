@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <title>Scheduled Rides</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <link rel="stylesheet" href="static/css/style-simple.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 </head>
 <body class="blue-background">
 
@@ -44,9 +45,32 @@
                         <td>{{ pickup[4] }}</td>
                         <td>{{ pickup[5] }}</td>
                         <td>{{ pickup[6] }}</td>
-                        <td>{{ pickup[7] }}</td>
-                        <td>{{ pickup[8] }}</td>
-                        <td>{{ pickup[9] }}</td>
+                        <td>
+                            <button type="button" onclick="updateStatus('{{ pickup[0] }}')"
+                            class="btn btn-outline-dark pay-button {% if pickup[6] == 'completed' %} isDisabled{% endif %}">
+                                {% if pickup[6] == 'pending' %}
+                                    I have picked up passenger
+                                {% elif pickup[6] == 'ongoing' %}
+                                    I have dropped off passenger
+                                {% else %}
+                                    Completed
+                                {% endif %}
+                            </button>
+                            <script>
+                                function updateStatus(rideID) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/update_pickup_status",
+                                        data: {ride_id: rideID},
+                                        dataType: "text",
+                                        success: function(data) {
+                                            alert("Successfully updated status.");
+                                            location.reload();
+                                        }
+                                    });
+                                }
+                            </script>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

@@ -391,3 +391,17 @@ def pay(ride_id):
             form.promo_code.errors.append('Promo code does not exists!')
 
     return render_template("payment.html", details=payment_details, form=form)
+
+
+####
+# SCHEDULE RELATED FUNCTIONAALITIES
+####
+@view.route("/update_pickup_status", methods=["POST"])
+def update_pickup_status():
+    query = "UPDATE Ride SET status = (CASE "\
+        "WHEN status = 'pending' THEN 'ongoing' "\
+        "ELSE 'completed' END) "\
+        "WHERE ride_ID = {}".format(request.form['ride_id'])
+    db.session.execute(query)
+    db.session.commit()
+    return '0'

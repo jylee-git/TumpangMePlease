@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Scheduled Rides</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <link rel="stylesheet" href="static/css/style-simple.css">
 </head>
 <body class="blue-background">
@@ -17,28 +18,41 @@
     <div class="scheduled-list white-font" style="margin-top: 5rem">
         <table class="table table-sm table-dark">
             <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Date</th>
-                <th scope="col">Time</th>
-                <th scope="col">Pick up</th>
-                <th scope="col">Destination</th>
-                <th scope="col"># Passengers</th>
-                <th scope="col">Driver's Car</th>
-                <th scope="col">Ride Status</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>13/11/2019</td>
-                <td>13:00:00</td>
-                <td>Kent Ridge</td>
-                <td>Changi Airport Terminal 2</td>
-                <td>4</td>
-                <td>BMW 3 Series (SQK 1234)</td>
-                <td>Pending</td>
-            </tr>
+            {% for ride in upcoming_rides %}
+                <tr>
+                    <th scope="col">Ride ID</th>
+                    <th scope="col">Time Posted</th>
+                    <th scope="col">Depart At</th>
+                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Driver</th>
+                    <th scope="col">Car Plate</th>
+                    <th scope="col">Contact</th>
+                    <th scope="col">Ride Status</th>
+                    <th scope="col">Paid?</th>
+                    <th scope="col">Payment</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">{{ ride[0] }}</th>
+                    <td>{{ ride[1] }}</td>
+                    <td>{{ ride[2] }}</td>
+                    <td>{{ ride[3] }}</td>
+                    <td>{{ ride[4] }}</td>
+                    <td>{{ ride[5] }}</td>
+                    <td>{{ ride[6] }}</td>
+                    <td>{{ ride[7] }}</td>
+                    <td>{{ ride[8] }}</td>
+                    <td>{{ ride[9] }}</td>
+                    <td>
+                        {# disable payment link if paid #}
+                        <a class="btn btn-outline-dark pay-button {% if ride[9] %} isDisabled{% endif %}" href="/payment/{{ ride[0] }}">
+                            Pay
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>

@@ -4,7 +4,7 @@ For our own debuggging only
 DROP TABLE IF EXISTS App_User CASCADE;
 DROP TABLE IF EXISTS Driver CASCADE;
 DROP TABLE IF EXISTS Passenger CASCADE;
-DROP TABLE IF EXISTS Model CASCADE;
+--DROP TABLE IF EXISTS Model CASCADE;
 DROP TABLE IF EXISTS Car CASCADE;
 DROP TABLE IF EXISTS Promo CASCADE;
 DROP TABLE IF EXISTS Ride CASCADE;
@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS Bids CASCADE;
 DROP TABLE IF EXISTS Review CASCADE;
 DROP TABLE IF EXISTS Redeems CASCADE;
 DROP TABLE IF EXISTS Owns CASCADE;
-DROP TABLE IF EXISTS Belongs CASCADE;
+--DROP TABLE IF EXISTS Belongs CASCADE;
 
 
 /********
@@ -41,21 +41,24 @@ CREATE TABLE Passenger (
     p_rating INTEGER
 );
 
-CREATE TABLE Model (
-    brand   TEXT,
-    name    TEXT,
-    size    INTEGER NOT NULL,
-    PRIMARY KEY (brand, name)
-);
+--CREATE TABLE Model (
+--    brand   TEXT,
+--    name    TEXT,
+--    size    INTEGER NOT NULL,
+--    PRIMARY KEY (brand, name)
+--);
 
 CREATE TABLE Car (
     plate_number varchar(20) PRIMARY KEY,
-    colours      varchar(20) NOT NULL
+    colour      varchar(20) NOT NULL,
+    brand         varchar(20) NOT NULL,
+    no_passengers        INTEGER NOT NULL,
+    CHECK(no_passengers >= 1)
 );
 
 CREATE TABLE Promo (
     promo_code   varchar(20) PRIMARY KEY,
-    quota_left   INTEGER NOT NULL,
+    max_quota   INTEGER NOT NULL,
     max_discount INTEGER,
     min_price    INTEGER,
     discount     INTEGER NOT NULL
@@ -73,8 +76,9 @@ CREATE TABLE Advertisement (
     price             INTEGER     NOT NULL,
     to_place          varchar(50) NOT NULL REFERENCES Place,
     from_place        varchar(50) NOT NULL REFERENCES Place,
-
-    PRIMARY KEY (time_posted, driver_ID)
+    ad_status         varchar(20) NOT NULL,
+    PRIMARY KEY (time_posted, driver_ID),
+    CHECK(num_passengers > 0)
 );
 
 
@@ -91,7 +95,8 @@ CREATE TABLE Bids (
     no_passengers    INTEGER,
     PRIMARY KEY (passenger_ID, time_posted, driver_ID),
     CHECK       (passenger_ID <> driver_ID),
-    CHECK       (status = 'ongoing' OR status = 'successful' OR status = 'failed')
+    CHECK       (status = 'ongoing' OR status = 'successful' OR status = 'failed'),
+    CHECK       (price > 0)
 );
 
 CREATE TABLE Ride (
@@ -100,8 +105,8 @@ CREATE TABLE Ride (
     driver_ID      varchar(50) NOT NULL,
     time_posted    TIMESTAMP   NOT NULL,
     status         varchar(20) DEFAULT 'pending',
+    is_paid        BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (passenger_ID, time_posted, driver_ID) REFERENCES Bids,
-
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
 
@@ -125,19 +130,21 @@ CREATE TABLE Owns (
     PRIMARY KEY (driver_ID, plate_number)
 );
 
-CREATE TABLE Belongs (
-    plate_number varchar(20) REFERENCES Car,
-    brand       TEXT        NOT NULL,
-    name        TEXT        NOT NULL,
-    PRIMARY KEY (plate_number),
-    FOREIGN KEY (brand, name) REFERENCES Model
-);
+--CREATE TABLE Belongs (
+--    plate_number varchar(20) REFERENCES Car,
+--    brand       TEXT        NOT NULL,
+--    name        TEXT        NOT NULL,
+--    PRIMARY KEY (plate_number),
+--    FOREIGN KEY (brand, name) REFERENCES Model
+--);
 
 COMMIT;
 
 /****************************************************************
 DATA INSERTION
 ****************************************************************/
+
+-- App_User: username, first_name, last_name, password, phone_number
 insert into App_User values ('user1', 'Cart', 'Klemensiewicz', 'password', 2863945039);
 insert into App_User values ('user2', 'Kit', 'Thurlow', 'password', 8215865769);
 insert into App_User values ('user3', 'Brynna', 'Fetter', 'password', 7734451473);
@@ -158,7 +165,9 @@ insert into App_User values ('user17', 'Hillary', 'Izon', 'password', 5355440695
 insert into App_User values ('user18', 'Hew', 'Leakner', 'password', 4794001078);
 insert into App_User values ('user19', 'Mallissa', 'Mahmood', 'password', 9435003533);
 insert into App_User values ('user20', 'Jocelyn', 'Seabrook', 'password', 6749453810);
+insert into App_User values ('teo', 'Shawn', 'teo', 'teo', 12345678);
 
+-- Passenger: username
 insert into Passenger values ('user1');
 insert into Passenger values ('user2');
 insert into Passenger values ('user3');
@@ -179,28 +188,47 @@ insert into Passenger values ('user17');
 insert into Passenger values ('user18');
 insert into Passenger values ('user19');
 insert into Passenger values ('user20');
+insert into Passenger values ('teo');
 
 -- Driver: username, d_rating(NULL)
 INSERT INTO Driver VALUES ('user1', NULL);
 INSERT INTO Driver VALUES ('user2', NULL);
 INSERT INTO Driver VALUES ('user3', NULL);
+INSERT INTO Driver VALUES ('user4', NULL);
+INSERT INTO Driver VALUES ('user5', NULL);
+INSERT INTO Driver VALUES ('user6', NULL);
+INSERT INTO Driver VALUES ('teo', NULL);
 
 -- Model: brand, name, size
-INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);
-INSERT INTO Model VALUES ('Toyota', 'Prius', 5);
-INSERT INTO Model VALUES ('Toyota', 'Camry', 5);
-INSERT INTO Model VALUES ('Honda', 'Civic', 5);
-INSERT INTO Model VALUES ('Honda', 'CRV', 7);
-INSERT INTO Model VALUES ('Lexus', 'X1', 5);
+--INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);
+--INSERT INTO Model VALUES ('Toyota', 'Prius', 5);
+--INSERT INTO Model VALUES ('Toyota', 'Camry', 5);
+--INSERT INTO Model VALUES ('Honda', 'Civic', 5);
+--INSERT INTO Model VALUES ('Honda', 'CRV', 7);
+--INSERT INTO Model VALUES ('Lexus', 'X1', 5);
+--INSERT INTO Model VALUES ('Mazda', 'CX5', 5);
+--INSERT INTO Model VALUES ('Lamborghini', 'Urus', 5);
+--INSERT INTO Model VALUES ('Ferrari', 'Gen 5', 1);
+--INSERT INTO Model VALUES ('Rolls Royce', 'Phantom', 5);
+--INSERT INTO Model VALUES ('Range Rover', 'Rover III', 4);
+--INSERT INTO Model VALUES ('Lexus', 'T10', 4);
 
--- Car: plateNumber, colors
-INSERT INTO Car VALUES ('SFV7687J', 'White');
-INSERT INTO Car VALUES ('S1', 'White');
-INSERT INTO Car VALUES ('EU9288C', 'Gray');
+-- Car: plateNum, colors
+INSERT INTO Car VALUES ('SFV7687J', 'White','Toyota',  5);
+INSERT INTO Car VALUES ('S1', 'White','Honda', 5);
+INSERT INTO Car VALUES ('EU9288C', 'Gray','Ferrari',2);
+INSERT INTO Car VALUES ('AAA8888', 'Red','Lexus', 4);
+INSERT INTO Car VALUES ('BBB8888', 'Black','Toyota',5);
+INSERT INTO Car VALUES ('CCC8888', 'Blue','Range Rover', 4);
+INSERT INTO Car VALUES ('007', 'Pink','Honda', 7);
 
 -- Promo: promoCode, quotaLeft, maxDiscount, minPrice, disc
 INSERT INTO Promo VALUES ('a1a', 10, 20, 10, 20);
-INSERT INTO Promo VALUES ('a1b', 1, 10, 0, 20);
+INSERT INTO Promo VALUES ('a1b', 1, 10, 20, 20);
+INSERT INTO Promo VALUES ('50OFF', 1, 50, 100, 50);
+INSERT INTO Promo VALUES ('40OFF', 1, 40, 10, 40);
+INSERT INTO Promo VALUES ('10OFF', 0, 10, 20, 10);
+INSERT INTO Promo VALUES ('20OFF', 5, 20, 50, 20);
 
 -- Place: name (of place)
 INSERT INTO Place VALUES ('Jurong East');
@@ -325,29 +353,81 @@ INSERT INTO Place VALUES ('Tampines West');
 INSERT INTO Place VALUES ('Tampines East');
 INSERT INTO Place VALUES ('Upper Changi');
 
--- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris');
+-- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from, ad_status
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user4', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Kent Ridge', 'Changi Airport', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user5', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
 
 -- Bids: passId, driverID, timePosted, price, status, numPass
-INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 10, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user12', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user13', 'user3', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2018-12-10 12:30', 10, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
+INSERT INTO Bids VALUES ('user12', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
+INSERT INTO Bids VALUES ('user13', 'user3', TIMESTAMP '2018-12-10 12:30', 30, 'successful', 2);
+INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
 INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
 INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user1', 'user6', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
+INSERT INTO Bids VALUES ('user6', 'user5', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user9', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user7', 'user6', TIMESTAMP '2018-12-10 12:30', 50, 'successful', 2);
+INSERT INTO Bids VALUES ('user12', 'user5', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user3', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
 
 -- Ride: rideID(NULL), passID, driverID, timePosted, status
-INSERT INTO Ride VALUES(DEFAULT, 'user11', 'user3', TIMESTAMP '2019-12-12 12:30', DEFAULT);
-INSERT INTO Ride VALUES(DEFAULT, 'user14', 'user2', TIMESTAMP '2019-12-12 12:30', 'ongoing');
+INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT);
+INSERT INTO Ride VALUES(DEFAULT, 'user7', 'user6', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT);
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');
 INSERT INTO Owns VALUES ('user2', 'S1');
 INSERT INTO Owns VALUES ('user3', 'EU9288C');
+INSERT INTO Owns VALUES ('user4', 'AAA8888');
+INSERT INTO Owns VALUES ('user5', 'BBB8888');
+INSERT INTO Owns VALUES ('user6', 'CCC8888');
+INSERT INTO Owns VALUES ('teo', '007');
 
 -- Belongs: plateNum, name, brand
-INSERT INTO Belongs VALUES ('SFV7687J', 'Toyota', 'Mirai');
-INSERT INTO Belongs VALUES ('S1', 'Toyota', 'Mirai');
-INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('SFV7687J', 'Toyota', 'Mirai');
+--INSERT INTO Belongs VALUES ('S1', 'Toyota', 'Mirai');
+--INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('AAA8888', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('BBB8888', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('CCC8888', 'Honda', 'CRV');
+--INSERT INTO Belongs VALUES ('007', 'Lexus', 'X1');
+
+/****************************************************************
+FUNCTION and TRIGGER
+****************************************************************/
+CREATE OR REPLACE FUNCTION update_bid_failed()
+RETURNS TRIGGER AS $$ BEGIN
+RAISE NOTICE 'New bid price should be higher'; RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bid_update_trig
+BEFORE UPDATE ON bids FOR EACH ROW
+WHEN (NEW.price <= OLD.price)
+EXECUTE PROCEDURE update_bid_failed();
+
+CREATE OR REPLACE PROCEDURE
+add_driver(name varchar(20)) AS
+$tag$
+BEGIN
+IF NOT EXISTS(SELECT * FROM driver WHERE driver.username = name) THEN
+    INSERT INTO driver(username, d_rating) VALUES (name, NULL);
+END IF;
+END
+$tag$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE
+add_owns(name varchar(20), number varchar(20)) AS
+$tag$
+BEGIN
+IF NOT EXISTS(SELECT * FROM owns WHERE owns.driver_id = name AND owns.plate_number = number) THEN
+    INSERT INTO owns(driver_id, plate_number) VALUES (name, number);
+END IF;
+END
+$tag$
+LANGUAGE plpgsql;

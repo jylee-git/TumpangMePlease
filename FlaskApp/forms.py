@@ -91,6 +91,14 @@ class BidForm(FlaskForm):
         render_kw={'placeholder': 'no. of passengers'}
     )
 
+
 class CurrentBidForm(FlaskForm):
     hidden_did = HiddenField()
     hidden_dateposted = HiddenField()
+
+
+class PaymentForm(FlaskForm):
+    promo_code = StringField(
+        label='Promo Code',
+        render_kw={'placeholder': 'e.g. 30OFF'}
+    )

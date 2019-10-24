@@ -58,7 +58,7 @@
                 <select class="form-control" id="car_model" name="car_model">
                     {# need to convert this to the cars inputted by driver #}
                     {% for car_model in car_model_list %}
-                        <option value="{{car_model[1] + ' ' + car_model[2]}}">{{car_model[1] + " " + car_model[2] + " (" + car_model[0] + ")"}}</option>
+                        <option value="{{car_model[0] + '|' + car_model[1]}}">{{car_model[0] + " (" + car_model[1] + ")"}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -90,6 +90,9 @@
         {% endif %}
         {% if exceed_limit_error %}
         Your car can't take so many passengers!
+        {% endif %}
+        {% if negative_passenger_error %}
+        Number of passengers should be positive!
         {% endif %}
         {% if success %}
         You successfully added an advertisement!

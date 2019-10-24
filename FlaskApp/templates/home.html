@@ -125,6 +125,7 @@
                         <td>{{ bid[6] }}</td>
                         <td>{{ bid[7] }}</td>
                         <td>
+                            {% if bid[7] == 'ongoing' %}
                             <button type="button" class="btn delete-button" 
                             onclick="deleteBid('{{ bid[2] }}', '{{ bid[0] }}')">Delete</button>
                             <script>
@@ -143,6 +144,7 @@
                                     }
                                 }
                             </script>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

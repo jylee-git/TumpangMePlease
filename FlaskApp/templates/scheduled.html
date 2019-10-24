@@ -19,12 +19,11 @@
             <h3 class="text-align-center">Your upcoming pick-ups:</h3>
         </div>
         <div class="scheduled-list white-font" style="margin-top: 5rem">
+            {% if upcoming_pickups|length == 0 %}
+                <h4>No upcoming pick-ups.</h4>
+            {% endif %}
             <table class="table table-sm table-dark">
                 <thead>
-                {% if upcoming_pickups|length == 0 %}
-                    <h4>No upcoming pick-ups.</h4>
-                {% endif %}
-
                 {% for pickup in upcoming_pickups %}
                     <tr>
                         <th scope="col">Ride ID</th>
@@ -80,10 +79,13 @@
 {% endif %}
 
 <div class="container" style="padding-top: 15rem">
-    <div class="advertisement-title white-font">
+    <div class="white-font">
         <h3 class="text-align-center">Your upcoming rides (if any):</h3>
     </div>
     <div class="scheduled-list white-font" style="margin-top: 5rem">
+        {% if upcoming_rides|length == 0 %}
+            <h4>No upcoming rides.</h4>
+        {% endif %}
         <table class="table table-sm table-dark">
             <thead>
             {% for ride in upcoming_rides %}

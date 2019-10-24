@@ -265,13 +265,13 @@ def render_view_advertisement_page():
                                    "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = '{0}') as highest_bid," \
                                    "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = '{0}') as num_bidders," \
                                    "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
-                                   "a.ad_status as ad_status" \
-                                   " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{0}'".format(
+                                   "a.ad_status as ad_status, a.driver_id" \
+                                   " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{0}' and ad_status = 'Active'".format(
                 current_user.username)
             driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
 
             driver_bid_list_query = "select a.time_posted::timestamp(0) as date_posted, " \
-                                    "b.passenger_id, b.price, a.num_passengers " \
+                                    "b.passenger_id, b.price, a.num_passengers, a.driver_id " \
                                     "from advertisement a JOIN bids b ON a.driver_id = b.driver_id and a.time_posted = b.time_posted " \
                                     "where " \
                                     "b.driver_id= '{}'".format(current_user.username)
@@ -394,7 +394,7 @@ def pay(ride_id):
 
 
 ####
-# SCHEDULE RELATED FUNCTIONAALITIES
+# SCHEDULE RELATED FUNCTIONALITIES
 ####
 @view.route("/update_pickup_status", methods=["POST"])
 def update_pickup_status():
@@ -405,3 +405,36 @@ def update_pickup_status():
     db.session.execute(query)
     db.session.commit()
     return '0'
+    
+  
+####
+# ADVERTISEMENT RELATED FUNCTIONALITIES
+####
+@view.route("/delete_ad", methods=["GET", "POST"])
+def delete_ad():
+    print('request.form: ', request.form)
+    query = "UPDATE Advertisement SET ad_status = 'Deleted' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
+        .format(request.form['dateposted'], request.form['driver_id'])
+    print(query)
+    db.session.execute(query)
+    db.session.commit()
+    return redirect("/")
+    
+@view.route("/schedule_ride", methods=["GET", "POST"])
+def schedule_ride():
+    print('request.form: ', request.form)
+    query = "UPDATE Advertisement SET ad_status = 'Scheduled' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
+        .format(request.form['dateposted'], request.form['driver_id'])
+    print(query)
+    db.session.execute(query)
+    
+    bid_success_query = "UPDATE Bids SET status = 'successful' WHERE (passenger_ID, time_posted, driver_ID) = ('{}', '{}', '{}')" \
+        .format(request.form['passenger_id'], request.form['dateposted'], request.form['driver_id'])
+  
+    db.session.execute(bid_success_query)
+    
+    new_ride_query = "INSERT INTO Ride(ride_ID, passenger_ID, driver_ID, time_posted, status, is_paid) " \
+                     "VALUES (DEFAULT, '{}', '{}', '{}', DEFAULT, DEFAULT)".format(request.form['passenger_id'], request.form['driver_id'], request.form['dateposted'])
+    db.session.execute(new_ride_query)
+    db.session.commit()
+    return redirect("/")

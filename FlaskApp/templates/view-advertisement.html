@@ -48,7 +48,26 @@
 					<td>{{ things[6] }}</td>
 					<td>{{ things[7] }}</td>
                 <td>
-                    <button type="button" class="btn delete-button">Delete</button>
+                    <button type="button" class="btn delete-button"
+					onclick="deleteAd('{{ things[0] }}', '{{ things[8] }}')">Delete
+					</button>
+							
+					<script>
+						function deleteAd(datePosted, driver_ID) {
+							if (confirm("Are you sure to delete this advertisement?")) {
+								$.ajax({
+									type: "POST",
+									url: "/delete_ad",
+									data: {dateposted: datePosted, driver_id: driver_ID},
+									dataType: "text",
+									success: function(data) {
+										alert("Successfully removed advertisement.");
+										location.reload();
+									}
+								});
+							}
+						}
+					</script>
                 </td>
             </tr>
             {% endfor %}
@@ -58,8 +77,11 @@
 </div>
 <div class="container">
     <div class="bid-list white-font">
-        <h3 class="text-align-center">List of bids for your advertisements:</h3>
-        <br>
+        <h3 class="text-align-center">List of bids for your advertisements:
+			 <td>
+				<button type="button" class="btn btn-outline-dark">Simulate Sytem Accept</button>
+			</td>
+		</h3>
         <table class="table table-sm table-dark">
             <thead>
             <tr>
@@ -81,7 +103,28 @@
 					<td>{{ things[2] }}</td>
 					<td>{{ things[3] }}</td>
                 <td>
-                    <button type="button" class="btn accept-button">Accept</button>
+                    <button type="button" class="btn accept-button"
+					onclick="scheduleRide('{{ things[0] }}', '{{ things[1] }}', '{{ things[4] }}')">Accept
+					</button>
+							
+					<script>
+						function scheduleRide(datePosted, passenger_ID, driver_ID) {
+							if (confirm("Are you sure to accept the bid?")) {
+								$.ajax({
+									type: "POST",
+									url: "/schedule_ride",
+									data: {dateposted: datePosted, passenger_id: passenger_ID, driver_id: driver_ID},
+									dataType: "text",
+									success: function(data) {
+										alert("Successfully accepted bid and scheduled ride.");
+										location.reload();
+									}
+								});
+							}
+						}
+					</script>
+				</td>
+					
                 </td>
             </tr>
             {% endfor %}

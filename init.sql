@@ -89,7 +89,7 @@ RELATIONSHIPS
 CREATE TABLE Bids (
     passenger_ID     varchar(50) REFERENCES Passenger ON DELETE CASCADE,
     driver_ID        varchar(50) REFERENCES Driver    ON DELETE CASCADE,
-    time_posted      TIMESTAMP,
+    time_posted      TIMESTAMP	 DEFAULT date_trunc('second', current_timestamp),
     price            NUMERIC,
     status           varchar(20),
     no_passengers    INTEGER,
@@ -407,7 +407,7 @@ END; $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER bid_update_trig
 BEFORE UPDATE ON bids FOR EACH ROW
-WHEN (NEW.price <= OLD.price)
+WHEN (NEW.price < OLD.price)
 EXECUTE PROCEDURE update_bid_failed();
 
 CREATE OR REPLACE PROCEDURE

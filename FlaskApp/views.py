@@ -22,7 +22,7 @@ def render_home_page():
     if current_user.is_authenticated:
 
         ad_list_query = "SELECT a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
-                        "a.driver_id, a.from_place, a.to_place, a.num_passengers," \
+                        "a.driver_id, a.from_place, a.to_place, a.num_passengers, a.price, " \
                         "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
                         "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
                         "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
@@ -39,17 +39,22 @@ def render_home_page():
         # Bid form handling
         form = BidForm()
         form.no_passengers.errors = ''
-        form.no_passengers.errors = ''
+        form.price.errors = ''
         if form.is_submitted():
             price = form.price.data
             no_passengers = form.no_passengers.data
             time_posted = form.hidden_dateposted.data
             driver_id = form.hidden_did.data
+            min_price_query = "SELECT price FROM Advertisement WHERE time_posted = '{}' and driver_id = '{}'".format(time_posted, driver_id)
+            min_price = db.session.execute(min_price_query).fetchone()[0]
             if form.validate_on_submit():
                 # disallow bidding to own-self's advertisement
                 if int(no_passengers) > int(form.hidden_maxPax.data):
                     form.no_passengers.errors.append(
                         'Max number of passengers allowed should be {}.'.format(form.hidden_maxPax.data))
+                elif int(price) < min_price:
+                    form.price.errors.append(
+                        'Bidding price should be higher than the minimum price of {}.'.format(min_price))
                 else:
                     makeBid(current_user.username, time_posted, driver_id, price, no_passengers)
                     return redirect("/")

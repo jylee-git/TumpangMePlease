@@ -32,7 +32,7 @@ def render_home_page():
                         "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
                         "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
                         "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
-                        " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
+                        " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and ad_status = 'Active'"
         ad_list = db.session.execute(ad_list_query).fetchall()
 
         bid_list_query = "select a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \

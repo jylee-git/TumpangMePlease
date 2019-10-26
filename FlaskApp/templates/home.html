@@ -33,125 +33,138 @@
     </div>
     <div class="container" style="padding-top: 5rem">
         <div class="advertisement-list white-font">
-            <h3 class="text-align-center">Current rides available:</h3>
-            <br>
-            <table class="table table-sm table-dark" style="max-height: 300px; display: block; overflow: auto;">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Posted At</th>
-                    <th scope="col">Depart At</th>
-                    <th scope="col">Driver</th>
-                    <th scope="col">Pick up</th>
-                    <th scope="col">Destination</th>
-                    <th scope="col"># Spots</th>
-                    <th scope="col">Min Price</th>
-                    <th scope="col">Highest Bid ($S)</th>
-                    <th scope="col">Number of Bidders</th>
-                    <th scope="col">Time Remaining</th>
-                    <th scope="col">Bid</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for ad in ad_list %}
-                    <tr>
-                        <th scope="row">{{ loop.index }}</th>
-                        <td>{{ ad[0] }}</td>
-                        <td>{{ ad[1] }}</td>
-                        <td>{{ ad[2] }}</td>
-                        <td>{{ ad[3] }}</td>
-                        <td>{{ ad[4] }}</td>
-                        <td>{{ ad[5] }}</td>
-                        <td>{{ ad[6] }}</td>
-                        <td>{{ ad[7] }}</td>
-                        <td>{{ ad[8] }}</td>
-                        <td>{{ ad[9] }}</td>
-                        <td>
-                            <button type="button" class="btn btn-outline-dark bid-button" data-did="{{ ad[2] }}"
-                                    data-dateposted="{{ ad[0] }}" data-maxPax="{{ ad[5] }}"
-                                    onclick="makeBid('{{ ad[2] }}', '{{ current_user.username }}', '{{ ad[0] }}', '{{ ad[5] }}')">Bid
-                            </button>
-                            <script>
-                                function makeBid(did, pid, datePosted, maxPax) {
-                                    if (did === pid) {
-                                        alert("You can't bid for yourself!");
-                                    }
-                                    else {
-                                        $('#bid-modal').modal({
-                                            show: true
-                                        });
 
-                                        // Setting the hidden value so that the other HTML can use
-                                        $("input[name=hidden_did]").val(did);
-                                        $("input[name=hidden_dateposted]").val(datePosted);
-                                        $("input[name=hidden_maxPax]").val(maxPax);
-                                    }
-                                }
-                            </script>
-                        </td>
+            <h3 class="text-align-center">Current rides available:</h3>
+            {% if ad_list|length == 0 %}
+                <br>
+                <h4 class="text-align-center">No advertisement listed.</h4>
+            {% else %}
+                <br>
+                <table class="table table-sm table-dark" style="max-height: 300px; display: block; overflow: auto;">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Posted At</th>
+                        <th scope="col">Depart At</th>
+                        <th scope="col">Driver</th>
+                        <th scope="col">Pick up</th>
+                        <th scope="col">Destination</th>
+                        <th scope="col"># Spots</th>
+                        <th scope="col">Min Price</th>
+                        <th scope="col">Highest Bid ($S)</th>
+                        <th scope="col">Number of Bidders</th>
+                        <th scope="col">Time Remaining</th>
+                        <th scope="col">Bid</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for ad in ad_list %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ ad[0] }}</td>
+                            <td>{{ ad[1] }}</td>
+                            <td>{{ ad[2] }}</td>
+                            <td>{{ ad[3] }}</td>
+                            <td>{{ ad[4] }}</td>
+                            <td>{{ ad[5] }}</td>
+                            <td>{{ ad[6] }}</td>
+                            <td>{{ ad[7] }}</td>
+                            <td>{{ ad[8] }}</td>
+                            <td>{{ ad[9] }}</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-dark bid-button" data-did="{{ ad[2] }}"
+                                        data-dateposted="{{ ad[0] }}" data-maxPax="{{ ad[5] }}"
+                                        onclick="makeBid('{{ ad[2] }}', '{{ current_user.username }}', '{{ ad[0] }}', '{{ ad[5] }}')">
+                                    Bid
+                                </button>
+                                <script>
+                                    function makeBid(did, pid, datePosted, maxPax) {
+                                        if (did === pid) {
+                                            alert("You can't bid for yourself!");
+                                        } else {
+                                            $('#bid-modal').modal({
+                                                show: true
+                                            });
+
+                                            // Setting the hidden value so that the other HTML can use
+                                            $("input[name=hidden_did]").val(did);
+                                            $("input[name=hidden_dateposted]").val(datePosted);
+                                            $("input[name=hidden_maxPax]").val(maxPax);
+                                        }
+                                    }
+                                </script>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
     <div class="container">
         <div class="bid-list white-font">
+
             <h3 class="text-align-center">You bidded for:</h3>
-            <br>
-            <table class="table table-sm table-dark" style="max-height: 175px; display: block; overflow: auto;">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Ad Posted At</th>
-                    <th scope="col">Depart At</th>
-                    <th scope="col">Driver</th>
-                    <th scope="col">Pick up</th>
-                    <th scope="col">Destination</th>
-                    <th scope="col"># Passengers</th>
-                    <th scope="col">Your Bid ($S)</th>
-                    <th scope="col">Bid Status</th>
-                    <th scope="col">Delete</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for bid in bid_list %}
+            {% if bid_list|length == 0 %}
+                <br>
+                <h4 class="text-align-center">No advertisement listed.</h4>
+            {% else %}
+                <br>
+                <table class="table table-sm table-dark" style="max-height: 175px; display: block; overflow: auto;">
+                    <thead>
                     <tr>
-                        <th scope="row">{{ loop.index }}</th>
-                        <td>{{ bid[0] }}</td>
-                        <td>{{ bid[1] }}</td>
-                        <td>{{ bid[2] }}</td>
-                        <td>{{ bid[3] }}</td>
-                        <td>{{ bid[4] }}</td>
-                        <td>{{ bid[5] }}</td>
-                        <td>{{ bid[6] }}</td>
-                        <td>{{ bid[7] }}</td>
-                        <td>
-                            {% if bid[7] == 'ongoing' %}
-                            <button type="button" class="btn delete-button" 
-                            onclick="deleteBid('{{ bid[2] }}', '{{ bid[0] }}')">Delete</button>
-                            <script>
-                                function deleteBid(driverID, datePosted) {
-                                    if (confirm("Are you sure to delete the bid?")) {
-                                        $.ajax({
-                                            type: "POST",
-                                            url: "/delete_bid",
-                                            data: {driver_id: driverID, dateposted: datePosted},
-                                            dataType: "text",
-                                            success: function(data) {
-                                                alert("Successfully removed bid.");
-                                                location.reload();
-                                            }
-                                        });
-                                    }
-                                }
-                            </script>
-                            {% endif %}
-                        </td>
+                        <th scope="col">#</th>
+                        <th scope="col">Ad Posted At</th>
+                        <th scope="col">Depart At</th>
+                        <th scope="col">Driver</th>
+                        <th scope="col">Pick up</th>
+                        <th scope="col">Destination</th>
+                        <th scope="col"># Passengers</th>
+                        <th scope="col">Your Bid ($S)</th>
+                        <th scope="col">Bid Status</th>
+                        <th scope="col">Delete</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for bid in bid_list %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ bid[0] }}</td>
+                            <td>{{ bid[1] }}</td>
+                            <td>{{ bid[2] }}</td>
+                            <td>{{ bid[3] }}</td>
+                            <td>{{ bid[4] }}</td>
+                            <td>{{ bid[5] }}</td>
+                            <td>{{ bid[6] }}</td>
+                            <td>{{ bid[7] }}</td>
+                            <td>
+                                {% if bid[7] == 'ongoing' %}
+                                    <button type="button" class="btn delete-button"
+                                            onclick="deleteBid('{{ bid[2] }}', '{{ bid[0] }}')">Delete
+                                    </button>
+                                    <script>
+                                        function deleteBid(driverID, datePosted) {
+                                            if (confirm("Are you sure to delete the bid?")) {
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "/delete_bid",
+                                                    data: {driver_id: driverID, dateposted: datePosted},
+                                                    dataType: "text",
+                                                    success: function (data) {
+                                                        alert("Successfully removed bid.");
+                                                        location.reload();
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    </script>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -177,25 +190,25 @@
 
                     <div class="formField" style="color: black">
                         {{ form.price }}
-{#                        {% if form.price.errors %}#}
-{#                            <div class="errorMessage">#}
-{#                                {% for error in form.price.errors %}#}
-{#                                    {{ error }}#}
-{#                                {% endfor %}#}
-{#                            </div>#}
-{#                        {% endif %}#}
+                        {#                        {% if form.price.errors %}#}
+                        {#                            <div class="errorMessage">#}
+                        {#                                {% for error in form.price.errors %}#}
+                        {#                                    {{ error }}#}
+                        {#                                {% endfor %}#}
+                        {#                            </div>#}
+                        {#                        {% endif %}#}
                     </div>
 
                     <div class="formField" style="color: black">
                         No of passengers:
                         {{ form.no_passengers }}
-{#                        {% if form.no_passengers.errors %}#}
-{#                            <div class="errorMessage">#}
-{#                                {% for error in form.no_passengers.errors %}#}
-{#                                    {{ error }}#}
-{#                                {% endfor %}#}
-{#                            </div>#}
-{#                        {% endif %}#}
+                        {#                        {% if form.no_passengers.errors %}#}
+                        {#                            <div class="errorMessage">#}
+                        {#                                {% for error in form.no_passengers.errors %}#}
+                        {#                                    {{ error }}#}
+                        {#                                {% endfor %}#}
+                        {#                            </div>#}
+                        {#                        {% endif %}#}
                     </div>
                 </form>
             </div>

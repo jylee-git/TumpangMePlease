@@ -20,7 +20,8 @@
         </div>
         <div class="scheduled-list white-font" style="margin-top: 5rem">
             {% if upcoming_pickups|length == 0 %}
-                <h4>No upcoming pick-ups.</h4>
+                <br>
+                <h4 class="text-align-center">No upcoming pick-ups.</h4>
             {% else %}
                 <table class="table table-sm table-dark" style="max-height: 350px; overflow: auto; display: block;">
                     <thead>
@@ -85,7 +86,8 @@
     </div>
     <div class="scheduled-list white-font" style="margin-top: 5rem">
         {% if upcoming_rides|length == 0 %}
-            <h4>No upcoming rides.</h4>
+            <br>
+            <h4 class="text-align-center">No upcoming rides.</h4>
         {% else %}
             <table class="table table-sm table-dark" style="max-height: 200px; overflow: auto; display: block;">
                 <thead>

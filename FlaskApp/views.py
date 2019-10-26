@@ -7,6 +7,7 @@ from models import AppUser, Driver
 
 from bidManager import makeBid
 from scheduleManager import getUpcomingPickups, isDriver
+from PaymentManager import get_outstanding_payment_ride_id
 
 view = Blueprint("view", __name__)
 
@@ -20,6 +21,11 @@ def load_user(username):
 @view.route("/", methods=["GET", "POST"])
 def render_home_page():
     if current_user.is_authenticated:
+
+        outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+        if outstanding_ride_id:
+            return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
 
         ad_list_query = "SELECT a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
                         "a.driver_id, a.from_place, a.to_place, a.num_passengers, a.price, " \
@@ -124,6 +130,10 @@ def render_scheduled_page():
     if not current_user.is_authenticated:
         return redirect("/login")
 
+    outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+    if outstanding_ride_id:
+        return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
     upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, " \
                             "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid FROM Ride r" \
                             " INNER JOIN " \
@@ -145,6 +155,11 @@ def render_scheduled_page():
 @view.route("/car-registration", methods=["GET", "POST"])
 def render_car_registration_page():
     if current_user.is_authenticated:
+
+        outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+        if outstanding_ride_id:
+            return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
         if request.method == "POST":
             brand = request.form['brand']
             plate_num = request.form['plate-num']
@@ -200,6 +215,11 @@ def render_car_registration_page():
 @view.route("/create-advertisement", methods=["GET", "POST"])
 def render_create_advertisement_page():
     if current_user.is_authenticated:
+
+        outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+        if outstanding_ride_id:
+            return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
         car_list_query = "SELECT brand, plate_number FROM owns NATURAL JOIN car WHERE owns.driver_id = '{}';".format(
             current_user.username)
         car_list = db.session.execute(car_list_query).fetchall()
@@ -262,6 +282,10 @@ def render_create_advertisement_page():
 @view.route("/view-advertisement", methods=["GET"])
 def render_view_advertisement_page():
     if current_user.is_authenticated:
+
+        outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+        if outstanding_ride_id:
+            return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
 
         is_current_user_a_driver = Driver.query.filter_by(username=current_user.username).first()
 

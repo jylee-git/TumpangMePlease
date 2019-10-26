@@ -350,7 +350,7 @@ def pay(ride_id):
         exists_promo = db.session.execute(promo_query).fetchone()
         current_bid_price = payment_details[3]
         form.promo_code.errors = []
-        is_paid_ride_query = "SELECT * FROM Ride WHERE is_paid=TRUE"
+        is_paid_ride_query = "SELECT * FROM Ride WHERE is_paid=TRUE and ride_id = {}".format(ride_id)
         is_paid_ride = db.session.execute(is_paid_ride_query).fetchone()
 
         if is_paid_ride:

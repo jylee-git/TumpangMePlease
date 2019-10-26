@@ -21,10 +21,9 @@
         <div class="scheduled-list white-font" style="margin-top: 5rem">
             {% if upcoming_pickups|length == 0 %}
                 <h4>No upcoming pick-ups.</h4>
-            {% endif %}
-            <table class="table table-sm table-dark" style="max-height: 350px; overflow: auto; display: block;">
-                <thead>
-                {% for pickup in upcoming_pickups %}
+            {% else %}
+                <table class="table table-sm table-dark" style="max-height: 350px; overflow: auto; display: block;">
+                    <thead>
                     <tr>
                         <th scope="col">Ride ID</th>
                         <th scope="col">Depart At</th>
@@ -36,44 +35,46 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th scope="row">{{ pickup[0] }}</th>
-                        <td>{{ pickup[1] }}</td>
-                        <td>{{ pickup[2] }}</td>
-                        <td>{{ pickup[3] }}</td>
-                        <td>{{ pickup[4] }}</td>
-                        <td>{{ pickup[5] }}</td>
-                        <td>{{ pickup[6] }}</td>
-                        <td>
-                            <button type="button" onclick="updateStatus('{{ pickup[0] }}')"
-                            class="btn btn-outline-dark pay-button {% if pickup[6] == 'completed' %} isDisabled{% endif %}">
-                                {% if pickup[6] == 'pending' %}
-                                    I have picked up passenger
-                                {% elif pickup[6] == 'ongoing' %}
-                                    I have dropped off passenger
-                                {% else %}
-                                    Completed
-                                {% endif %}
-                            </button>
-                            <script>
-                                function updateStatus(rideID) {
-                                    $.ajax({
-                                        type: "POST",
-                                        url: "/update_pickup_status",
-                                        data: {ride_id: rideID},
-                                        dataType: "text",
-                                        success: function(data) {
-                                            alert("Successfully updated status.");
-                                            location.reload();
-                                        }
-                                    });
-                                }
-                            </script>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    {% for pickup in upcoming_pickups %}
+                        <tr>
+                            <th scope="row">{{ pickup[0] }}</th>
+                            <td>{{ pickup[1] }}</td>
+                            <td>{{ pickup[2] }}</td>
+                            <td>{{ pickup[3] }}</td>
+                            <td>{{ pickup[4] }}</td>
+                            <td>{{ pickup[5] }}</td>
+                            <td>{{ pickup[6] }}</td>
+                            <td>
+                                <button type="button" onclick="updateStatus('{{ pickup[0] }}')"
+                                        class="btn btn-outline-dark pay-button {% if pickup[6] == 'completed' %} isDisabled{% endif %}">
+                                    {% if pickup[6] == 'pending' %}
+                                        I have picked up passenger
+                                    {% elif pickup[6] == 'ongoing' %}
+                                        I have dropped off passenger
+                                    {% else %}
+                                        Completed
+                                    {% endif %}
+                                </button>
+                                <script>
+                                    function updateStatus(rideID) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/update_pickup_status",
+                                            data: {ride_id: rideID},
+                                            dataType: "text",
+                                            success: function (data) {
+                                                alert("Successfully updated status.");
+                                                location.reload();
+                                            }
+                                        });
+                                    }
+                                </script>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
 {% endif %}
@@ -85,10 +86,9 @@
     <div class="scheduled-list white-font" style="margin-top: 5rem">
         {% if upcoming_rides|length == 0 %}
             <h4>No upcoming rides.</h4>
-        {% endif %}
-        <table class="table table-sm table-dark" style="max-height: 200px; overflow: auto; display: block;">
-            <thead>
-            {% for ride in upcoming_rides %}
+        {% else %}
+            <table class="table table-sm table-dark" style="max-height: 200px; overflow: auto; display: block;">
+                <thead>
                 <tr>
                     <th scope="col">Ride ID</th>
                     <th scope="col">Time Posted</th>
@@ -104,27 +104,30 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th scope="row">{{ ride[0] }}</th>
-                    <td>{{ ride[1] }}</td>
-                    <td>{{ ride[2] }}</td>
-                    <td>{{ ride[3] }}</td>
-                    <td>{{ ride[4] }}</td>
-                    <td>{{ ride[5] }}</td>
-                    <td>{{ ride[6] }}</td>
-                    <td>{{ ride[7] }}</td>
-                    <td>{{ ride[8] }}</td>
-                    <td>{{ ride[9] }}</td>
-                    <td>
-                        {# disable payment link if paid #}
-                        <a class="btn btn-outline-dark pay-button {% if ride[9] %} isDisabled{% endif %}" href="/payment/{{ ride[0] }}">
-                            Pay
-                        </a>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                {% for ride in upcoming_rides %}
+                    <tr>
+                        <th scope="row">{{ ride[0] }}</th>
+                        <td>{{ ride[1] }}</td>
+                        <td>{{ ride[2] }}</td>
+                        <td>{{ ride[3] }}</td>
+                        <td>{{ ride[4] }}</td>
+                        <td>{{ ride[5] }}</td>
+                        <td>{{ ride[6] }}</td>
+                        <td>{{ ride[7] }}</td>
+                        <td>{{ ride[8] }}</td>
+                        <td>{{ ride[9] }}</td>
+                        <td>
+                            {# disable payment link if paid #}
+                            <a class="btn btn-outline-dark pay-button {% if ride[9] %} isDisabled{% endif %}"
+                               href="/payment/{{ ride[0] }}">
+                                Pay
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     </div>
 </div>
 </body>

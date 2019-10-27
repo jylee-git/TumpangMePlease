@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, render_template, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from __init__ import db, login_manager
-from forms import LoginForm, RegistrationForm, BidForm, PaymentForm
+from forms import LoginForm, RegistrationForm, BidForm, PaymentForm, ReviewForm
 from models import AppUser, Driver
 
 from bidManager import makeBid
@@ -125,7 +125,7 @@ def render_login_page():
     return render_template("index.html", form=form)
 
 
-@view.route("/scheduled", methods=["GET"])
+@view.route("/scheduled", methods=["GET", "POST"])
 def render_scheduled_page():
     if not current_user.is_authenticated:
         return redirect("/login")
@@ -134,8 +134,31 @@ def render_scheduled_page():
     if outstanding_ride_id:
         return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
 
+    #  Review  ----------------------------------------
+    passenger_review_form = ReviewForm()
+    driver_review_form = ReviewForm()
+
+    if request.method == "POST":
+        if request.form['hidden_type'] == 'passenger':
+            ride_id = passenger_review_form.hidden_rid.data
+            rating = passenger_review_form.rating.data
+            comment = passenger_review_form.comment.data
+            insert_passenger_review_query = "UPDATE Ride SET p_rating = '{}', p_comment = '{}' WHERE ride_id = '{}'".format(
+                rating, comment, ride_id)
+            db.session.execute(insert_passenger_review_query)
+            db.session.commit()
+        elif request.form['hidden_type'] == 'driver':
+            ride_id = passenger_review_form.hidden_rid.data
+            rating = passenger_review_form.rating.data
+            comment = passenger_review_form.comment.data
+            insert_passenger_review_query = "UPDATE Ride SET d_rating = '{}', d_comment = '{}' WHERE ride_id = '{}'".format(rating, comment, ride_id)
+            db.session.execute(insert_passenger_review_query)
+            db.session.commit()
+
+    #  Review  ----------------------------------------
+
     upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, " \
-                            "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid FROM Ride r" \
+                            "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid, r.p_rating FROM Ride r" \
                             " INNER JOIN " \
                             "Advertisement a " \
                             "ON r.time_posted = a.time_posted and r.driver_id = a.driver_id" \
@@ -147,9 +170,11 @@ def render_scheduled_page():
                             "ON r.driver_id = a_u.username " \
                             "WHERE r.passenger_id = '{}'".format(current_user.username)
     upcoming_rides = db.session.execute(upcoming_rides_query).fetchall()
-    print(upcoming_rides)
-    return render_template("scheduled.html", current_user=current_user, upcoming_rides=upcoming_rides,\
-        upcoming_pickups=getUpcomingPickups(current_user.username), is_driver=isDriver(current_user.username))
+    return render_template("scheduled.html", current_user=current_user, upcoming_rides=upcoming_rides,
+                           upcoming_pickups=getUpcomingPickups(current_user.username),
+                           is_driver=isDriver(current_user.username),
+                           passenger_review_form=passenger_review_form, driver_review_form=driver_review_form)
+
 
 
 @view.route("/car-registration", methods=["GET", "POST"])

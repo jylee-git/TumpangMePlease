@@ -13,72 +13,90 @@
 {% include 'navbar-header.html' %}
 
 
-{% if is_driver %}
-    <div class="container" style="padding-top: 10rem">
-        <div class="white-font">
-            <h3 class="text-align-center">Your upcoming pick-ups:</h3>
-        </div>
-        <div class="scheduled-list white-font" style="margin-top: 5rem">
-            {% if upcoming_pickups|length == 0 %}
-                <br>
-                <h4 class="text-align-center">No upcoming pick-ups.</h4>
-            {% else %}
-                <table class="table table-sm table-dark" style="max-height: 350px; overflow: auto; display: block;">
-                    <thead>
-                    <tr>
-                        <th scope="col">Ride ID</th>
-                        <th scope="col">Depart At</th>
-                        <th scope="col">From</th>
-                        <th scope="col">To</th>
-                        <th scope="col">Passenger Name</th>
-                        <th scope="col">Passenger's Phone No.</th>
-                        <th scope="col">Ride Status</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for pickup in upcoming_pickups %}
-                        <tr>
-                            <th scope="row">{{ pickup[0] }}</th>
-                            <td>{{ pickup[1] }}</td>
-                            <td>{{ pickup[2] }}</td>
-                            <td>{{ pickup[3] }}</td>
-                            <td>{{ pickup[4] }}</td>
-                            <td>{{ pickup[5] }}</td>
-                            <td>{{ pickup[6] }}</td>
-                            <td>
-                                <button type="button" onclick="updateStatus('{{ pickup[0] }}')"
-                                        class="btn btn-outline-dark pay-button {% if pickup[6] == 'completed' %} isDisabled{% endif %}">
-                                    {% if pickup[6] == 'pending' %}
-                                        I have picked up passenger
-                                    {% elif pickup[6] == 'ongoing' %}
-                                        I have dropped off passenger
-                                    {% else %}
-                                        Completed
-                                    {% endif %}
-                                </button>
-                                <script>
-                                    function updateStatus(rideID) {
-                                        $.ajax({
-                                            type: "POST",
-                                            url: "/update_pickup_status",
-                                            data: {ride_id: rideID},
-                                            dataType: "text",
-                                            success: function (data) {
-                                                alert("Successfully updated status.");
-                                                location.reload();
-                                            }
-                                        });
-                                    }
-                                </script>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
+<div class="container" style="padding-top: 10rem">
+    <div class="white-font">
+        <h3 class="text-align-center">Your upcoming pick-ups:</h3>
     </div>
-{% endif %}
+    <div class="scheduled-list white-font" style="margin-top: 5rem">
+        {% if upcoming_pickups|length == 0 %}
+            <br>
+            <h4 class="text-align-center">No upcoming pick-ups.</h4>
+        {% else %}
+            <table class="table table-sm table-dark" style="max-height: 350px; overflow: auto; display: block;">
+                <thead>
+                <tr>
+                    <th scope="col">Ride ID</th>
+                    <th scope="col">Depart At</th>
+                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Passenger Name</th>
+                    <th scope="col">Passenger's Phone No.</th>
+                    <th scope="col">Ride Status</th>
+                    <th scope="col">Action</th>
+                    <th scope="col">Submit Review</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for pickup in upcoming_pickups %}
+                    <tr>
+                        <th scope="row">{{ pickup[0] }}</th>
+                        <td>{{ pickup[1] }}</td>
+                        <td>{{ pickup[2] }}</td>
+                        <td>{{ pickup[3] }}</td>
+                        <td>{{ pickup[4] }}</td>
+                        <td>{{ pickup[5] }}</td>
+                        <td>{{ pickup[6] }}</td>
+                        <td>
+                            <button type="button" onclick="updateStatus('{{ pickup[0] }}')"
+                                    class="btn btn-outline-dark pay-button {% if pickup[6] == 'completed' %} isDisabled{% endif %}">
+                                {% if pickup[6] == 'pending' %}
+                                    I have picked up passenger
+                                {% elif pickup[6] == 'ongoing' %}
+                                    I have dropped off passenger
+                                {% else %}
+                                    Completed
+                                {% endif %}
+                            </button>
+                            <script>
+                                function updateStatus(rideID) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/update_pickup_status",
+                                        data: {ride_id: rideID},
+                                        dataType: "text",
+                                        success: function (data) {
+                                            alert("Successfully updated status.");
+                                            location.reload();
+                                        }
+                                    });
+                                }
+                            </script>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-dark review-button {% if pickup[7] %} isDisabled{% endif %}"
+                                    data-rid="{{ pickup[0] }}"
+                                    onclick="driverReview('{{ pickup[0] }}')">
+                                Review
+                            </button>
+                            <script>
+                                function driverReview(rid) {
+                                    $('#driver-review-modal').modal({
+                                        show: true
+                                    });
+
+                                    // Setting the hidden value so that the other HTML can use
+                                    $("input[name=hidden_rid]").val(rid);
+                                    $("input[name=hidden_type]").val('driver');
+                                }
+                            </script>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
 
 <div class="container">
     <div class="white-font">
@@ -93,7 +111,7 @@
                 <thead>
                 <tr>
                     <th scope="col">Ride ID</th>
-                    <th scope="col">Time Posted</th>
+                    <th scope="col">Ad Time Posted</th>
                     <th scope="col">Depart At</th>
                     <th scope="col">From</th>
                     <th scope="col">To</th>
@@ -103,6 +121,7 @@
                     <th scope="col">Ride Status</th>
                     <th scope="col">Paid?</th>
                     <th scope="col">Payment</th>
+                    <th scope="col">Submit Review</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -125,11 +144,113 @@
                                 Pay
                             </a>
                         </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-dark review-button {% if ride[10] %} isDisabled{% endif %}"
+                                    data-rid="{{ ride[0] }}"
+                                    onclick="passengerReview('{{ ride[0] }}')">
+                                Review
+                            </button>
+                            <script>
+                                function passengerReview(rid) {
+                                    $('#passenger-review-modal').modal({
+                                        show: true
+                                    });
+
+                                    // Setting the hidden value so that the other HTML can use
+                                    $("input[name=hidden_rid]").val(rid);
+                                    $("input[name=hidden_type]").val('passenger');
+                                }
+                            </script>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         {% endif %}
+    </div>
+</div>
+
+{# Pop out box for submitting review by passenger #}
+<div class="modal fade" id="passenger-review-modal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Review Submission for Driver</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="passenger-review-form" method="post" action="/scheduled" name="passenger-review-form" value="passenger-review-form">
+                    {{ passenger_review_form.csrf_token }}
+
+                    {{ passenger_review_form.hidden_rid }}
+                    {{ passenger_review_form.hidden_type }}
+                    <div class="formField" style="color: black">
+                        Rating:
+                        {{ passenger_review_form.rating }}
+                    </div>
+
+                    <div class="formField" style="color: black">
+                        How was the driver?
+                        {{ passenger_review_form.comment }}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn accept-button" id="passengerConfirmReviewButton">Confirm Review
+                </button>
+            </div>
+            <script>
+                $("#passengerConfirmReviewButton").on('click', function () {
+                    $(".passenger-review-form").submit();
+                });
+            </script>
+        </div>
+    </div>
+</div>
+
+{# Pop out box for submitting review by driver #}
+<div class="modal fade" id="driver-review-modal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Review Submission for Passenger</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="driver-review-form" method="post" action="/scheduled" name="driver-review-form" value="driver-review-form">
+                    {{ driver_review_form.csrf_token }}
+
+                    {{ driver_review_form.hidden_rid }}
+                    {{ driver_review_form.hidden_type }}
+                    <div class="formField" style="color: black">
+                        Rating:
+                        {{ driver_review_form.rating }}
+                    </div>
+
+                    <div class="formField" style="color: black">
+                        How was the passenger?
+                        {{ driver_review_form.comment }}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn accept-button" id="driverConfirmReviewButton">Confirm Review
+                </button>
+            </div>
+            <script>
+                $("#driverConfirmReviewButton").on('click', function () {
+                    $(".driver-review-form").submit();
+                });
+            </script>
+        </div>
     </div>
 </div>
 </body>

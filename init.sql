@@ -106,6 +106,10 @@ CREATE TABLE Ride (
     time_posted    TIMESTAMP   NOT NULL,
     status         varchar(20) DEFAULT 'pending',
     is_paid        BOOLEAN NOT NULL DEFAULT false,
+    p_comment   varchar(50),
+    p_rating    INTEGER,
+    d_comment   varchar(50),
+    d_rating    INTEGER,
     FOREIGN KEY (passenger_ID, time_posted, driver_ID) REFERENCES Bids,
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
@@ -376,8 +380,8 @@ INSERT INTO Bids VALUES ('user12', 'user5', TIMESTAMP '2018-12-10 12:30', 20, 'o
 INSERT INTO Bids VALUES ('user3', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
 
 -- Ride: rideID(NULL), passID, driverID, timePosted, status
-INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT);
-INSERT INTO Ride VALUES(DEFAULT, 'user7', 'user6', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT);
+INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
+INSERT INTO Ride VALUES(DEFAULT, 'user7', 'user6', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');

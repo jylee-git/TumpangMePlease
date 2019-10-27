@@ -107,9 +107,9 @@ CREATE TABLE Ride (
     status         varchar(20) DEFAULT 'pending',
     is_paid        BOOLEAN NOT NULL DEFAULT false,
     p_comment   varchar(50),
-    p_rating    INTEGER,
+    p_rating    numeric,
     d_comment   varchar(50),
-    d_rating    INTEGER,
+    d_rating    numeric,
     FOREIGN KEY (passenger_ID, time_posted, driver_ID) REFERENCES Bids,
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
@@ -304,6 +304,9 @@ INSERT INTO Car VALUES ('AAA8888', 'Red','Lexus', 4);
 INSERT INTO Car VALUES ('BBB8888', 'Black','Toyota',5);
 INSERT INTO Car VALUES ('CCC8888', 'Blue','Range Rover', 4);
 INSERT INTO Car VALUES ('007', 'Pink','Honda', 7);
+INSERT INTO Car VALUES ('BC8888', 'Red','Honda', 7);
+INSERT INTO Car VALUES ('C8888', 'Red','Lamborghini', 7);
+INSERT INTO Car VALUES ('ABC8888', 'Red','Ferrari', 7);
 
 -- Promo: promoCode, quotaLeft, maxDiscount, minPrice, disc
 INSERT INTO Promo VALUES ('a1a', 10, 20, 10, 20);
@@ -447,6 +450,7 @@ INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-17 12:30', 'user7', 2, TIME
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-18 12:30', 'user8', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-19 12:30', 'user9', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-20 12:30', 'user10', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-21 12:30', 'user10', 2, TIMESTAMP '2019-12-15 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
 
 -- Bids: passId, driverID, timePosted, price, status, numPass
 INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
@@ -465,16 +469,20 @@ INSERT INTO Bids VALUES ('user12', 'user7', TIMESTAMP '2018-12-17 12:30', 20, 'o
 INSERT INTO Bids VALUES ('user3', 'user8', TIMESTAMP '2018-12-18 12:30', 30, 'ongoing', 2);
 INSERT INTO Bids VALUES ('user12', 'user9', TIMESTAMP '2018-12-19 12:30', 20, 'successful', 2);
 INSERT INTO Bids VALUES ('user3', 'user10', TIMESTAMP '2018-12-20 12:30', 30, 'successful', 2);
+INSERT INTO Bids VALUES ('user3', 'user10', TIMESTAMP '2018-12-21 12:30', 30, 'successful', 2);
 
 -- Ride: rideID(NULL), passID, driverID, timePosted, status, p_rating, p_comment, d_rating, d_comment
 INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
 INSERT INTO Ride VALUES(DEFAULT, 'user7', 'user6', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
 INSERT INTO Ride VALUES(DEFAULT, 'user12', 'user9', TIMESTAMP '2018-12-19 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
 INSERT INTO Ride VALUES(DEFAULT, 'user3', 'user10', TIMESTAMP '2018-12-20 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
+INSERT INTO Ride VALUES(DEFAULT, 'user3', 'user10', TIMESTAMP '2018-12-20 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
 UPDATE Ride SET p_rating = 5, p_comment = 'he was great' WHERE ride_id = 3;
 UPDATE Ride SET d_rating = 5, d_comment = 'he was okay' WHERE ride_id = 3;
 UPDATE Ride SET p_rating = 2, p_comment = 'he was noisy af' WHERE ride_id = 4;
 UPDATE Ride SET d_rating = 5, d_comment = 'he was a good listener' WHERE ride_id = 4;
+UPDATE Ride SET p_rating = 3, p_comment = 'this guy again...' WHERE ride_id = 5;
+UPDATE Ride SET d_rating = 1, d_comment = 'this time he was not a good listener' WHERE ride_id = 5;
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');
@@ -483,6 +491,10 @@ INSERT INTO Owns VALUES ('user3', 'EU9288C');
 INSERT INTO Owns VALUES ('user4', 'AAA8888');
 INSERT INTO Owns VALUES ('user5', 'BBB8888');
 INSERT INTO Owns VALUES ('user6', 'CCC8888');
+INSERT INTO Owns VALUES ('user7', 'CCC8888');
+INSERT INTO Owns VALUES ('user8', 'BC8888');
+INSERT INTO Owns VALUES ('user9', 'C8888');
+INSERT INTO Owns VALUES ('user10', 'ABC8888');
 INSERT INTO Owns VALUES ('teo', '007');
 
 -- Belongs: plateNum, name, brand

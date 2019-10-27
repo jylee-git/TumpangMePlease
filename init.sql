@@ -78,7 +78,8 @@ CREATE TABLE Advertisement (
     from_place        varchar(50) NOT NULL REFERENCES Place,
     ad_status         varchar(20) NOT NULL,
     PRIMARY KEY (time_posted, driver_ID),
-    CHECK(num_passengers > 0)
+    CHECK       (num_passengers > 0),
+    CHECK       (ad_status = 'Active' OR ad_status = 'Scheduled')
 );
 
 
@@ -440,17 +441,20 @@ INSERT INTO Place VALUES ('Tampines East');
 INSERT INTO Place VALUES ('Upper Changi');
 
 -- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from, ad_status
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Clementi', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-19 12:30', 'user9', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Changi Airport', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-20 12:30', 'user10', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer', 'Active');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris', 'Scheduled');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user4', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Kent Ridge', 'Changi Airport', 'Active');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user5', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-17 12:30', 'user7', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-18 12:30', 'user8', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-19 12:30', 'user9', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-20 12:30', 'user10', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-21 12:30', 'user10', 2, TIMESTAMP '2019-12-15 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-19 12:30', 'user9', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-20 12:30', 'user10', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-21 12:30', 'user10', 2, TIMESTAMP '2019-12-15 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
 
 -- Bids: passId, driverID, timePosted, price, status, numPass
 INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
@@ -480,7 +484,7 @@ INSERT INTO Ride VALUES(DEFAULT, 'user3', 'user10', TIMESTAMP '2018-12-20 12:30'
 UPDATE Ride SET p_rating = 5, p_comment = 'he was great' WHERE ride_id = 3;
 UPDATE Ride SET d_rating = 5, d_comment = 'he was okay' WHERE ride_id = 3;
 UPDATE Ride SET p_rating = 2, p_comment = 'he was noisy af' WHERE ride_id = 4;
-UPDATE Ride SET d_rating = 5, d_comment = 'he was a good listener' WHERE ride_id = 4;
+UPDATE Ride SET d_rating = 4, d_comment = 'he was a good listener' WHERE ride_id = 4;
 UPDATE Ride SET p_rating = 3, p_comment = 'this guy again...' WHERE ride_id = 5;
 UPDATE Ride SET d_rating = 1, d_comment = 'this time he was not a good listener' WHERE ride_id = 5;
 

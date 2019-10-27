@@ -28,7 +28,7 @@ def render_home_page():
 
 
         ad_list_query = "SELECT a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
-                        "a.driver_id, a.from_place, a.to_place, a.num_passengers, a.price, " \
+                        "a.driver_id, (SELECT d_rating FROM Driver WHERE username = a.driver_id), a.from_place, a.to_place, a.num_passengers, a.price, " \
                         "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
                         "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
                         "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
@@ -325,7 +325,7 @@ def render_view_advertisement_page():
             driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
 
             driver_bid_list_query = "select a.time_posted::timestamp(0) as date_posted, " \
-                                    "b.passenger_id, b.price, a.num_passengers, a.driver_id " \
+                                    "b.passenger_id, (SELECT p_rating FROM Passenger WHERE username = b.passenger_id), b.price, a.num_passengers, a.driver_id " \
                                     "from advertisement a JOIN bids b ON a.driver_id = b.driver_id and a.time_posted = b.time_posted " \
                                     "where " \
                                     "b.driver_id= '{}' and b.status = 'ongoing'".format(current_user.username)

@@ -143,22 +143,22 @@ def render_scheduled_page():
             ride_id = passenger_review_form.hidden_rid.data
             rating = passenger_review_form.rating.data
             comment = passenger_review_form.comment.data
-            insert_passenger_review_query = "UPDATE Ride SET p_rating = '{}', p_comment = '{}' WHERE ride_id = '{}'".format(
+            insert_passenger_review_query = "UPDATE Ride SET d_rating = '{}', d_comment = '{}' WHERE ride_id = '{}'".format(
                 rating, comment, ride_id)
             db.session.execute(insert_passenger_review_query)
             db.session.commit()
         elif request.form['hidden_type'] == 'driver':
-            ride_id = passenger_review_form.hidden_rid.data
-            rating = passenger_review_form.rating.data
-            comment = passenger_review_form.comment.data
-            insert_passenger_review_query = "UPDATE Ride SET d_rating = '{}', d_comment = '{}' WHERE ride_id = '{}'".format(rating, comment, ride_id)
-            db.session.execute(insert_passenger_review_query)
+            ride_id = driver_review_form.hidden_rid.data
+            rating = driver_review_form.rating.data
+            comment = driver_review_form.comment.data
+            insert_driver_review_form = "UPDATE Ride SET p_rating = '{}', p_comment = '{}' WHERE ride_id = '{}'".format(rating, comment, ride_id)
+            db.session.execute(insert_driver_review_form)
             db.session.commit()
 
     #  Review  ----------------------------------------
 
     upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, " \
-                            "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid, r.p_rating FROM Ride r" \
+                            "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid, r.d_rating FROM Ride r" \
                             " INNER JOIN " \
                             "Advertisement a " \
                             "ON r.time_posted = a.time_posted and r.driver_id = a.driver_id" \
@@ -339,6 +339,25 @@ def render_view_advertisement_page():
             return render_template("car-registration.html", message=message)
     else:
         return redirect("/login")
+
+
+# @view.route("/driver-profile/<username>", methods=["GET"])
+# def get_driver_profile_page(username):
+#
+#     query = "SELECT username, first_name, last_name FROM app_user WHERE username = '{}'".format(username)
+#
+#     driver_details = db.session.execute(query).fetchone()
+#
+#     return render_template("driver.html", driver_details=driver_details)
+#
+#
+# @view.route("/passenger-profile/<username>", methods=["GET"])
+# def get_driver_profile_page(username):
+#     query = "SELECT username, first_name, last_name FROM app_user WHERE username = '{}'".format(username)
+#
+#     driver_details = db.session.execute(query).fetchone()
+#
+#     return render_template("passenger.html", driver_details=driver_details)
 
 
 @view.route("/privileged-page", methods=["GET"])

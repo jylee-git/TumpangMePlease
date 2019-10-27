@@ -33,12 +33,12 @@ CREATE TABLE App_User (
 
 CREATE TABLE Driver (
     username     varchar(50) PRIMARY KEY REFERENCES App_User ON DELETE CASCADE,
-    d_rating     INTEGER
+    d_rating     NUMERIC
 );
 
 CREATE TABLE Passenger (
     username varchar(50) PRIMARY KEY REFERENCES App_User ON DELETE CASCADE,
-    p_rating INTEGER
+    p_rating NUMERIC
 );
 
 --CREATE TABLE Model (
@@ -142,6 +142,81 @@ CREATE TABLE Owns (
 --    FOREIGN KEY (brand, name) REFERENCES Model
 --);
 
+/****************************************************************
+FUNCTION and TRIGGER
+****************************************************************/
+CREATE OR REPLACE FUNCTION update_bid_failed()
+RETURNS TRIGGER AS $$ BEGIN
+RAISE NOTICE 'New bid price should be higher'; RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bid_update_trig
+BEFORE UPDATE ON bids FOR EACH ROW
+WHEN (NEW.price < OLD.price)
+EXECUTE PROCEDURE update_bid_failed();
+
+CREATE OR REPLACE PROCEDURE
+add_driver(name varchar(20)) AS
+$tag$
+BEGIN
+IF NOT EXISTS(SELECT * FROM driver WHERE driver.username = name) THEN
+    INSERT INTO driver(username, d_rating) VALUES (name, NULL);
+END IF;
+END
+$tag$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE
+add_owns(name varchar(20), number varchar(20)) AS
+$tag$
+BEGIN
+IF NOT EXISTS(SELECT * FROM owns WHERE owns.driver_id = name AND owns.plate_number = number) THEN
+    INSERT INTO owns(driver_id, plate_number) VALUES (name, number);
+END IF;
+END
+$tag$
+LANGUAGE plpgsql;
+
+
+/*
+TRIGGER AND FUNCTION FOR REVIEWS
+ */
+
+CREATE OR REPLACE FUNCTION
+update_passenger_average_rating() RETURNS TRIGGER AS
+$tag$
+DECLARE average_rating numeric;
+BEGIN
+RAISE NOTICE 'Updating Average Passenger Rating';
+SELECT ROUND(SUM(p_rating) / COUNT(*), 2) INTO average_rating FROM Ride WHERE passenger_id = OLD.passenger_id AND p_rating IS NOT NULL;
+UPDATE Passenger SET p_rating = average_rating WHERE username = NEW.passenger_id;
+RETURN NEW;
+END;
+$tag$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER update_passenger_ride_rating
+AFTER UPDATE ON ride FOR EACH ROW
+WHEN ((OLD.p_rating <> NEW.p_rating OR OLD.p_rating IS NULL) AND NEW.p_rating IS NOT NULL)
+EXECUTE PROCEDURE update_passenger_average_rating();
+
+CREATE OR REPLACE FUNCTION
+update_driver_average_ride_rating() RETURNS TRIGGER AS
+$tag$
+DECLARE average_rating numeric;
+BEGIN
+RAISE NOTICE 'Updating Average Driver Rating';
+SELECT ROUND(SUM(d_rating) / COUNT(*), 2) INTO average_rating FROM Ride WHERE driver_id = OLD.driver_id AND d_rating IS NOT NULL;
+UPDATE Driver SET d_rating = average_rating WHERE username = NEW.driver_id;
+RETURN NEW;
+END;
+$tag$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER update_driver_ride_rating
+AFTER UPDATE ON ride FOR EACH ROW
+EXECUTE PROCEDURE update_driver_average_ride_rating();
+
 COMMIT;
 
 /****************************************************************
@@ -201,6 +276,10 @@ INSERT INTO Driver VALUES ('user3', NULL);
 INSERT INTO Driver VALUES ('user4', NULL);
 INSERT INTO Driver VALUES ('user5', NULL);
 INSERT INTO Driver VALUES ('user6', NULL);
+INSERT INTO Driver VALUES ('user7', NULL);
+INSERT INTO Driver VALUES ('user8', NULL);
+INSERT INTO Driver VALUES ('user9', NULL);
+INSERT INTO Driver VALUES ('user10', NULL);
 INSERT INTO Driver VALUES ('teo', NULL);
 
 -- Model: brand, name, size
@@ -364,6 +443,10 @@ INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIME
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user4', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Kent Ridge', 'Changi Airport', 'Active');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user5', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
 INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-17 12:30', 'user7', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-18 12:30', 'user8', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-19 12:30', 'user9', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-20 12:30', 'user10', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
 
 -- Bids: passId, driverID, timePosted, price, status, numPass
 INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
@@ -378,10 +461,20 @@ INSERT INTO Bids VALUES ('user9', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'on
 INSERT INTO Bids VALUES ('user7', 'user6', TIMESTAMP '2018-12-10 12:30', 50, 'successful', 2);
 INSERT INTO Bids VALUES ('user12', 'user5', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
 INSERT INTO Bids VALUES ('user3', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user12', 'user7', TIMESTAMP '2018-12-17 12:30', 20, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user3', 'user8', TIMESTAMP '2018-12-18 12:30', 30, 'ongoing', 2);
+INSERT INTO Bids VALUES ('user12', 'user9', TIMESTAMP '2018-12-19 12:30', 20, 'successful', 2);
+INSERT INTO Bids VALUES ('user3', 'user10', TIMESTAMP '2018-12-20 12:30', 30, 'successful', 2);
 
--- Ride: rideID(NULL), passID, driverID, timePosted, status
+-- Ride: rideID(NULL), passID, driverID, timePosted, status, p_rating, p_comment, d_rating, d_comment
 INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
 INSERT INTO Ride VALUES(DEFAULT, 'user7', 'user6', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
+INSERT INTO Ride VALUES(DEFAULT, 'user12', 'user9', TIMESTAMP '2018-12-19 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
+INSERT INTO Ride VALUES(DEFAULT, 'user3', 'user10', TIMESTAMP '2018-12-20 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
+UPDATE Ride SET p_rating = 5, p_comment = 'he was great' WHERE ride_id = 3;
+UPDATE Ride SET d_rating = 5, d_comment = 'he was okay' WHERE ride_id = 3;
+UPDATE Ride SET p_rating = 2, p_comment = 'he was noisy af' WHERE ride_id = 4;
+UPDATE Ride SET d_rating = 5, d_comment = 'he was a good listener' WHERE ride_id = 4;
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');
@@ -400,38 +493,3 @@ INSERT INTO Owns VALUES ('teo', '007');
 --INSERT INTO Belongs VALUES ('BBB8888', 'Honda', 'CRV');
 --INSERT INTO Belongs VALUES ('CCC8888', 'Honda', 'CRV');
 --INSERT INTO Belongs VALUES ('007', 'Lexus', 'X1');
-
-/****************************************************************
-FUNCTION and TRIGGER
-****************************************************************/
-CREATE OR REPLACE FUNCTION update_bid_failed()
-RETURNS TRIGGER AS $$ BEGIN
-RAISE NOTICE 'New bid price should be higher'; RETURN NULL;
-END; $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER bid_update_trig
-BEFORE UPDATE ON bids FOR EACH ROW
-WHEN (NEW.price < OLD.price)
-EXECUTE PROCEDURE update_bid_failed();
-
-CREATE OR REPLACE PROCEDURE
-add_driver(name varchar(20)) AS
-$tag$
-BEGIN
-IF NOT EXISTS(SELECT * FROM driver WHERE driver.username = name) THEN
-    INSERT INTO driver(username, d_rating) VALUES (name, NULL);
-END IF;
-END
-$tag$
-LANGUAGE plpgsql;
-
-CREATE OR REPLACE PROCEDURE
-add_owns(name varchar(20), number varchar(20)) AS
-$tag$
-BEGIN
-IF NOT EXISTS(SELECT * FROM owns WHERE owns.driver_id = name AND owns.plate_number = number) THEN
-    INSERT INTO owns(driver_id, plate_number) VALUES (name, number);
-END IF;
-END
-$tag$
-LANGUAGE plpgsql;

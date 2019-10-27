@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Passenger</title>
+    <link rel="stylesheet" href="static/css/style-simple.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+</head>
+<body class="blue-background">
+
+{% include 'navbar-header.html' %}
+
+<div class="container" style="padding-top: 15rem">
+    <div class="white-font">
+        <h2 class="text-align-center">Passenger details for: {{ passenger_details[0] }}</h2>
+    </div>
+    <div class="white-font text-align-center" style="margin-top: 5rem">
+        <h3>First Name: {{ passenger_details[1] }}</h3>
+        <br>
+        <br>
+        <h3>Last Name: {{ passenger_details[2] }}</h3>
+        <br>
+        <br>
+        <h3>Rating: {{ passenger_details[3] }}</h3>
+        <br>
+        <br>
+        <h3>Past Comments:</h3>
+        <br>
+        {% for comment in comments %}
+            <h5>"{{ comment[0] }}"</h5>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

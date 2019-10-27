@@ -341,23 +341,37 @@ def render_view_advertisement_page():
         return redirect("/login")
 
 
-# @view.route("/driver-profile/<username>", methods=["GET"])
-# def get_driver_profile_page(username):
-#
-#     query = "SELECT username, first_name, last_name FROM app_user WHERE username = '{}'".format(username)
-#
-#     driver_details = db.session.execute(query).fetchone()
-#
-#     return render_template("driver.html", driver_details=driver_details)
-#
-#
-# @view.route("/passenger-profile/<username>", methods=["GET"])
-# def get_driver_profile_page(username):
-#     query = "SELECT username, first_name, last_name FROM app_user WHERE username = '{}'".format(username)
-#
-#     driver_details = db.session.execute(query).fetchone()
-#
-#     return render_template("passenger.html", driver_details=driver_details)
+@view.route("/driver-profile/<username>", methods=["GET"])
+def get_driver_profile_page(username):
+
+    details_query = "SELECT username, first_name, last_name, (SELECT d_rating FROM Driver WHERE username = '{}')" \
+            " FROM app_user WHERE username = '{}'".format(username, username)
+
+    driver_details = db.session.execute(details_query).fetchone()
+
+    if driver_details is None:
+        driver_details = ["Invalid Driver {}".format(username)]
+
+    comments_query = "SELECT d_comment FROM Ride WHERE driver_id = '{}' AND d_comment IS NOT NULL".format(username)
+    comments = db.session.execute(comments_query).fetchall()
+
+    return render_template("driver.html", driver_details=driver_details, comments=comments)
+
+
+@view.route("/passenger-profile/<username>", methods=["GET"])
+def get_passenger_profile_page(username):
+    query = "SELECT username, first_name, last_name,(SELECT p_rating FROM Passenger WHERE username = '{}') " \
+            "FROM app_user WHERE username = '{}'".format(username, username)
+
+    comments_query = "SELECT p_comment FROM Ride WHERE passenger_id = '{}' AND p_comment IS NOT NULL".format(username)
+    comments = db.session.execute(comments_query).fetchall()
+
+    passenger_details = db.session.execute(query).fetchone()
+
+    if passenger_details is None:
+        passenger_details = ["Invalid Passenger {}".format(username)]
+
+    return render_template("passenger.html", passenger_details=passenger_details, comments=comments)
 
 
 @view.route("/privileged-page", methods=["GET"])

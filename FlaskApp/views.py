@@ -8,7 +8,7 @@ from models import AppUser, Driver
 from bidManager import makeBid
 from scheduleManager import getUpcomingPickups, isDriver
 from PaymentManager import get_outstanding_payment_ride_id
-from homeManager import get_filtered_ads
+from adManager import *
 
 view = Blueprint("view", __name__)
 
@@ -266,34 +266,36 @@ def render_create_advertisement_page():
                 return render_template("create-advertisement.html", current_user=current_user,
                                        car_model_list=car_list,
                                        place_list=place_list, negative_passenger_error=True)
-            else:
-                if from_place == to_place:
+            elif from_place == to_place:
                     return render_template("create-advertisement.html", current_user=current_user,
                                            car_model_list=car_list,
                                            place_list=place_list, same_place_error=True)
-                else:
-                    # check number of passengers
-                    split_string = car_model.split("|")
-                    car_plate_number = split_string[1]
+            elif not is_before_curr_time(departure_time):
+                return render_template("create-advertisement.html", current_user=current_user, car_model_list=car_list,
+                        place_list=place_list, time_before_now_error=True)
+            else:
+                # check number of passengers
+                split_string = car_model.split("|")
+                car_plate_number = split_string[1]
 
-                    check_size_query = "SELECT no_passengers from car WHERE car.plate_number = '{}' ".format(
-                        car_plate_number)
-                    check_size = db.session.execute(check_size_query).fetchall()
-                    print(check_size)
-                    if int(num_passenger) > check_size[0][0]:
-                        return render_template("create-advertisement.html", current_user=current_user,
-                                               car_model_list=car_list,
-                                               place_list=place_list, exceed_limit_error=True)
-                    else:
-                        add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place, ad_status) " \
-                                                  "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format \
-                            (current_user.username, num_passenger, departure_time, price, to_place, from_place,
-                             ad_status)
-                        db.session.execute(add_advertisement_query)
-                        db.session.commit()
-                        return render_template("create-advertisement.html", current_user=current_user,
-                                               car_model_list=car_list,
-                                               place_list=place_list, success=True)
+                check_size_query = "SELECT no_passengers from car WHERE car.plate_number = '{}' ".format(
+                    car_plate_number)
+                check_size = db.session.execute(check_size_query).fetchall()
+                print(check_size)
+                if int(num_passenger) > check_size[0][0]:
+                    return render_template("create-advertisement.html", current_user=current_user,
+                                            car_model_list=car_list,
+                                            place_list=place_list, exceed_limit_error=True)
+                else:
+                    add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place, ad_status) " \
+                                                "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format \
+                        (current_user.username, num_passenger, departure_time, price, to_place, from_place,
+                            ad_status)
+                    db.session.execute(add_advertisement_query)
+                    db.session.commit()
+                    return render_template("create-advertisement.html", current_user=current_user,
+                                            car_model_list=car_list,
+                                            place_list=place_list, success=True)
 
         return render_template("create-advertisement.html", current_user=current_user, car_model_list=car_list,
                                place_list=place_list)

@@ -5,6 +5,8 @@ PS: idk how to name this page
 from flask_login import current_user
 from __init__ import db
 
+import datetime
+
 
 # Returns the list of ads according to list of keywords. 
 def get_filtered_ads(keywords):
@@ -25,3 +27,9 @@ def get_filtered_ads(keywords):
         ad_list_query += ");"
 
     return db.session.execute(ad_list_query).fetchall()
+
+
+# Returns true if dateTime is after current time.
+def is_before_curr_time(test):
+    date_time_obj = datetime.datetime.strptime(test, '%m/%d/%Y %I:%M %p')
+    return True if date_time_obj > datetime.datetime.now() else False

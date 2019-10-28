@@ -12,93 +12,94 @@
 
 {% include 'navbar-header.html' %}
 
-
-<div class="container" style="padding-top: 10rem">
-    <div class="white-font">
-        <h3 class="text-align-center">Your upcoming pick-ups:</h3>
-    </div>
-    <div class="scheduled-list white-font" style="margin-top: 5rem">
-        {% if upcoming_pickups|length == 0 %}
-            <br>
-            <h4 class="text-align-center">No upcoming pick-ups.</h4>
-        {% else %}
-            <table class="table table-sm table-dark" style="max-height: 350px; overflow: auto; display: block;">
-                <thead>
-                <tr>
-                    <th scope="col">Ride ID</th>
-                    <th scope="col">Depart At</th>
-                    <th scope="col">From</th>
-                    <th scope="col">To</th>
-                    <th scope="col">Passenger Name</th>
-                    <th scope="col">Passenger's Phone No.</th>
-                    <th scope="col">Ride Status</th>
-                    <th scope="col">Action</th>
-                    <th scope="col">Submit Review</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for pickup in upcoming_pickups %}
+{% if is_driver %}
+    <div class="container" style="padding-top: 10rem">
+        <div class="white-font">
+            <h3 class="text-align-center">Your upcoming pick-ups:</h3>
+        </div>
+        <div class="scheduled-list white-font" style="margin-top: 5rem">
+            {% if upcoming_pickups|length == 0 %}
+                <br>
+                <h4 class="text-align-center">No upcoming pick-ups.</h4>
+            {% else %}
+                <table class="table table-sm table-dark" style="max-height: 350px; overflow: auto; display: block;">
+                    <thead>
                     <tr>
-                        <th scope="row">{{ pickup[0] }}</th>
-                        <td>{{ pickup[1] }}</td>
-                        <td>{{ pickup[2] }}</td>
-                        <td>{{ pickup[3] }}</td>
-                        <td>{{ pickup[4] }}</td>
-                        <td>{{ pickup[5] }}</td>
-                        <td>{{ pickup[6] }}</td>
-                        <td>
-                            <button type="button" onclick="updateStatus('{{ pickup[0] }}')"
-                                    class="btn btn-outline-dark pay-button {% if pickup[6] == 'completed' %} isDisabled{% endif %}">
-                                {% if pickup[6] == 'pending' %}
-                                    I have picked up passenger
-                                {% elif pickup[6] == 'ongoing' %}
-                                    I have dropped off passenger
-                                {% else %}
-                                    Completed
-                                {% endif %}
-                            </button>
-                            <script>
-                                function updateStatus(rideID) {
-                                    $.ajax({
-                                        type: "POST",
-                                        url: "/update_pickup_status",
-                                        data: {ride_id: rideID},
-                                        dataType: "text",
-                                        success: function (data) {
-                                            alert("Successfully updated status.");
-                                            location.reload();
-                                        }
-                                    });
-                                }
-                            </script>
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-outline-dark review-button {% if pickup[7] %} isDisabled{% endif %}"
-                                    data-rid="{{ pickup[0] }}"
-                                    onclick="driverReview('{{ pickup[0] }}')">
-                                Review
-                            </button>
-                            <script>
-                                function driverReview(rid) {
-                                    $('#driver-review-modal').modal({
-                                        show: true
-                                    });
-
-                                    // Setting the hidden value so that the other HTML can use
-                                    $("input[name=hidden_rid]").val(rid);
-                                    $("input[name=hidden_type]").val('driver');
-                                }
-                            </script>
-                        </td>
+                        <th scope="col">Ride ID</th>
+                        <th scope="col">Depart At</th>
+                        <th scope="col">From</th>
+                        <th scope="col">To</th>
+                        <th scope="col">Passenger Name</th>
+                        <th scope="col">Passenger's Phone No.</th>
+                        <th scope="col">Ride Status</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Submit Review</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-    </div>
-</div>
+                    </thead>
+                    <tbody>
+                    {% for pickup in upcoming_pickups %}
+                        <tr>
+                            <th scope="row">{{ pickup[0] }}</th>
+                            <td>{{ pickup[1] }}</td>
+                            <td>{{ pickup[2] }}</td>
+                            <td>{{ pickup[3] }}</td>
+                            <td>{{ pickup[4] }}</td>
+                            <td>{{ pickup[5] }}</td>
+                            <td>{{ pickup[6] }}</td>
+                            <td>
+                                <button type="button" onclick="updateStatus('{{ pickup[0] }}')"
+                                        class="btn btn-outline-dark pay-button {% if pickup[6] == 'completed' %} isDisabled{% endif %}">
+                                    {% if pickup[6] == 'pending' %}
+                                        I have picked up passenger
+                                    {% elif pickup[6] == 'ongoing' %}
+                                        I have dropped off passenger
+                                    {% else %}
+                                        Completed
+                                    {% endif %}
+                                </button>
+                                <script>
+                                    function updateStatus(rideID) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/update_pickup_status",
+                                            data: {ride_id: rideID},
+                                            dataType: "text",
+                                            success: function (data) {
+                                                alert("Successfully updated status.");
+                                                location.reload();
+                                            }
+                                        });
+                                    }
+                                </script>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-outline-dark review-button {% if pickup[7] %} isDisabled{% endif %}"
+                                        data-rid="{{ pickup[0] }}"
+                                        onclick="driverReview('{{ pickup[0] }}')">
+                                    Review
+                                </button>
+                                <script>
+                                    function driverReview(rid) {
+                                        $('#driver-review-modal').modal({
+                                            show: true
+                                        });
 
-<div class="container">
+                                        // Setting the hidden value so that the other HTML can use
+                                        $("input[name=hidden_rid]").val(rid);
+                                        $("input[name=hidden_type]").val('driver');
+                                    }
+                                </script>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<div class="container" style="margin-top: 5rem">
     <div class="white-font">
         <h3 class="text-align-center">Your upcoming rides (if any):</h3>
     </div>

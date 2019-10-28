@@ -33,3 +33,8 @@ def get_filtered_ads(keywords):
 def is_oneHourAfterCurrTime(test):
     date_time_obj = datetime.datetime.strptime(test, '%m/%d/%Y %I:%M %p')
     return True if date_time_obj > (datetime.datetime.now() + datetime.timedelta(hours=1)) else False
+
+# Returns the time in strict-ISO format.
+def get_dateTime_strictISO(dateTime):
+    date_time_obj = datetime.datetime.strptime(dateTime, '%m/%d/%Y %I:%M %p')
+    return date_time_obj.isoformat()

@@ -289,7 +289,7 @@ def render_create_advertisement_page():
                 else:
                     add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place, ad_status) " \
                                                 "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format \
-                        (current_user.username, num_passenger, departure_time, price, to_place, from_place,
+                        (current_user.username, num_passenger, get_dateTime_strictISO(departure_time), price, to_place, from_place,
                             ad_status)
                     db.session.execute(add_advertisement_query)
                     db.session.commit()

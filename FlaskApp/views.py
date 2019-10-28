@@ -270,7 +270,7 @@ def render_create_advertisement_page():
                     return render_template("create-advertisement.html", current_user=current_user,
                                            car_model_list=car_list,
                                            place_list=place_list, same_place_error=True)
-            elif not is_before_curr_time(departure_time):
+            elif not is_oneHourAfterCurrTime(departure_time):
                 return render_template("create-advertisement.html", current_user=current_user, car_model_list=car_list,
                         place_list=place_list, time_before_now_error=True)
             else:

@@ -29,7 +29,7 @@ def get_filtered_ads(keywords):
     return db.session.execute(ad_list_query).fetchall()
 
 
-# Returns true if dateTime is after current time.
-def is_before_curr_time(test):
+# Returns true if dateTime is 1 hr after current time.
+def is_oneHourAfterCurrTime(test):
     date_time_obj = datetime.datetime.strptime(test, '%m/%d/%Y %I:%M %p')
-    return True if date_time_obj > datetime.datetime.now() else False
+    return True if date_time_obj > (datetime.datetime.now() + datetime.timedelta(hours=1)) else False

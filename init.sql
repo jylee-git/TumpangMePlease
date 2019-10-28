@@ -79,7 +79,7 @@ CREATE TABLE Advertisement (
     ad_status         varchar(20) NOT NULL,
     PRIMARY KEY (time_posted, driver_ID),
     CHECK       (num_passengers > 0),
-    CHECK       (ad_status = 'Active' OR ad_status = 'Scheduled')
+    CHECK       (ad_status = 'Active' OR ad_status = 'Scheduled' OR ad_status = 'Deleted')
 );
 
 
@@ -155,6 +155,19 @@ CREATE TRIGGER bid_update_trig
 BEFORE UPDATE ON bids FOR EACH ROW
 WHEN (NEW.price < OLD.price)
 EXECUTE PROCEDURE update_bid_failed();
+
+CREATE OR REPLACE FUNCTION update_bid_status_to_fail()
+RETURNS TRIGGER AS $$ BEGIN
+    RAISE NOTICE 'Updating all bids for % %', NEW.driver_ID, NEW.time_posted;
+    UPDATE Bids AS b SET status = 'failed' 
+    WHERE (b.time_posted, b.driver_ID) = (NEW.time_posted, NEW.driver_ID);
+    RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_ad_deleted
+AFTER UPDATE ON Advertisement FOR EACH ROW
+WHEN (NEW.ad_status = 'Deleted')
+EXECUTE PROCEDURE update_bid_status_to_fail();
 
 CREATE OR REPLACE PROCEDURE
 add_driver(name varchar(20)) AS

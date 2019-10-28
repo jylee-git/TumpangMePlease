@@ -74,9 +74,8 @@
                             <td>{{ ad[9] }}</td>
                             <td>{{ ad[10] }}</td>
                             <td>
-                                <button type="button" class="btn btn-outline-dark bid-button" data-did="{{ ad[2] }}"
-                                        data-dateposted="{{ ad[0] }}" data-maxPax="{{ ad[5] }}"
-                                        onclick="makeBid('{{ ad[2] }}', '{{ current_user.username }}', '{{ ad[0] }}', '{{ ad[5] }}')">
+                                <button type="button" class="btn btn-outline-dark bid-button"
+                                        onclick="makeBid('{{ ad[2] }}', '{{ current_user.username }}', '{{ ad[0] }}', '{{ ad[6] }}')">
                                     Bid
                                 </button>
                                 <script>

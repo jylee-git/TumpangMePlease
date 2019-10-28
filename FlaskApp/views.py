@@ -8,6 +8,7 @@ from models import AppUser, Driver
 from bidManager import makeBid
 from scheduleManager import getUpcomingPickups, isDriver
 from PaymentManager import get_outstanding_payment_ride_id
+from homeManager import get_filtered_ads
 
 view = Blueprint("view", __name__)
 
@@ -26,14 +27,7 @@ def render_home_page():
         if outstanding_ride_id:
             return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
 
-
-        ad_list_query = "SELECT a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
-                        "a.driver_id, (SELECT d_rating FROM Driver WHERE username = a.driver_id), a.from_place, a.to_place, a.num_passengers, a.price, " \
-                        "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
-                        "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
-                        "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
-                        " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and ad_status = 'Active'"
-        ad_list = db.session.execute(ad_list_query).fetchall()
+        ad_list = get_filtered_ads(keywords=[])
 
         bid_list_query = "select a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
                          "a.driver_id, a.from_place, a.to_place, b.no_passengers, b.price as bid_price, b.status " \
@@ -46,7 +40,10 @@ def render_home_page():
         form = BidForm()
         form.no_passengers.errors = ''
         form.price.errors = ''
-        if form.is_submitted():
+        if request.method == "POST" and 'searchButton' in request.form:
+            search_keywords = request.form['search'].split()
+            ad_list = get_filtered_ads(search_keywords)
+        elif form.is_submitted():
             price = form.price.data
             no_passengers = form.no_passengers.data
             time_posted = form.hidden_dateposted.data

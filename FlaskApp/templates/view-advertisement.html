@@ -36,6 +36,7 @@
                     <th scope="col">Time Remaining</th>
                     <th scope="col">Ad Status</th>
                     <th scope="col">Delete</th>
+                    <th scope="col">Simulate</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -72,6 +73,31 @@
                                 }
                             </script>
                         </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-dark"
+                                    onclick="autoSelect('{{ things[0] }}', '{{ things[8] }}')">
+                                System Accept
+                            </button>
+                            <script>
+                                function autoSelect(datePosted, driver_ID) {
+                                    if (confirm("Allow system to select the winning bid?")) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/auto_schedule_ride",
+                                            data: {
+                                                dateposted: datePosted,
+                                                driver_id: driver_ID
+                                            },
+                                            dataType: "text",
+                                            success: function (data) {
+                                                alert("Successfully selected winning bid and scheduled ride.");
+                                                location.reload();
+                                            }
+                                        });
+                                    }
+                                }
+                            </script>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -82,9 +108,6 @@
 <div class="container" style="padding-top: 5rem">
     <div class="bid-list white-font">
         <h3 class="text-align-center">List of bids for your advertisements:
-            <td>
-                <button type="button" class="btn btn-outline-dark">Simulate System Accept</button>
-            </td>
         </h3>
         {% if driver_bid_list|length == 0 %}
             <br>
@@ -138,8 +161,6 @@
                                     }
                                 }
                             </script>
-                        </td>
-
                         </td>
                     </tr>
                 {% endfor %}

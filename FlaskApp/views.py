@@ -535,19 +535,62 @@ def schedule_ride():
     
 @view.route("/auto_schedule_ride", methods=["GET", "POST"])
 def auto_schedule_ride():
+    driver_id = request.form['driver_id']
+    date_posted = request.form['dateposted']
+
+    winning_bid_query = "WITH MaxRides AS (SELECT COALESCE(COUNT(*), 0) as count " \
+                        "FROM Bids B1 JOIN Ride R1 ON B1.passenger_id = R1.passenger_id" \
+                        " WHERE B1.driver_id = '{}' AND B1.time_posted = '{}' AND R1.status = 'completed' GROUP BY R1.passenger_id)," \
+                        "BidStatistics AS " \
+                        "(SELECT B.passenger_id, CASE " \
+                        "WHEN (price = (SELECT MAX(price) FROM Bids WHERE driver_id = '{}' AND time_posted = '{}')) " \
+                        "THEN 1	ELSE 0	END AS max_price, " \
+                        "CASE " \
+                        "WHEN ((SELECT p_rating FROM Passenger WHERE username =  B.passenger_id) " \
+                        "= " \
+                        "(SELECT max(p_rating) FROM Bids NATURAL JOIN Passenger WHERE driver_id = '{}' AND time_posted = '{}')) " \
+                        "THEN 1	ELSE 0	END AS max_passenger_rating, " \
+                        "CASE " \
+                        "WHEN ((SELECT COUNT(*) FROM Ride R WHERE R.passenger_id = B.passenger_id AND status = 'completed') " \
+                        "= " \
+                        "(SELECT MAX(count) FROM MaxRides)) " \
+                        "THEN 1  ELSE 0  END AS max_passenger_rides " \
+                        "FROM Bids B WHERE driver_id = '{}' AND time_posted = '{}'" \
+                        ")" \
+                        "SELECT BS1.passenger_id FROM BidStatistics BS1 " \
+                        "WHERE NOT EXISTS (" \
+                        "SELECT 1 FROM BidStatistics BS2 " \
+                        "WHERE (BS2.max_price > BS1.max_price)" \
+                        "OR (BS2.max_price = BS1.max_price AND BS2.max_passenger_rating > BS1.max_passenger_rating)" \
+                        "OR (BS2.max_price = BS1.max_price AND BS2.max_passenger_rating = BS1.max_passenger_rating AND BS2.max_passenger_rides > BS1.max_passenger_rides))" \
+                        "".format(driver_id, date_posted, driver_id, date_posted, driver_id, date_posted, driver_id, date_posted)
+    winning_passenger_id = db.session.execute(winning_bid_query).fetchone()[0]
+
     print('request.form: ', request.form)
     query = "UPDATE Advertisement SET ad_status = 'Scheduled' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
-        .format(request.form['dateposted'], request.form['driver_id'])
+        .format(date_posted, driver_id)
     print(query)
     db.session.execute(query)
     
-    #find bid with the max price
-    
+
     #update bid with success status
+    bid_success_query = "UPDATE Bids SET status = 'successful' WHERE (passenger_ID, time_posted, driver_ID) = ('{}', '{}', '{}')" \
+        .format(winning_passenger_id, date_posted, driver_id)
+
+    db.session.execute(bid_success_query)
     
     #update remaining bids with fail status
+    bid_success_query = "UPDATE Bids SET status = 'failed' WHERE passenger_ID != '{}' and (time_posted, driver_ID) = ('{}', '{}')" \
+        .format(winning_passenger_id, date_posted, driver_id)
     
     #create ride and insert into table
+    db.session.execute(bid_success_query)
+
+    new_ride_query = "INSERT INTO Ride(ride_ID, passenger_ID, driver_ID, time_posted, status, is_paid) " \
+                     "VALUES (DEFAULT, '{}', '{}', '{}', DEFAULT, DEFAULT)".format(winning_passenger_id,
+                                                                                   driver_id,
+                                                                                   date_posted)
+    db.session.execute(new_ride_query)
     
     db.session.commit()
     return redirect("/")

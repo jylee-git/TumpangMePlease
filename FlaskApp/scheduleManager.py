@@ -8,7 +8,7 @@ def getUpcomingPickups(driverID):
         "ON (r.passenger_ID, r.time_posted, r.driver_ID) = (b.passenger_ID, b.time_posted, b.driver_ID) "\
         "INNER JOIN Advertisement AS a ON (r.time_posted, r.driver_ID) = (a.time_posted, a.driver_ID) "\
         "INNER JOIN App_User AS au ON r.passenger_ID = au.username "\
-        "WHERE (r.status = 'pending' OR r.status = 'ongoing') AND r.driver_id = '{}'".format(driverID)
+        "WHERE (r.status = 'pending' OR r.status = 'ongoing' OR r.p_rating IS NULL) AND r.driver_id = '{}'".format(driverID)
     upcomingPickups = db.session.execute(query).fetchall()
     # print(upcomingPickups)
     return upcomingPickups

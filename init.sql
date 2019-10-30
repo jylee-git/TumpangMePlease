@@ -563,7 +563,7 @@ UPDATE Ride SET d_rating = 1, d_comment = 'worse driver ever' WHERE ride_id = 13
 UPDATE Ride SET p_rating = 5, p_comment = 'As a passenger he was on time.' WHERE ride_id = 16;
 UPDATE Ride SET d_rating = 5, d_comment = 'He was the best driver ever. Super nice!' WHERE ride_id = 16;
 UPDATE Ride SET p_rating = 5, p_comment = 'Great' WHERE ride_id = 17;
-UPDATE Ride SET d_rating = 5, d_comment = 'Damn the driver look damn handsome' WHERE ride_id = 17;
+UPDATE Ride SET d_rating = 5, d_comment = 'Driver nya ganteng sekali...' WHERE ride_id = 17;
 
 -- Owns: driverID, plateNum
 INSERT INTO Owns VALUES ('user1', 'SFV7687J');

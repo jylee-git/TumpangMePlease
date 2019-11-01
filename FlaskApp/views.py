@@ -531,8 +531,11 @@ def schedule_ride():
 def auto_schedule_ride():
     driver_id = request.form['driver_id']
     date_posted = request.form['dateposted']
-
-    winning_bid_query = "WITH MaxRides AS (SELECT COALESCE(COUNT(*), 0) as count " \
+    
+    has_bids_query = "SELECT * FROM Bids b where (b.time_posted, b.driver_id) = ('{}', '{}');".format(date_posted, driver_id)
+    has_bids = db.session.execute(has_bids_query).fetchone()
+    if has_bids:
+        winning_bid_query = "WITH MaxRides AS (SELECT COALESCE(COUNT(*), 0) as count " \
                         "FROM Bids B1 JOIN Ride R1 ON B1.passenger_id = R1.passenger_id" \
                         " WHERE B1.driver_id = '{}' AND B1.time_posted = '{}' AND R1.status = 'completed' GROUP BY R1.passenger_id)," \
                         "BidStatistics AS " \
@@ -558,33 +561,44 @@ def auto_schedule_ride():
                         "OR (BS2.max_price = BS1.max_price AND BS2.max_passenger_rating > BS1.max_passenger_rating)" \
                         "OR (BS2.max_price = BS1.max_price AND BS2.max_passenger_rating = BS1.max_passenger_rating AND BS2.max_passenger_rides > BS1.max_passenger_rides))" \
                         "".format(driver_id, date_posted, driver_id, date_posted, driver_id, date_posted, driver_id, date_posted)
-    winning_passenger_id = db.session.execute(winning_bid_query).fetchone()[0]
+        winning_passenger_id = db.session.execute(winning_bid_query).fetchone()[0]
+        print('request.form: ', request.form)
+        #update bid with success status
+        bid_success_query = "UPDATE Bids SET status = 'successful' WHERE (passenger_ID, time_posted, driver_ID) = ('{}', '{}', '{}')" \
+            .format(winning_passenger_id, date_posted, driver_id)
 
-    print('request.form: ', request.form)
-    query = "UPDATE Advertisement SET ad_status = 'Scheduled' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
-        .format(date_posted, driver_id)
-    print(query)
-    db.session.execute(query)
-    
+        db.session.execute(bid_success_query)
 
-    #update bid with success status
-    bid_success_query = "UPDATE Bids SET status = 'successful' WHERE (passenger_ID, time_posted, driver_ID) = ('{}', '{}', '{}')" \
-        .format(winning_passenger_id, date_posted, driver_id)
+        # print('request.form: ', request.form)
+        # query = "UPDATE Advertisement SET ad_status = 'Scheduled' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
+        #     .format(date_posted, driver_id)
+        # print(query)
+        # db.session.execute(query)
+        
+        # #update remaining bids with fail status
+        # bid_success_query = "UPDATE Bids SET status = 'failed' WHERE passenger_ID != '{}' and (time_posted, driver_ID) = ('{}', '{}')" \
+        #     .format(winning_passenger_id, date_posted, driver_id)
+        
+        # #create ride and insert into table
+        # db.session.execute(bid_success_query)
 
-    db.session.execute(bid_success_query)
-    
-    #update remaining bids with fail status
-    bid_success_query = "UPDATE Bids SET status = 'failed' WHERE passenger_ID != '{}' and (time_posted, driver_ID) = ('{}', '{}')" \
-        .format(winning_passenger_id, date_posted, driver_id)
-    
-    #create ride and insert into table
-    db.session.execute(bid_success_query)
+        new_ride_query = "INSERT INTO Ride(ride_ID, passenger_ID, driver_ID, time_posted, status, is_paid) " \
+                        "VALUES (DEFAULT, '{}', '{}', '{}', DEFAULT, DEFAULT)".format(winning_passenger_id,
+                                                                                    driver_id,
+                                                                                    date_posted)
+        db.session.execute(new_ride_query)
+        
+        db.session.commit()
+        
+    else:
+        # 30 min mark: "WHERE cast(extract(epoch from (a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval)) "
+        delete_ads_without_bids_query = \
+            "UPDATE Advertisement a SET ad_status = 'Deleted' "\
+            "WHERE NOT EXISTS(SELECT * from Bids b "\
+            "WHERE (b.time_posted, b.driver_ID) = (a.time_posted, a.driver_ID));"
+        
+        db.session.execute(delete_ads_without_bids_query)
+        db.session.commit()
 
-    new_ride_query = "INSERT INTO Ride(ride_ID, passenger_ID, driver_ID, time_posted, status, is_paid) " \
-                     "VALUES (DEFAULT, '{}', '{}', '{}', DEFAULT, DEFAULT)".format(winning_passenger_id,
-                                                                                   driver_id,
-                                                                                   date_posted)
-    db.session.execute(new_ride_query)
     
-    db.session.commit()
     return redirect("/")

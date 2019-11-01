@@ -509,19 +509,13 @@ def delete_ad():
 @view.route("/schedule_ride", methods=["GET", "POST"])
 def schedule_ride():
     print('request.form: ', request.form)
-    query = "UPDATE Advertisement SET ad_status = 'Scheduled' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
-        .format(request.form['dateposted'], request.form['driver_id'])
-    print(query)
-    db.session.execute(query)
+    # query = "UPDATE Advertisement SET ad_status = 'Scheduled' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
+    #     .format(request.form['dateposted'], request.form['driver_id'])
+    # print(query)
+    # db.session.execute(query)
     
     #update bid with success status
     bid_success_query = "UPDATE Bids SET status = 'successful' WHERE (passenger_ID, time_posted, driver_ID) = ('{}', '{}', '{}')" \
-        .format(request.form['passenger_id'], request.form['dateposted'], request.form['driver_id'])
-  
-    db.session.execute(bid_success_query)
-    
-    #update remaining bids with fail status
-    bid_success_query = "UPDATE Bids SET status = 'failed' WHERE passenger_ID != '{}' and (time_posted, driver_ID) = ('{}', '{}')" \
         .format(request.form['passenger_id'], request.form['dateposted'], request.form['driver_id'])
   
     db.session.execute(bid_success_query)

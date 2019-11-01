@@ -445,8 +445,8 @@ def pay(ride_id):
             num_used_for_promo_query = "SELECT COUNT(*) FROM Redeems WHERE promo_code = '{}'".format(promo_code)
             num_used_for_promo = db.session.execute(num_used_for_promo_query).fetchone()[0]
             max_quota = exists_promo[1]
-            min_price_to_use_promo = exists_promo[3]
-            discount_amount = exists_promo[4]
+            min_price_to_use_promo = exists_promo[2]
+            discount_amount = exists_promo[3]
 
             if num_used_for_promo >= max_quota:
                 form.promo_code.errors.append("Promo code has been fully redeemed!")

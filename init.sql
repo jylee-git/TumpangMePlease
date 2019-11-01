@@ -41,13 +41,6 @@ CREATE TABLE Passenger (
     p_rating NUMERIC
 );
 
---CREATE TABLE Model (
---    brand   TEXT,
---    name    TEXT,
---    size    INTEGER NOT NULL,
---    PRIMARY KEY (brand, name)
---);
-
 CREATE TABLE Car (
     plate_number varchar(20) PRIMARY KEY,
     colour      varchar(20) NOT NULL,
@@ -59,7 +52,6 @@ CREATE TABLE Car (
 CREATE TABLE Promo (
     promo_code   varchar(20) PRIMARY KEY,
     max_quota   INTEGER NOT NULL,
-    max_discount INTEGER,
     min_price    INTEGER,
     discount     INTEGER NOT NULL
 );
@@ -73,7 +65,7 @@ CREATE TABLE Advertisement (
     driver_ID         varchar(50) REFERENCES Driver ON DELETE CASCADE,
     num_passengers    INTEGER     NOT NULL,
     departure_time    TIMESTAMP   NOT NULL,
-    price             INTEGER     NOT NULL,
+    price             INTEGER     NOT NULL, -- minimum bidding price for the advertisement
     to_place          varchar(50) NOT NULL REFERENCES Place,
     from_place        varchar(50) NOT NULL REFERENCES Place,
     ad_status         varchar(20) NOT NULL,
@@ -115,13 +107,13 @@ CREATE TABLE Ride (
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
 
-CREATE TABLE Review (
-    rideID      INTEGER PRIMARY KEY REFERENCES Ride ON DELETE CASCADE,
-    p_comment   varchar(50),
-    p_rating    INTEGER,
-    d_comment   varchar(50),
-    d_rating    INTEGER
-);
+-- CREATE TABLE Review (
+--     rideID      INTEGER PRIMARY KEY REFERENCES Ride ON DELETE CASCADE,
+--     p_comment   varchar(50),
+--     p_rating    INTEGER,
+--     d_comment   varchar(50),
+--     d_rating    INTEGER
+-- );
 
 CREATE TABLE Redeems (
     ride_ID       INTEGER     PRIMARY KEY  REFERENCES Ride,
@@ -233,6 +225,10 @@ EXECUTE PROCEDURE update_driver_average_ride_rating();
 
 COMMIT;
 
+/*
+TRIGGER AND FUNCTION FOR PREVENTING USERS THAT HAS NOT PAID FOR SUCCESSFUL RIDE, FROM INSERTING OR UPDATING OTHER TABLES EXCEPT PAYMENT TABLE
+ */
+
 /****************************************************************
 DATA INSERTION
 ****************************************************************/
@@ -326,13 +322,15 @@ INSERT INTO Car VALUES ('C8888', 'Red','Lamborghini', 7);
 INSERT INTO Car VALUES ('ABC8888', 'Red','Ferrari', 7);
 INSERT INTO Car VALUES ('GiveMeA', 'Red','Ferrari', 7);
 
--- Promo: promoCode, quotaLeft, maxDiscount, minPrice, disc
-INSERT INTO Promo VALUES ('a1a', 10, 20, 10, 20);
-INSERT INTO Promo VALUES ('a1b', 1, 10, 20, 20);
-INSERT INTO Promo VALUES ('50OFF', 1, 50, 100, 50);
-INSERT INTO Promo VALUES ('40OFF', 1, 40, 10, 40);
-INSERT INTO Promo VALUES ('10OFF', 0, 10, 20, 10);
-INSERT INTO Promo VALUES ('20OFF', 5, 20, 50, 20);
+-- Promo: promoCode, quotaLeft, minPrice, disc
+INSERT INTO Promo VALUES ('a1a', 10, 10, 20);
+INSERT INTO Promo VALUES ('a1b', 1, 20, 20);
+INSERT INTO Promo VALUES ('50OFF', 1, 100, 50);
+INSERT INTO Promo VALUES ('40OFF', 1, 10, 40);
+INSERT INTO Promo VALUES ('10OFF', 0, 20, 10);
+INSERT INTO Promo VALUES ('20OFF', 5, 50, 20);
+INSERT INTO Promo VALUES ('FREERIDE', 100, 0, 1000000);
+INSERT INTO Promo VALUES ('ADIYOGA', 10, 10, 15);
 
 -- Place: name (of place)
 INSERT INTO Place VALUES ('Jurong East');

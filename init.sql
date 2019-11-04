@@ -152,13 +152,26 @@ CREATE OR REPLACE FUNCTION update_bid_status_to_fail()
 RETURNS TRIGGER AS $$ BEGIN
     RAISE NOTICE 'Updating all bids for % %', NEW.driver_ID, NEW.time_posted;
     UPDATE Bids AS b SET status = 'failed' 
-    WHERE (b.time_posted, b.driver_ID) = (NEW.time_posted, NEW.driver_ID);
+    WHERE (b.time_posted, b.driver_ID) = (NEW.time_posted, NEW.driver_ID) AND b.status = 'ongoing';
     RETURN NULL;
 END; $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_ad_deleted
+CREATE OR REPLACE FUNCTION update_ad_bid_on_successful_bid()
+RETURNS TRIGGER AS $$ BEGIN
+    RAISE NOTICE 'Updating all bids for % % to fail after a successful bid', NEW.driver_ID, NEW.time_posted;
+    UPDATE Advertisement a SET ad_status = 'Scheduled'
+        WHERE (a.time_posted, a.driver_ID) = (NEW.time_posted, NEW.driver_ID);
+    RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_advertisement_on_successful_bid
+AFTER UPDATE ON Bids FOR EACH ROW
+WHEN (OLD.status = 'ongoing' AND NEW.status = 'successful')
+EXECUTE PROCEDURE update_ad_bid_on_successful_bid();
+
+CREATE TRIGGER update_ad_status
 AFTER UPDATE ON Advertisement FOR EACH ROW
-WHEN (NEW.ad_status = 'Deleted')
+WHEN (NEW.ad_status = 'Deleted' OR NEW.ad_status = 'Scheduled')
 EXECUTE PROCEDURE update_bid_status_to_fail();
 
 CREATE OR REPLACE PROCEDURE

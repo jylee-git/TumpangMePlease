@@ -403,11 +403,18 @@ def get_payment_page(ride_id):
     payment_details = db.session.execute(query).fetchone()
 
     bid_price = payment_details[3]
-    best_promo_query = "SELECT p.promo_code, p.discount FROM Promo p " \
-                       "WHERE p.min_price <= {} " \
-                       "and p.max_quota > (SELECT COUNT(*) FROM Redeems r WHERE r.promo_code = p.promo_code)" \
-                       "GROUP BY p.promo_code, p.discount " \
-                       "HAVING p.discount = max(p.discount)".format(bid_price)
+    best_promo_query = "WITH MostDiscountedAndAvailablePromos AS (" \
+                       "SELECT p.promo_code, p.discount, " \
+                       "(p.max_quota - (SELECT COUNT(*) FROM Redeems r WHERE r.promo_code = p.promo_code)) AS amount_left" \
+                       " FROM Promo p" \
+                       " WHERE p.min_price <= {} AND p.max_quota > (SELECT COUNT(*) FROM Redeems r WHERE r.promo_code = p.promo_code) AND " \
+                       "(p.discount = (SELECT MAX(p1.discount) FROM Promo p1) OR p.discount >= {})), " \
+                       "PromoStatistics AS (SELECT *, CASE WHEN (discount = (SELECT MIN(discount) FROM MostDiscountedAndAvailablePromos)) THEN 1 ELSE 0 END AS is_least_discount" \
+                       " FROM MostDiscountedAndAvailablePromos) " \
+                       "SELECT PS1.promo_code, PS1.discount FROM PromoStatistics PS1 WHERE NOT EXISTS(" \
+                       "    SELECT 1 FROM PromoStatistics PS2 WHERE (PS2.is_least_discount > PS1.is_least_discount) OR " \
+                       "        (PS2.is_least_discount = PS1.is_least_discount AND PS2.amount_left > PS1.amount_left))" \
+                       " ORDER BY PS1.promo_code".format(bid_price, bid_price)
     best_promo = db.session.execute(best_promo_query).fetchone()
     best_promo_message = ""
     if best_promo:

@@ -9,9 +9,7 @@ DROP TABLE IF EXISTS Promo CASCADE;
 DROP TABLE IF EXISTS Ride CASCADE;
 DROP TABLE IF EXISTS Place CASCADE;
 DROP TABLE IF EXISTS Advertisement CASCADE;
-DROP TABLE IF EXISTS Creates CASCADE;
 DROP TABLE IF EXISTS Bids CASCADE;
-DROP TABLE IF EXISTS Review CASCADE;
 DROP TABLE IF EXISTS Redeems CASCADE;
 DROP TABLE IF EXISTS Owns CASCADE;
 
@@ -104,14 +102,6 @@ CREATE TABLE Ride (
     FOREIGN KEY (passenger_ID, time_posted, driver_ID) REFERENCES Bids,
     CHECK (status = 'pending' OR status = 'ongoing' OR status = 'completed')
 );
-
--- CREATE TABLE Review (
---     rideID      INTEGER PRIMARY KEY REFERENCES Ride ON DELETE CASCADE,
---     p_comment   varchar(50),
---     p_rating    INTEGER,
---     d_comment   varchar(50),
---     d_rating    INTEGER
--- );
 
 CREATE TABLE Redeems (
     ride_ID       INTEGER     PRIMARY KEY  REFERENCES Ride,

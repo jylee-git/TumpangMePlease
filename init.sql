@@ -298,20 +298,6 @@ INSERT INTO Driver VALUES ('user10', NULL);
 INSERT INTO Driver VALUES ('teo', NULL);
 INSERT INTO Driver VALUES ('Adiyogaisthebest', NULL);
 
--- Model: brand, name, size
---INSERT INTO Model VALUES ('Toyota', 'Mirai', 5);
---INSERT INTO Model VALUES ('Toyota', 'Prius', 5);
---INSERT INTO Model VALUES ('Toyota', 'Camry', 5);
---INSERT INTO Model VALUES ('Honda', 'Civic', 5);
---INSERT INTO Model VALUES ('Honda', 'CRV', 7);
---INSERT INTO Model VALUES ('Lexus', 'X1', 5);
---INSERT INTO Model VALUES ('Mazda', 'CX5', 5);
---INSERT INTO Model VALUES ('Lamborghini', 'Urus', 5);
---INSERT INTO Model VALUES ('Ferrari', 'Gen 5', 1);
---INSERT INTO Model VALUES ('Rolls Royce', 'Phantom', 5);
---INSERT INTO Model VALUES ('Range Rover', 'Rover III', 4);
---INSERT INTO Model VALUES ('Lexus', 'T10', 4);
-
 -- Car: plateNum, colors
 INSERT INTO Car VALUES ('SFV7687J', 'White','Toyota',  5);
 INSERT INTO Car VALUES ('S1', 'White','Honda', 5);

@@ -4,7 +4,6 @@ For our own debuggging only
 DROP TABLE IF EXISTS App_User CASCADE;
 DROP TABLE IF EXISTS Driver CASCADE;
 DROP TABLE IF EXISTS Passenger CASCADE;
---DROP TABLE IF EXISTS Model CASCADE;
 DROP TABLE IF EXISTS Car CASCADE;
 DROP TABLE IF EXISTS Promo CASCADE;
 DROP TABLE IF EXISTS Ride CASCADE;
@@ -15,7 +14,6 @@ DROP TABLE IF EXISTS Bids CASCADE;
 DROP TABLE IF EXISTS Review CASCADE;
 DROP TABLE IF EXISTS Redeems CASCADE;
 DROP TABLE IF EXISTS Owns CASCADE;
---DROP TABLE IF EXISTS Belongs CASCADE;
 
 
 /********
@@ -127,14 +125,6 @@ CREATE TABLE Owns (
     PRIMARY KEY (driver_ID, plate_number)
 );
 
---CREATE TABLE Belongs (
---    plate_number varchar(20) REFERENCES Car,
---    brand       TEXT        NOT NULL,
---    name        TEXT        NOT NULL,
---    PRIMARY KEY (plate_number),
---    FOREIGN KEY (brand, name) REFERENCES Model
---);
-
 /****************************************************************
 FUNCTION and TRIGGER
 ****************************************************************/
@@ -236,7 +226,7 @@ CREATE TRIGGER update_driver_ride_rating
 AFTER UPDATE ON ride FOR EACH ROW
 EXECUTE PROCEDURE update_driver_average_ride_rating();
 
-COMMIT;
+COMMIT; -- Commit once all table insertions and triggers are successful.
 
 /*
 TRIGGER AND FUNCTION FOR PREVENTING USERS THAT HAS NOT PAID FOR SUCCESSFUL RIDE, FROM INSERTING OR UPDATING OTHER TABLES EXCEPT PAYMENT TABLE
@@ -590,11 +580,3 @@ INSERT INTO Owns VALUES ('user10', 'ABC8888');
 INSERT INTO Owns VALUES ('teo', '007');
 INSERT INTO Owns VALUES ('Adiyogaisthebest', 'GiveMeA');
 
--- Belongs: plateNum, name, brand
---INSERT INTO Belongs VALUES ('SFV7687J', 'Toyota', 'Mirai');
---INSERT INTO Belongs VALUES ('S1', 'Toyota', 'Mirai');
---INSERT INTO Belongs VALUES ('EU9288C', 'Honda', 'CRV');
---INSERT INTO Belongs VALUES ('AAA8888', 'Honda', 'CRV');
---INSERT INTO Belongs VALUES ('BBB8888', 'Honda', 'CRV');
---INSERT INTO Belongs VALUES ('CCC8888', 'Honda', 'CRV');
---INSERT INTO Belongs VALUES ('007', 'Lexus', 'X1');

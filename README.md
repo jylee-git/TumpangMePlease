@@ -33,15 +33,13 @@ app.config['SECRET_KEY'] = 'A random key to use CRF for forms'
 > If you are not sure about `<port>` and don't recall changing such a value during initial setup or launching of PostgreSQL server, then it should be `5432` by default.
 
 5. In the terminal, set the directory to the cloned repo, then run the following command to start the development server: `python FlaskApp/app.py`
-6. In chrome, type the following address `http://localhost:5000/` to launch the app. 
-<br>
-You should see some messages showing up in your terminal, with these last few lines:
+6. In chrome, type the following address `http://localhost:5000/` to launch the app. <br>You should see some messages showing up in your terminal, with these last few lines:
 ```
  * Debugger is active!
  * Debugger PIN: 215-554-995
  * Running on http://localhost:5000/ (Press CTRL+C to quit)
-
 ```
+
 There may be warnings for SQLAlchemy but you can ignore those.
 
 Go back to `app.py` file and observe the following lines:

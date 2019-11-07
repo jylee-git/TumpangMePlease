@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="static/css/style-simple.css">
     <link rel="stylesheet" href="jquery.datetimepicker.min.css">
-	
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 </head>
@@ -16,77 +16,157 @@
 {# if the user does not have a car yet, include the driver registration page #}
 {# else show the create advertisement list #}
 
-<div class="container" style="padding-top: 5rem">
+<div class="container" style="padding-top: 10rem">
     <div class="bid-list white-font">
         <h3 class="text-align-center">Advertisements Listed:</h3>
-        <br>
-        <table class="table table-sm table-dark">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Date Posted</th>
-                <th scope="col">Departing At</th>
-                <th scope="col">Pick up</th>
-                <th scope="col">Destination</th>
-                <th scope="col">Highest Bid ($S)</th>
-                <th scope="col">Number of Bidders</th>
-                <th scope="col">Time Remaining</th>
-                <th scope="col">Ad Status</th>
-                <th scope="col">Delete</th>
-            </tr>
-            </thead>
-            <tbody>
-			{% for things in driver_ad_list %}
-				<tr>
-					<th scope="row">{{ loop.index }}</th>
-					<td>{{ things[0] }}</td>
-					<td>{{ things[1] }}</td>
-					<td>{{ things[2] }}</td>
-					<td>{{ things[3] }}</td>
-					<td>{{ things[4] }}</td>
-					<td>{{ things[5] }}</td>
-					<td>{{ things[6] }}</td>
-					<td>{{ things[7] }}</td>
-                <td>
-                    <button type="button" class="btn delete-button">Delete</button>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% if driver_ad_list|length == 0 %}
+            <br>
+            <h4 class="text-align-center">No advertisement listed.</h4>
+        {% else %}
+            <table class="table table-sm table-dark" style="max-height: 300px; overflow: auto; display: block">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date Posted</th>
+                    <th scope="col">Departing At</th>
+                    <th scope="col">Pick up</th>
+                    <th scope="col">Destination</th>
+                    <th scope="col">Highest Bid ($S)</th>
+                    <th scope="col">Number of Bidders</th>
+                    <th scope="col">Time Remaining</th>
+                    <th scope="col">Ad Status</th>
+                    <th scope="col">Delete</th>
+                    <th scope="col">Simulate</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for things in driver_ad_list %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ things[0] }}</td>
+                        <td>{{ things[1] }}</td>
+                        <td>{{ things[2] }}</td>
+                        <td>{{ things[3] }}</td>
+                        <td>{{ things[4] }}</td>
+                        <td>{{ things[5] }}</td>
+                        <td>{{ things[6] }}</td>
+                        <td>{{ things[7] }}</td>
+                        <td>
+                            <button type="button" class="btn delete-button"
+                                    onclick="deleteAd('{{ things[0] }}', '{{ things[8] }}')">Delete
+                            </button>
+
+                            <script>
+                                function deleteAd(datePosted, driver_ID) {
+                                    if (confirm("Are you sure to delete this advertisement?")) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/delete_ad",
+                                            data: {dateposted: datePosted, driver_id: driver_ID},
+                                            dataType: "text",
+                                            success: function (data) {
+                                                alert("Successfully removed advertisement.");
+                                                location.reload();
+                                            }
+                                        });
+                                    }
+                                }
+                            </script>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-dark"
+                                    onclick="autoSelect('{{ things[0] }}', '{{ things[8] }}')">
+                                System Accept
+                            </button>
+                            <script>
+                                function autoSelect(datePosted, driver_ID) {
+                                    if (confirm("Allow system to select the winning bid?")) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/auto_schedule_ride",
+                                            data: {
+                                                dateposted: datePosted,
+                                                driver_id: driver_ID
+                                            },
+                                            dataType: "text",
+                                            success: function (data) {
+                                                alert("Successfully selected winning bid and scheduled ride.");
+                                                location.reload();
+                                            }
+                                        });
+                                    }
+                                }
+                            </script>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     </div>
 </div>
-<div class="container">
+<div class="container" style="padding-top: 5rem">
     <div class="bid-list white-font">
-        <h3 class="text-align-center">List of bids for your advertisements:</h3>
-        <br>
-        <table class="table table-sm table-dark">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Advertisement Posted At</th>
-                <th scope="col">Passenger Username</th>
-                <th scope="col">Bid ($S)</th>
-                <th scope="col"># Passengers</th>
-                <th scope="col">Accept Offer?</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tbody>
-			{% for things in driver_bid_list %}
-				<tr>
-					<th scope="row">{{ loop.index }}</th>
-					<td>{{ things[0] }}</td>
-					<td>{{ things[1] }}</td>
-					<td>{{ things[2] }}</td>
-					<td>{{ things[3] }}</td>
-                <td>
-                    <button type="button" class="btn accept-button">Accept</button>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <h3 class="text-align-center">List of bids for your advertisements:
+        </h3>
+        {% if driver_bid_list|length == 0 %}
+            <br>
+            <h4 class="text-align-center">No advertisement listed.</h4>
+        {% else %}
+            <table class="table table-sm table-dark" style="max-height: 300px; overflow: auto; display: block">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Advertisement Posted At</th>
+                    <th scope="col">Passenger Username</th>
+                    <th scope="col">Passenger Rating</th>
+                    <th scope="col">Bid ($S)</th>
+                    <th scope="col"># Passengers</th>
+                    <th scope="col">Accept Offer?</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tbody>
+                {% for things in driver_bid_list %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ things[0] }}</td>
+                        <td><a href="/passenger-profile/{{ things[1] }}">{{ things[1] }}</a></td>
+                        <td>{{ things[2] }}</td>
+                        <td>{{ things[3] }}</td>
+                        <td>{{ things[4] }}</td>
+                        <td>
+                            <button type="button" class="btn accept-button"
+                                    onclick="scheduleRide('{{ things[0] }}', '{{ things[1] }}', '{{ things[5] }}')">
+                                Accept
+                            </button>
+
+                            <script>
+                                function scheduleRide(datePosted, passenger_ID, driver_ID) {
+                                    if (confirm("Are you sure to accept the bid?")) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/schedule_ride",
+                                            data: {
+                                                dateposted: datePosted,
+                                                passenger_id: passenger_ID,
+                                                driver_id: driver_ID
+                                            },
+                                            dataType: "text",
+                                            success: function (data) {
+                                                alert("Successfully accepted bid and scheduled ride.");
+                                                location.reload();
+                                            }
+                                        });
+                                    }
+                                }
+                            </script>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     </div>
 </div>
 </body>

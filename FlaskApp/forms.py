@@ -92,6 +92,21 @@ class BidForm(FlaskForm):
     )
 
 
+class ReviewForm(FlaskForm):
+    hidden_rid = HiddenField()
+    hidden_type = HiddenField()
+    rating = SelectField(
+        label='Rating',
+        choices=[(5, 5), (4, 4), (3, 3), (2, 2), (1, 1)],
+        validators=[InputRequired(), is_valid_positiveNumber]
+    )
+    comment = StringField(
+        label='Comment',
+        validators=[InputRequired(), is_valid_name],
+        render_kw={'placeholder': 'He was great!'}
+    )
+
+
 class CurrentBidForm(FlaskForm):
     hidden_did = HiddenField()
     hidden_dateposted = HiddenField()

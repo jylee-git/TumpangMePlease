@@ -2,11 +2,13 @@ from flask import Blueprint, redirect, render_template, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from __init__ import db, login_manager
-from forms import LoginForm, RegistrationForm, BidForm, PaymentForm
+from forms import LoginForm, RegistrationForm, BidForm, PaymentForm, ReviewForm
 from models import AppUser, Driver
 
 from bidManager import makeBid
 from scheduleManager import getUpcomingPickups, isDriver
+from PaymentManager import get_outstanding_payment_ride_id
+from adManager import *
 
 view = Blueprint("view", __name__)
 
@@ -21,13 +23,11 @@ def load_user(username):
 def render_home_page():
     if current_user.is_authenticated:
 
-        ad_list_query = "SELECT a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
-                        "a.driver_id, a.from_place, a.to_place, a.num_passengers," \
-                        "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as highest_bid," \
-                        "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = a.driver_id) as num_bidders," \
-                        "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining" \
-                        " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval)"
-        ad_list = db.session.execute(ad_list_query).fetchall()
+        outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+        if outstanding_ride_id:
+            return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
+        ad_list = get_filtered_ads(keywords=[])
 
         bid_list_query = "select a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
                          "a.driver_id, a.from_place, a.to_place, b.no_passengers, b.price as bid_price, b.status " \
@@ -39,17 +39,25 @@ def render_home_page():
         # Bid form handling
         form = BidForm()
         form.no_passengers.errors = ''
-        form.no_passengers.errors = ''
-        if form.is_submitted():
+        form.price.errors = ''
+        if request.method == "POST" and 'searchButton' in request.form:
+            search_keywords = request.form['search'].split()
+            ad_list = get_filtered_ads(search_keywords)
+        elif form.is_submitted():
             price = form.price.data
             no_passengers = form.no_passengers.data
             time_posted = form.hidden_dateposted.data
             driver_id = form.hidden_did.data
+            min_price_query = "SELECT price FROM Advertisement WHERE time_posted = '{}' and driver_id = '{}'".format(time_posted, driver_id)
+            min_price = db.session.execute(min_price_query).fetchone()[0]
             if form.validate_on_submit():
                 # disallow bidding to own-self's advertisement
                 if int(no_passengers) > int(form.hidden_maxPax.data):
                     form.no_passengers.errors.append(
                         'Max number of passengers allowed should be {}.'.format(form.hidden_maxPax.data))
+                elif int(price) < min_price:
+                    form.price.errors.append(
+                        'Bidding price should be higher than the minimum price of {}.'.format(min_price))
                 else:
                     makeBid(current_user.username, time_posted, driver_id, price, no_passengers)
                     return redirect("/")
@@ -114,13 +122,40 @@ def render_login_page():
     return render_template("index.html", form=form)
 
 
-@view.route("/scheduled", methods=["GET"])
+@view.route("/scheduled", methods=["GET", "POST"])
 def render_scheduled_page():
     if not current_user.is_authenticated:
         return redirect("/login")
 
+    outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+    if outstanding_ride_id:
+        return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
+    #  Review  ----------------------------------------
+    passenger_review_form = ReviewForm()
+    driver_review_form = ReviewForm()
+
+    if request.method == "POST":
+        if request.form['hidden_type'] == 'passenger':
+            ride_id = passenger_review_form.hidden_rid.data
+            rating = passenger_review_form.rating.data
+            comment = passenger_review_form.comment.data
+            insert_passenger_review_query = "UPDATE Ride SET d_rating = '{}', d_comment = '{}' WHERE ride_id = '{}'".format(
+                rating, comment, ride_id)
+            db.session.execute(insert_passenger_review_query)
+            db.session.commit()
+        elif request.form['hidden_type'] == 'driver':
+            ride_id = driver_review_form.hidden_rid.data
+            rating = driver_review_form.rating.data
+            comment = driver_review_form.comment.data
+            insert_driver_review_form = "UPDATE Ride SET p_rating = '{}', p_comment = '{}' WHERE ride_id = '{}'".format(rating, comment, ride_id)
+            db.session.execute(insert_driver_review_form)
+            db.session.commit()
+
+    #  Review  ----------------------------------------
+
     upcoming_rides_query = "SELECT r.ride_id, r.time_posted, a.departure_time, a.from_place, a.to_place, " \
-                            "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid FROM Ride r" \
+                            "r.driver_id, o.plate_number, a_u.phone_number, r.status, r.is_paid, r.d_rating FROM Ride r" \
                             " INNER JOIN " \
                             "Advertisement a " \
                             "ON r.time_posted = a.time_posted and r.driver_id = a.driver_id" \
@@ -132,14 +167,21 @@ def render_scheduled_page():
                             "ON r.driver_id = a_u.username " \
                             "WHERE r.passenger_id = '{}'".format(current_user.username)
     upcoming_rides = db.session.execute(upcoming_rides_query).fetchall()
-    print(upcoming_rides)
-    return render_template("scheduled.html", current_user=current_user, upcoming_rides=upcoming_rides,\
-        upcoming_pickups=getUpcomingPickups(current_user.username), is_driver=isDriver(current_user.username))
+    return render_template("scheduled.html", current_user=current_user, upcoming_rides=upcoming_rides,
+                           upcoming_pickups=getUpcomingPickups(current_user.username),
+                           is_driver=isDriver(current_user.username),
+                           passenger_review_form=passenger_review_form, driver_review_form=driver_review_form)
+
 
 
 @view.route("/car-registration", methods=["GET", "POST"])
 def render_car_registration_page():
     if current_user.is_authenticated:
+
+        outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+        if outstanding_ride_id:
+            return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
         if request.method == "POST":
             brand = request.form['brand']
             plate_num = request.form['plate-num']
@@ -195,6 +237,11 @@ def render_car_registration_page():
 @view.route("/create-advertisement", methods=["GET", "POST"])
 def render_create_advertisement_page():
     if current_user.is_authenticated:
+
+        outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+        if outstanding_ride_id:
+            return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
         car_list_query = "SELECT brand, plate_number FROM owns NATURAL JOIN car WHERE owns.driver_id = '{}';".format(
             current_user.username)
         car_list = db.session.execute(car_list_query).fetchall()
@@ -219,34 +266,36 @@ def render_create_advertisement_page():
                 return render_template("create-advertisement.html", current_user=current_user,
                                        car_model_list=car_list,
                                        place_list=place_list, negative_passenger_error=True)
-            else:
-                if from_place == to_place:
+            elif from_place == to_place:
                     return render_template("create-advertisement.html", current_user=current_user,
                                            car_model_list=car_list,
                                            place_list=place_list, same_place_error=True)
-                else:
-                    # check number of passengers
-                    split_string = car_model.split("|")
-                    car_plate_number = split_string[1]
+            elif not is_oneHourAfterCurrTime(departure_time):
+                return render_template("create-advertisement.html", current_user=current_user, car_model_list=car_list,
+                        place_list=place_list, time_before_now_error=True)
+            else:
+                # check number of passengers
+                split_string = car_model.split("|")
+                car_plate_number = split_string[1]
 
-                    check_size_query = "SELECT no_passengers from car WHERE car.plate_number = '{}' ".format(
-                        car_plate_number)
-                    check_size = db.session.execute(check_size_query).fetchall()
-                    print(check_size)
-                    if int(num_passenger) > check_size[0][0]:
-                        return render_template("create-advertisement.html", current_user=current_user,
-                                               car_model_list=car_list,
-                                               place_list=place_list, exceed_limit_error=True)
-                    else:
-                        add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place, ad_status) " \
-                                                  "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format \
-                            (current_user.username, num_passenger, departure_time, price, to_place, from_place,
-                             ad_status)
-                        db.session.execute(add_advertisement_query)
-                        db.session.commit()
-                        return render_template("create-advertisement.html", current_user=current_user,
-                                               car_model_list=car_list,
-                                               place_list=place_list, success=True)
+                check_size_query = "SELECT no_passengers from car WHERE car.plate_number = '{}' ".format(
+                    car_plate_number)
+                check_size = db.session.execute(check_size_query).fetchall()
+                print(check_size)
+                if int(num_passenger) > check_size[0][0]:
+                    return render_template("create-advertisement.html", current_user=current_user,
+                                            car_model_list=car_list,
+                                            place_list=place_list, exceed_limit_error=True)
+                else:
+                    add_advertisement_query = "INSERT INTO advertisement(time_posted, driver_id, num_passengers, departure_time, price, to_place, from_place, ad_status) " \
+                                                "VALUES (CURRENT_TIMESTAMP::timestamp(0), '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format \
+                        (current_user.username, num_passenger, get_dateTime_strictISO(departure_time), price, to_place, from_place,
+                            ad_status)
+                    db.session.execute(add_advertisement_query)
+                    db.session.commit()
+                    return render_template("create-advertisement.html", current_user=current_user,
+                                            car_model_list=car_list,
+                                            place_list=place_list, success=True)
 
         return render_template("create-advertisement.html", current_user=current_user, car_model_list=car_list,
                                place_list=place_list)
@@ -258,6 +307,10 @@ def render_create_advertisement_page():
 def render_view_advertisement_page():
     if current_user.is_authenticated:
 
+        outstanding_ride_id = get_outstanding_payment_ride_id(current_user.username)
+        if outstanding_ride_id:
+            return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
+
         is_current_user_a_driver = Driver.query.filter_by(username=current_user.username).first()
 
         if is_current_user_a_driver:
@@ -265,16 +318,16 @@ def render_view_advertisement_page():
                                    "(SELECT max(price) from bids b where b.time_posted = a.time_posted and b.driver_id = '{0}') as highest_bid," \
                                    "(SELECT count(*) from bids b where b.time_posted = a.time_posted and b.driver_id = '{0}') as num_bidders," \
                                    "(a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval) as time_remaining," \
-                                   "a.ad_status as ad_status" \
-                                   " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{0}'".format(
+                                   "a.ad_status as ad_status, a.driver_id" \
+                                   " from advertisement a where a.departure_time > (CURRENT_TIMESTAMP + '30 minutes'::interval) and a.driver_id = '{0}' and ad_status = 'Active'".format(
                 current_user.username)
             driver_ad_list = db.session.execute(driver_ad_list_query).fetchall()
 
             driver_bid_list_query = "select a.time_posted::timestamp(0) as date_posted, " \
-                                    "b.passenger_id, b.price, a.num_passengers " \
+                                    "b.passenger_id, (SELECT p_rating FROM Passenger WHERE username = b.passenger_id), b.price, a.num_passengers, a.driver_id " \
                                     "from advertisement a JOIN bids b ON a.driver_id = b.driver_id and a.time_posted = b.time_posted " \
                                     "where " \
-                                    "b.driver_id= '{}'".format(current_user.username)
+                                    "b.driver_id= '{}' and b.status = 'ongoing'".format(current_user.username)
             driver_bid_list = db.session.execute(driver_bid_list_query).fetchall()
 
             return render_template("view-advertisement.html", current_user=current_user, driver_ad_list=driver_ad_list,
@@ -285,6 +338,39 @@ def render_view_advertisement_page():
             return render_template("car-registration.html", message=message)
     else:
         return redirect("/login")
+
+
+@view.route("/driver-profile/<username>", methods=["GET"])
+def get_driver_profile_page(username):
+
+    details_query = "SELECT username, first_name, last_name, (SELECT d_rating FROM Driver WHERE username = '{}')" \
+            " FROM app_user WHERE username = '{}'".format(username, username)
+
+    driver_details = db.session.execute(details_query).fetchone()
+
+    if driver_details is None:
+        driver_details = ["Invalid Driver {}".format(username)]
+
+    comments_query = "SELECT d_comment FROM Ride WHERE driver_id = '{}' AND d_comment IS NOT NULL".format(username)
+    comments = db.session.execute(comments_query).fetchall()
+
+    return render_template("driver.html", driver_details=driver_details, comments=comments)
+
+
+@view.route("/passenger-profile/<username>", methods=["GET"])
+def get_passenger_profile_page(username):
+    query = "SELECT username, first_name, last_name,(SELECT p_rating FROM Passenger WHERE username = '{}') " \
+            "FROM app_user WHERE username = '{}'".format(username, username)
+
+    comments_query = "SELECT p_comment FROM Ride WHERE passenger_id = '{}' AND p_comment IS NOT NULL".format(username)
+    comments = db.session.execute(comments_query).fetchall()
+
+    passenger_details = db.session.execute(query).fetchone()
+
+    if passenger_details is None:
+        passenger_details = ["Invalid Passenger {}".format(username)]
+
+    return render_template("passenger.html", passenger_details=passenger_details, comments=comments)
 
 
 @view.route("/privileged-page", methods=["GET"])
@@ -317,11 +403,18 @@ def get_payment_page(ride_id):
     payment_details = db.session.execute(query).fetchone()
 
     bid_price = payment_details[3]
-    best_promo_query = "SELECT p.promo_code, p.discount FROM Promo p " \
-                       "WHERE p.min_price <= {} " \
-                       "and p.max_quota > (SELECT COUNT(*) FROM Redeems r WHERE r.promo_code = p.promo_code)" \
-                       "GROUP BY p.promo_code, p.discount " \
-                       "HAVING p.discount = max(p.discount)".format(bid_price)
+    best_promo_query = "WITH MostDiscountedAndAvailablePromos AS (" \
+                       "SELECT p.promo_code, p.discount, " \
+                       "(p.max_quota - (SELECT COUNT(*) FROM Redeems r WHERE r.promo_code = p.promo_code)) AS amount_left" \
+                       " FROM Promo p" \
+                       " WHERE p.min_price <= {} AND p.max_quota > (SELECT COUNT(*) FROM Redeems r WHERE r.promo_code = p.promo_code) AND " \
+                       "(p.discount = (SELECT MAX(p1.discount) FROM Promo p1) OR p.discount >= {})), " \
+                       "PromoStatistics AS (SELECT *, CASE WHEN (discount = (SELECT MIN(discount) FROM MostDiscountedAndAvailablePromos)) THEN 1 ELSE 0 END AS is_least_discount" \
+                       " FROM MostDiscountedAndAvailablePromos) " \
+                       "SELECT PS1.promo_code, PS1.discount FROM PromoStatistics PS1 WHERE NOT EXISTS(" \
+                       "    SELECT 1 FROM PromoStatistics PS2 WHERE (PS2.is_least_discount > PS1.is_least_discount) OR " \
+                       "        (PS2.is_least_discount = PS1.is_least_discount AND PS2.amount_left > PS1.amount_left))" \
+                       " ORDER BY PS1.promo_code".format(bid_price, bid_price)
     best_promo = db.session.execute(best_promo_query).fetchone()
     best_promo_message = ""
     if best_promo:
@@ -350,7 +443,7 @@ def pay(ride_id):
         exists_promo = db.session.execute(promo_query).fetchone()
         current_bid_price = payment_details[3]
         form.promo_code.errors = []
-        is_paid_ride_query = "SELECT * FROM Ride WHERE is_paid=TRUE"
+        is_paid_ride_query = "SELECT * FROM Ride WHERE is_paid=TRUE and ride_id = {}".format(ride_id)
         is_paid_ride = db.session.execute(is_paid_ride_query).fetchone()
 
         if is_paid_ride:
@@ -359,8 +452,8 @@ def pay(ride_id):
             num_used_for_promo_query = "SELECT COUNT(*) FROM Redeems WHERE promo_code = '{}'".format(promo_code)
             num_used_for_promo = db.session.execute(num_used_for_promo_query).fetchone()[0]
             max_quota = exists_promo[1]
-            min_price_to_use_promo = exists_promo[3]
-            discount_amount = exists_promo[4]
+            min_price_to_use_promo = exists_promo[2]
+            discount_amount = exists_promo[3]
 
             if num_used_for_promo >= max_quota:
                 form.promo_code.errors.append("Promo code has been fully redeemed!")
@@ -394,7 +487,7 @@ def pay(ride_id):
 
 
 ####
-# SCHEDULE RELATED FUNCTIONAALITIES
+# SCHEDULE RELATED FUNCTIONALITIES
 ####
 @view.route("/update_pickup_status", methods=["POST"])
 def update_pickup_status():
@@ -405,3 +498,114 @@ def update_pickup_status():
     db.session.execute(query)
     db.session.commit()
     return '0'
+    
+  
+####
+# ADVERTISEMENT RELATED FUNCTIONALITIES
+####
+@view.route("/delete_ad", methods=["GET", "POST"])
+def delete_ad():
+    print('request.form: ', request.form)
+    query = "UPDATE Advertisement SET ad_status = 'Deleted' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
+        .format(request.form['dateposted'], request.form['driver_id'])
+    print(query)
+    db.session.execute(query)
+    db.session.commit()
+    return redirect("/")
+    
+@view.route("/schedule_ride", methods=["GET", "POST"])
+def schedule_ride():
+    print('request.form: ', request.form)
+    # query = "UPDATE Advertisement SET ad_status = 'Scheduled' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
+    #     .format(request.form['dateposted'], request.form['driver_id'])
+    # print(query)
+    # db.session.execute(query)
+    
+    #update bid with success status
+    bid_success_query = "UPDATE Bids SET status = 'successful' WHERE (passenger_ID, time_posted, driver_ID) = ('{}', '{}', '{}')" \
+        .format(request.form['passenger_id'], request.form['dateposted'], request.form['driver_id'])
+  
+    db.session.execute(bid_success_query)
+    
+    new_ride_query = "INSERT INTO Ride(ride_ID, passenger_ID, driver_ID, time_posted, status, is_paid) " \
+                     "VALUES (DEFAULT, '{}', '{}', '{}', DEFAULT, DEFAULT)".format(request.form['passenger_id'], request.form['driver_id'], request.form['dateposted'])
+    db.session.execute(new_ride_query)
+    db.session.commit()
+    return redirect("/")
+    
+    
+@view.route("/auto_schedule_ride", methods=["GET", "POST"])
+def auto_schedule_ride():
+    driver_id = request.form['driver_id']
+    date_posted = request.form['dateposted']
+    
+    has_bids_query = "SELECT * FROM Bids b where (b.time_posted, b.driver_id) = ('{}', '{}');".format(date_posted, driver_id)
+    has_bids = db.session.execute(has_bids_query).fetchone()
+    if has_bids:
+        winning_bid_query = "WITH MaxRides AS (SELECT COALESCE(COUNT(*), 0) as count " \
+                        "FROM Bids B1 JOIN Ride R1 ON B1.passenger_id = R1.passenger_id" \
+                        " WHERE B1.driver_id = '{}' AND B1.time_posted = '{}' AND R1.status = 'completed' GROUP BY R1.passenger_id)," \
+                        "BidStatistics AS " \
+                        "(SELECT B.passenger_id, CASE " \
+                        "WHEN (price = (SELECT MAX(price) FROM Bids WHERE driver_id = '{}' AND time_posted = '{}')) " \
+                        "THEN 1	ELSE 0	END AS max_price, " \
+                        "CASE " \
+                        "WHEN ((SELECT p_rating FROM Passenger WHERE username =  B.passenger_id) " \
+                        "= " \
+                        "(SELECT max(p_rating) FROM Bids NATURAL JOIN Passenger WHERE driver_id = '{}' AND time_posted = '{}')) " \
+                        "THEN 1	ELSE 0	END AS max_passenger_rating, " \
+                        "CASE " \
+                        "WHEN ((SELECT COUNT(*) FROM Ride R WHERE R.passenger_id = B.passenger_id AND status = 'completed') " \
+                        "= " \
+                        "(SELECT MAX(count) FROM MaxRides)) " \
+                        "THEN 1  ELSE 0  END AS max_passenger_rides " \
+                        "FROM Bids B WHERE driver_id = '{}' AND time_posted = '{}'" \
+                        ")" \
+                        "SELECT BS1.passenger_id FROM BidStatistics BS1 " \
+                        "WHERE NOT EXISTS (" \
+                        "SELECT 1 FROM BidStatistics BS2 " \
+                        "WHERE (BS2.max_price > BS1.max_price)" \
+                        "OR (BS2.max_price = BS1.max_price AND BS2.max_passenger_rating > BS1.max_passenger_rating)" \
+                        "OR (BS2.max_price = BS1.max_price AND BS2.max_passenger_rating = BS1.max_passenger_rating AND BS2.max_passenger_rides > BS1.max_passenger_rides))" \
+                        "".format(driver_id, date_posted, driver_id, date_posted, driver_id, date_posted, driver_id, date_posted)
+        winning_passenger_id = db.session.execute(winning_bid_query).fetchone()[0]
+        print('request.form: ', request.form)
+        #update bid with success status
+        bid_success_query = "UPDATE Bids SET status = 'successful' WHERE (passenger_ID, time_posted, driver_ID) = ('{}', '{}', '{}')" \
+            .format(winning_passenger_id, date_posted, driver_id)
+
+        db.session.execute(bid_success_query)
+
+        # print('request.form: ', request.form)
+        # query = "UPDATE Advertisement SET ad_status = 'Scheduled' WHERE (time_posted, driver_ID) = ('{}', '{}')" \
+        #     .format(date_posted, driver_id)
+        # print(query)
+        # db.session.execute(query)
+        
+        # #update remaining bids with fail status
+        # bid_success_query = "UPDATE Bids SET status = 'failed' WHERE passenger_ID != '{}' and (time_posted, driver_ID) = ('{}', '{}')" \
+        #     .format(winning_passenger_id, date_posted, driver_id)
+        
+        # #create ride and insert into table
+        # db.session.execute(bid_success_query)
+
+        new_ride_query = "INSERT INTO Ride(ride_ID, passenger_ID, driver_ID, time_posted, status, is_paid) " \
+                        "VALUES (DEFAULT, '{}', '{}', '{}', DEFAULT, DEFAULT)".format(winning_passenger_id,
+                                                                                    driver_id,
+                                                                                    date_posted)
+        db.session.execute(new_ride_query)
+        
+        db.session.commit()
+        
+    else:
+        # 30 min mark: "WHERE cast(extract(epoch from (a.departure_time::timestamp(0) - CURRENT_TIMESTAMP::timestamp(0) - '30 minutes'::interval)) "
+        delete_ads_without_bids_query = \
+            "UPDATE Advertisement a SET ad_status = 'Deleted' "\
+            "WHERE NOT EXISTS(SELECT * from Bids b "\
+            "WHERE (b.time_posted, b.driver_ID) = (a.time_posted, a.driver_ID));"
+        
+        db.session.execute(delete_ads_without_bids_query)
+        db.session.commit()
+
+    
+    return redirect("/")

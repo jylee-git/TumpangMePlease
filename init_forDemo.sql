@@ -1,6 +1,3 @@
-/*****************
-For our own debuggging only
-******************/
 DROP TABLE IF EXISTS App_User CASCADE;
 DROP TABLE IF EXISTS Driver CASCADE;
 DROP TABLE IF EXISTS Passenger CASCADE;
@@ -218,15 +215,17 @@ EXECUTE PROCEDURE update_driver_average_ride_rating();
 
 COMMIT; -- Commit once all table insertions and triggers are successful.
 
+
+
+
+/********************************************
+Data to be used for demo
+********************************************/
+
 /*
-TRIGGER AND FUNCTION FOR PREVENTING USERS THAT HAS NOT PAID FOR SUCCESSFUL RIDE, FROM INSERTING OR UPDATING OTHER TABLES EXCEPT PAYMENT TABLE
- */
-
-/****************************************************************
-DATA INSERTION
-****************************************************************/
-
--- App_User: username, first_name, last_name, password, phone_number
+App_User: username, first_name, last_name, password, phone_number
+NOTE: Users 1 to 10 are all drivers as well.
+*/
 insert into App_User values ('user1', 'Cart', 'Klemensiewicz', 'password', 2863945039);
 insert into App_User values ('user2', 'Kit', 'Thurlow', 'password', 8215865769);
 insert into App_User values ('user3', 'Brynna', 'Fetter', 'password', 7734451473);
@@ -250,7 +249,10 @@ insert into App_User values ('user20', 'Jocelyn', 'Seabrook', 'password', 674945
 insert into App_User values ('teo', 'Shawn', 'teo', 'teo', 12345678);
 insert into App_User values ('Adiyogaisthebest', 'Adi', 'Yoga', 'password', 12345678);
 
--- Passenger: username
+
+/*
+Passenger: username
+*/
 insert into Passenger values ('user1');
 insert into Passenger values ('user2');
 insert into Passenger values ('user3');
@@ -274,7 +276,11 @@ insert into Passenger values ('user20');
 insert into Passenger values ('teo');
 insert into Passenger values ('Adiyogaisthebest');
 
--- Driver: username, d_rating(NULL)
+
+/*
+Driver: username, d_rating(NULL)
+Here, users 1 to 10, teo and adiyoga are drivers
+*/
 INSERT INTO Driver VALUES ('user1', NULL);
 INSERT INTO Driver VALUES ('user2', NULL);
 INSERT INTO Driver VALUES ('user3', NULL);
@@ -288,7 +294,10 @@ INSERT INTO Driver VALUES ('user10', NULL);
 INSERT INTO Driver VALUES ('teo', NULL);
 INSERT INTO Driver VALUES ('Adiyogaisthebest', NULL);
 
--- Car: plateNum, colors
+
+/*
+Car: plateNum, colors
+*/
 INSERT INTO Car VALUES ('SFV7687J', 'White','Toyota',  5);
 INSERT INTO Car VALUES ('S1', 'White','Honda', 5);
 INSERT INTO Car VALUES ('EU9288C', 'Gray','Ferrari',2);
@@ -301,7 +310,10 @@ INSERT INTO Car VALUES ('C8888', 'Red','Lamborghini', 7);
 INSERT INTO Car VALUES ('ABC8888', 'Red','Ferrari', 7);
 INSERT INTO Car VALUES ('GiveMeA', 'Red','Ferrari', 7);
 
--- Promo: promoCode, quotaLeft, minPrice, disc
+
+/*
+Promo: promoCode, max_quota, minPrice, disc
+*/
 INSERT INTO Promo VALUES ('a1a', 10, 10, 20);
 INSERT INTO Promo VALUES ('a1b', 1, 20, 20);
 INSERT INTO Promo VALUES ('50OFF', 1, 100, 50);
@@ -311,7 +323,10 @@ INSERT INTO Promo VALUES ('20OFF', 5, 50, 20);
 INSERT INTO Promo VALUES ('FREERIDE', 100, 0, 1000000);
 INSERT INTO Promo VALUES ('ADIYOGA', 10, 10, 15);
 
--- Place: name (of place)
+
+/*
+Place: name (of MRT stops)
+*/
 INSERT INTO Place VALUES ('Jurong East');
 INSERT INTO Place VALUES ('Bukit Batok');
 INSERT INTO Place VALUES ('Bukit Gombak');
@@ -434,125 +449,42 @@ INSERT INTO Place VALUES ('Tampines West');
 INSERT INTO Place VALUES ('Tampines East');
 INSERT INTO Place VALUES ('Upper Changi');
 
--- Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from, ad_status
-INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Clementi', 'Pasir Ris', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-19 12:30', 'user9', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Changi Airport', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-20 12:30', 'user10', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user4', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Kent Ridge', 'Changi Airport', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user5', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:30', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-17 12:30', 'user7', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-18 12:30', 'user8', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-19 12:30', 'user9', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-20 12:30', 'user10', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-21 12:30', 'user10', 2, TIMESTAMP '2019-12-15 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:31', 'user1', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Joo Koon', 'Bendemeer', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:31', 'user2', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:31', 'user3', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Joo Koon', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:31', 'user4', 2, TIMESTAMP '2019-12-12 12:34', 20, 'Kent Ridge', 'Changi Airport', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:31', 'user5', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Changi Airport', 'Paya Lebar', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-10 12:31', 'user6', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-17 12:31', 'user7', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-18 12:31', 'user8', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-19 12:31', 'user9', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-20 12:31', 'user10', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-21 12:31', 'Adiyogaisthebest', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Jurong East', 'Pasir Ris', 'Active');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-22 12:31', 'Adiyogaisthebest', 2, TIMESTAMP '2019-12-13 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
-INSERT INTO Advertisement VALUES (TIMESTAMP '2018-12-23 12:31', 'Adiyogaisthebest', 2, TIMESTAMP '2019-12-14 12:30', 20, 'Jurong East', 'Pasir Ris', 'Scheduled');
 
--- Bids: passId, driverID, timePosted, price, status, numPass
-INSERT INTO Bids VALUES ('user11', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
-INSERT INTO Bids VALUES ('user12', 'user3', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
-INSERT INTO Bids VALUES ('user13', 'user3', TIMESTAMP '2018-12-10 12:30', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user11', 'user2', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user14', 'user2', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user15', 'user2', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user1', 'user6', TIMESTAMP '2018-12-10 12:30', 20, 'failed', 2);
-INSERT INTO Bids VALUES ('user6', 'user5', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user9', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user7', 'user6', TIMESTAMP '2018-12-10 12:30', 50, 'successful', 2);
-INSERT INTO Bids VALUES ('user12', 'user5', TIMESTAMP '2018-12-10 12:30', 20, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user3', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user1', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user8', 'user4', TIMESTAMP '2018-12-10 12:30', 30, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user12', 'user7', TIMESTAMP '2018-12-17 12:30', 20, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user3', 'user8', TIMESTAMP '2018-12-18 12:30', 30, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user12', 'user9', TIMESTAMP '2018-12-19 12:30', 20, 'successful', 2);
-INSERT INTO Bids VALUES ('user3', 'user10', TIMESTAMP '2018-12-20 12:30', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user3', 'user10', TIMESTAMP '2018-12-21 12:30', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user10', 'user1', TIMESTAMP '2018-12-10 12:31', 20, 'successful', 2);
-INSERT INTO Bids VALUES ('user9', 'user2', TIMESTAMP '2018-12-10 12:31', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user8', 'user3', TIMESTAMP '2018-12-10 12:31', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user7', 'user4', TIMESTAMP '2018-12-10 12:31', 20, 'successful', 2);
-INSERT INTO Bids VALUES ('user6', 'user5', TIMESTAMP '2018-12-10 12:31', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user5', 'user6', TIMESTAMP '2018-12-10 12:31', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user4', 'user7', TIMESTAMP '2018-12-17 12:31', 20, 'successful', 2);
-INSERT INTO Bids VALUES ('user3', 'user8', TIMESTAMP '2018-12-18 12:31', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user2', 'user9', TIMESTAMP '2018-12-19 12:31', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user1', 'user10', TIMESTAMP '2018-12-20 12:31', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user5', 'Adiyogaisthebest', TIMESTAMP '2018-12-21 12:31', 30, 'ongoing', 2);
-INSERT INTO Bids VALUES ('user2', 'Adiyogaisthebest', TIMESTAMP '2018-12-22 12:31', 30, 'successful', 2);
-INSERT INTO Bids VALUES ('user1', 'Adiyogaisthebest', TIMESTAMP '2018-12-23 12:31', 30, 'successful', 2);
+/*
+Advertisement: timePosted(DEFAULT), driverID, numPass, departTime, price, to, from, ad_status
+*/
 
--- Ride: rideID(NULL), passID, driverID, timePosted, status, p_rating, p_comment, d_rating, d_comment
-INSERT INTO Ride VALUES(DEFAULT, 'user13', 'user3', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user7', 'user6', TIMESTAMP '2018-12-10 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user12', 'user9', TIMESTAMP '2018-12-19 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user3', 'user10', TIMESTAMP '2018-12-20 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user3', 'user10', TIMESTAMP '2018-12-20 12:30', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user10', 'user1', TIMESTAMP '2018-12-10 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user9', 'user2', TIMESTAMP '2018-12-10 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user8', 'user3', TIMESTAMP '2018-12-10 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user7', 'user4', TIMESTAMP '2018-12-10 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user6', 'user5', TIMESTAMP '2018-12-10 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user5', 'user6', TIMESTAMP '2018-12-10 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user4', 'user7', TIMESTAMP '2018-12-17 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user3', 'user8', TIMESTAMP '2018-12-18 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user2', 'user9', TIMESTAMP '2018-12-19 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user1', 'user10', TIMESTAMP '2018-12-20 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user2', 'Adiyogaisthebest', TIMESTAMP '2018-12-22 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-INSERT INTO Ride VALUES(DEFAULT, 'user1', 'Adiyogaisthebest', TIMESTAMP '2018-12-23 12:31', DEFAULT, DEFAULT, NULL, NULL, NULL, NULL);
-UPDATE Ride SET p_rating = 5, p_comment = 'he was great' WHERE ride_id = 3;
-UPDATE Ride SET d_rating = 5, d_comment = 'he was okay' WHERE ride_id = 3;
-UPDATE Ride SET p_rating = 2, p_comment = 'he was noisy af' WHERE ride_id = 4;
-UPDATE Ride SET d_rating = 4, d_comment = 'he was a good listener' WHERE ride_id = 4;
-UPDATE Ride SET p_rating = 3, p_comment = 'this guy again...' WHERE ride_id = 5;
-UPDATE Ride SET d_rating = 1, d_comment = 'this time he was not a good listener' WHERE ride_id = 5;
-UPDATE Ride SET p_rating = 5, p_comment = 'would recommend' WHERE ride_id = 6;
-UPDATE Ride SET d_rating = 5, d_comment = '10/10' WHERE ride_id = 6;
-UPDATE Ride SET p_rating = 2, p_comment = 'he was quiet' WHERE ride_id = 7;
-UPDATE Ride SET d_rating = 1, d_comment = 'he was driving recklessly!' WHERE ride_id = 7;
-UPDATE Ride SET p_rating = 4, p_comment = 'good ride.' WHERE ride_id = 8;
-UPDATE Ride SET d_rating = 1, d_comment = 'he was really nice' WHERE ride_id = 8;
-UPDATE Ride SET p_rating = 3, p_comment = '3/5' WHERE ride_id = 9;
-UPDATE Ride SET d_rating = 4, d_comment = 'he aite' WHERE ride_id = 9;
-UPDATE Ride SET p_rating = 3, p_comment = 'he damn good' WHERE ride_id = 10;
-UPDATE Ride SET d_rating = 5, d_comment = 'good' WHERE ride_id = 10;
-UPDATE Ride SET p_rating = 3, p_comment = 'nahhhhh not good' WHERE ride_id = 11;
-UPDATE Ride SET d_rating = 3, d_comment = 'nahhhhh not good too' WHERE ride_id = 11;
-UPDATE Ride SET p_rating = 2, p_comment = 'would not recomment' WHERE ride_id = 12;
-UPDATE Ride SET d_rating = 3, d_comment = 'it was fine' WHERE ride_id = 12;
-UPDATE Ride SET p_rating = 4, p_comment = 'GOOD passenger' WHERE ride_id = 13;
-UPDATE Ride SET d_rating = 1, d_comment = 'worse driver ever' WHERE ride_id = 13;
-UPDATE Ride SET p_rating = 5, p_comment = 'As a passenger he was on time.' WHERE ride_id = 16;
-UPDATE Ride SET d_rating = 5, d_comment = 'He was the best driver ever. Super nice!' WHERE ride_id = 16;
-UPDATE Ride SET p_rating = 5, p_comment = 'Great' WHERE ride_id = 17;
-UPDATE Ride SET d_rating = 5, d_comment = 'Driver nya ganteng sekali...' WHERE ride_id = 17;
+-- ACTIVE ADVERTISEMENTS
+-- Ads by user 1
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-10 12:30', 'user1', 2, TIMESTAMP '2019-12-12 12:30', 20, 'Clementi', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-10 12:31', 'user1', 2, TIMESTAMP '2019-12-13 13:00', 20, 'Clementi', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-10 12:32', 'user1', 2, TIMESTAMP '2019-12-14 13:00', 20, 'Clementi', 'Pasir Ris', 'Active');
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-10 12:33', 'user1', 2, TIMESTAMP '2019-12-15 16:00', 20, 'Clementi', 'Pasir Ris', 'Active');
+-- Ads by user 2
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-11-01 16:30', 'user2', 2, TIMESTAMP '2019-12-12 18:00', 30, 'Changi Airport', 'Jurong East', 'Active');
+-- ..
+-- ...
 
--- Owns: driverID, plateNum
-INSERT INTO Owns VALUES ('user1', 'SFV7687J');
-INSERT INTO Owns VALUES ('user2', 'S1');
-INSERT INTO Owns VALUES ('user3', 'EU9288C');
-INSERT INTO Owns VALUES ('user4', 'AAA8888');
-INSERT INTO Owns VALUES ('user5', 'BBB8888');
-INSERT INTO Owns VALUES ('user6', 'CCC8888');
-INSERT INTO Owns VALUES ('user7', 'CCC8888');
-INSERT INTO Owns VALUES ('user8', 'BC8888');
-INSERT INTO Owns VALUES ('user9', 'C8888');
-INSERT INTO Owns VALUES ('user10', 'ABC8888');
-INSERT INTO Owns VALUES ('teo', '007');
-INSERT INTO Owns VALUES ('Adiyogaisthebest', 'GiveMeA');
+-- SCHEDULED ADVERTISEMENTS (SHOULD HAVE WINNING BID AND RIDE ALREADY)
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-10-01 12:53', 'user1', 2, TIMESTAMP '2019-12-01 16:00', 20, 'Clementi', 'Pasir Ris', 'Scheduled');
+
+-- DELETED (Don't think there's any use for demo anws)
+INSERT INTO Advertisement VALUES (TIMESTAMP '2019-09-01 12:53', 'user1', 2, TIMESTAMP '2019-11-01 16:00', 20, 'Clementi', 'Pasir Ris', 'Deleted');
+
+
+/*
+Bids: passId, driverID, timePosted, price, status, numPass
+*/
+-- ONGOING BIDS
+-- INSERT INTO Bids VALUES (<< data >>);
+
+-- SUCCESSFUL BIDS
+INSERT INTO BIDS VALUES ('user11', 'user1', TIMESTAMP '2019-10-01 12:53', 45.50, 'successful', 2);
+-- ...
+
+-- FAILED BIDS
+INSERT INTO BIDS VALUES ('user11', 'user1', TIMESTAMP '2019-10-01 12:53', 50.20, 'failed', 2);
+INSERT INTO BIDS VALUES ('user12', 'user1', TIMESTAMP '2019-10-01 12:53', 45.00, 'failed', 2);
+INSERT INTO BIDS VALUES ('user13', 'user1', TIMESTAMP '2019-10-01 12:53', 40, 'failed', 1);
+
 

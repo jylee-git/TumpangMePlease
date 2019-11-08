@@ -27,7 +27,7 @@ def render_home_page():
         if outstanding_ride_id:
             return redirect("/payment/{}".format(int(outstanding_ride_id[0])))
 
-        ad_list = get_filtered_ads(keywords=[])
+        ad_list = get_filtered_ads(keywords=[], username=current_user.username)
 
         bid_list_query = "select a.time_posted::timestamp(0) as date_posted, a.departure_time::timestamp(0) as departure_time, " \
                          "a.driver_id, a.from_place, a.to_place, b.no_passengers, b.price as bid_price, b.status " \

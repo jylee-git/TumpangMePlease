@@ -42,7 +42,7 @@ def render_home_page():
         form.price.errors = ''
         if request.method == "POST" and 'searchButton' in request.form:
             search_keywords = request.form['search'].split()
-            ad_list = get_filtered_ads(search_keywords)
+            ad_list = get_filtered_ads(search_keywords, current_user.username)
         elif form.is_submitted():
             price = form.price.data
             no_passengers = form.no_passengers.data

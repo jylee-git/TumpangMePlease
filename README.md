@@ -67,3 +67,30 @@ Press `Enter` then the page below should show up.
 Notice that `localhost:5000` comes from `app.py` setting, and the extra `/` comes from the URL routing mapping in `views.py`.
 To add more web pages, you need to add routing to the new page in `views.py` and provide a function that renders the page to show when the URL is accessed.
 Most likely you will need to show or render `html` files as web pages. To do that, you need to firstly drop the `html` file(s) into the `FlaskApp/templates` folder. 
+
+# Registering and Logging into the app
+
+## Registering as a new user
+To register as a new user, follow these steps below:
+1. Click on the circled button below
+![click-to-register](Screenshots/login-to-registration-page.png)
+
+2. You will arrive at the registration page. Enter your personal details (first name, last name and your phone number), your username and password to be used for logging into the app.
+
+3. Click on register. You should be able to log into the app now.
+
+## Logging into the app
+You need to log in to be able to use the app.
+
+## Making a new bid
+1. Select an ad where you wish to make a bid, and click on the `bid` button at the last column.
+2. Enter the amount that you wish to bid, then `confirm bid`:
+![bidding-screen](Screenshots/new-bid.png)
+
+## Creating a new ad
+> **Note:** You need to register a car in order to create a new advertisement (and other driver-related features). If you are not a driver, you will be redirected to the car registration page where you will need to register a car.
+
+In order to create a new advertisement, perform the following steps:
+1. Click on `Share a ride`
+![](Screenshots/home-to-create-ad.png)
+2. Fill in the details for the new advertisement. Once done, click on `Create Advertisement`.

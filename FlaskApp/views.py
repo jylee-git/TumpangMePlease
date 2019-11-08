@@ -59,7 +59,9 @@ def render_home_page():
                     form.price.errors.append(
                         'Bidding price should be higher than the minimum price of {}.'.format(min_price))
                 else:
-                    makeBid(current_user.username, time_posted, driver_id, price, no_passengers)
+                    error_message = makeBid(current_user.username, time_posted, driver_id, price, no_passengers)
+                    if error_message:
+                        form.price.errors.append(error_message)
                     return redirect("/")
 
         return render_template("home.html", form=form, current_user=current_user, ad_list=ad_list, bid_list=bid_list)
